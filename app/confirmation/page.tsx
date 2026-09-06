@@ -11,11 +11,41 @@ export default function ConfirmationPage() {
   const [order, setOrder] = useState<OrderData | null>(null);
   const [showContent, setShowContent] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [waveAppUrl, setWaveAppUrl] = useState(
+    'intent:#Intent;package=com.wave.personal;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.wave.personal;end'
+  );
+  const [maxItUrl, setMaxItUrl] = useState(
+    'intent:#Intent;package=com.orange.myorange.sn;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.orange.myorange.sn;end'
+  );
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const ua = navigator.userAgent || '';
+      if (/iPad|iPhone|iPod/.test(ua)) {
+        setWaveAppUrl('wave://');
+        setMaxItUrl('https://apps.apple.com/fr/app/orange-max-it-s%C3%A9n%C3%A9gal/id1527771746');
+      } else if (!/android/i.test(ua)) {
+        setWaveAppUrl('https://play.google.com/store/apps/details?id=com.wave.personal');
+        setMaxItUrl('https://maxit.orange.sn/');
+      }
+    }
+  }, []);
+
+  const handleOpenWave = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const ua = navigator.userAgent || '';
+    if (/iPad|iPhone|iPod/.test(ua)) {
+      e.preventDefault();
+      window.location.href = 'wave://';
+      setTimeout(() => {
+        window.location.href = 'https://apps.apple.com/app/wave-mobile-money/id1487840131';
+      }, 1200);
+    }
   };
 
   useEffect(() => {
@@ -121,9 +151,8 @@ export default function ConfirmationPage() {
 
           <div className="space-y-3">
             <a
-              href="https://wave.com/"
-              target="_blank"
-              rel="noopener noreferrer"
+              href={waveAppUrl}
+              onClick={handleOpenWave}
               className="flex items-center justify-center gap-2.5 w-full py-3.5 bg-[#1DC3F4] text-white text-sm font-semibold tracking-wider uppercase hover:bg-[#0bb2e3] transition-colors shadow-xs"
             >
               <Smartphone size={18} />
@@ -195,9 +224,7 @@ export default function ConfirmationPage() {
               </a>
 
               <a
-                href="https://orange.sn/"
-                target="_blank"
-                rel="noopener noreferrer"
+                href={maxItUrl}
                 className="flex items-center justify-center gap-2 py-3.5 bg-white text-amber-950 border border-amber-400 text-xs sm:text-sm font-semibold tracking-wider uppercase hover:bg-amber-100 transition-colors shadow-xs"
               >
                 <Smartphone size={16} />
