@@ -90,8 +90,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           <PlaceholderProductImage />
         )}
 
-        {/* Badge */}
-        {product.badge && (
+        {/* Badge — only show for Promo or special badges, not Nouveau */}
+        {product.badge && product.badge !== 'Nouveau' && (
           <span className={`absolute top-3 left-3 text-xs font-medium px-2 py-1 tracking-wider uppercase ${
             product.badge === 'Promo'
               ? 'bg-terracotta text-white'

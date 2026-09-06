@@ -68,7 +68,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                   priority
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
-                {product.badge && (
+                {product.badge && product.badge !== 'Nouveau' && (
                   <span className={`absolute top-4 left-4 text-xs font-medium px-2 py-1 tracking-wider uppercase ${
                     product.badge === 'Promo' ? 'bg-terracotta text-white' : 'bg-anthracite text-ivory'
                   }`}>
@@ -86,7 +86,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                   </svg>
                   <span className="text-sm font-medium text-stone tracking-wide uppercase">Photo à venir</span>
                 </div>
-                {product.badge && (
+                {product.badge && product.badge !== 'Nouveau' && (
                   <span className={`absolute top-4 left-4 text-xs font-medium px-2 py-1 tracking-wider uppercase ${
                     product.badge === 'Promo' ? 'bg-terracotta text-white' : 'bg-anthracite text-ivory'
                   }`}>
