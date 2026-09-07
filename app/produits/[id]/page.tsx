@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { Minus, Plus, ShoppingBag, Ruler, ChevronLeft, ChevronRight, ArrowRight, AlertCircle } from 'lucide-react';
+import { Minus, Plus, ShoppingBag, Ruler, ChevronLeft, ChevronRight, ArrowRight, AlertCircle, Maximize2, X } from 'lucide-react';
 import Link from 'next/link';
 import { products } from '@/data/products';
 import { useCart } from '@/context/CartContext';
@@ -22,8 +22,29 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [sizeError, setSizeError] = useState(false);
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
   const sizeSectionRef = useRef<HTMLDivElement>(null);
   const sizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Fullscreen keyboard navigation and scroll lock
+  useEffect(() => {
+    if (!isFullscreenOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsFullscreenOpen(false);
+      } else if (e.key === 'ArrowLeft' && product.images.length > 1) {
+        setSelectedImage(prev => (prev === 0 ? product.images.length - 1 : prev - 1));
+      } else if (e.key === 'ArrowRight' && product.images.length > 1) {
+        setSelectedImage(prev => (prev === product.images.length - 1 ? 0 : prev + 1));
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [isFullscreenOpen, product.images.length]);
 
   // With 6 products in total, pick from the other 5 products regardless of category/gender
   const currentIndex = products.findIndex(p => p.id === product.id || p.slug === product.id);
@@ -68,17 +89,18 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
         {/* Gallery */}
         <div className="flex flex-col gap-3">
-          {/* Main image — capped on mobile (60vh / max 440px), capped on desktop (500px) */}
-          <div className="relative h-[60vh] max-h-[440px] md:h-[500px] md:max-h-[520px] w-full bg-stone/10 overflow-hidden rounded-xs shadow-2xs">
+          {/* Main image — capped on mobile (60vh / max 440px), capped on desktop (500px), full mannequin visible */}
+          <div
+            onClick={() => setIsFullscreenOpen(true)}
+            className="relative h-[60vh] max-h-[440px] md:h-[500px] md:max-h-[520px] w-full bg-[#EDE8E0] overflow-hidden rounded-xs shadow-2xs cursor-zoom-in group"
+          >
             {hasImages ? (
               <>
-                <Image
+                <img
+                  key={`main-img-${selectedImage}`}
                   src={product.images[selectedImage]}
                   alt={`${product.name} - Vue ${selectedImage + 1}`}
-                  fill
-                  className="object-cover transition-opacity duration-300"
-                  priority
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="w-full h-full object-contain transition-opacity duration-300"
                 />
                 {product.badge && product.badge !== 'Nouveau' && (
                   <span className={`absolute top-4 left-4 text-xs font-medium px-2 py-1 tracking-wider uppercase z-10 ${
@@ -87,6 +109,20 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     {product.badge === 'Promo' && product.discount ? `-${product.discount}%` : product.badge}
                   </span>
                 )}
+
+                {/* Fullscreen expand button */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsFullscreenOpen(true);
+                  }}
+                  className="absolute top-3.5 right-3.5 w-8 h-8 md:w-9 md:h-9 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-xs z-20 transition-all cursor-pointer shadow-md hover:scale-105"
+                  aria-label="Afficher en plein écran"
+                  title="Agrandir en plein écran"
+                >
+                  <Maximize2 size={16} />
+                </button>
 
                 {/* Gallery navigation arrows (visible on mobile & desktop) */}
                 {hasImages && product.images.length > 1 && (
@@ -438,6 +474,103 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       </div>
 
       <SizeGuideModal isOpen={sizeGuideOpen} onClose={() => setSizeGuideOpen(false)} />
+
+      {/* Fullscreen Lightbox Modal */}
+      {isFullscreenOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col justify-between select-none"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Mode plein écran"
+        >
+          {/* Top Bar */}
+          <div className="flex items-center justify-between px-4 sm:px-8 py-4 border-b border-white/10 text-white z-30">
+            <div className="flex items-center gap-3">
+              <span className="font-serif text-base sm:text-xl font-semibold text-white line-clamp-1">
+                {product.name}
+              </span>
+              <span className="text-xs bg-white/15 px-3 py-1 rounded-full text-white font-medium tracking-wider">
+                {selectedImage + 1} / {product.images.length}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsFullscreenOpen(false)}
+              className="p-2 sm:px-4 sm:py-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer flex items-center gap-2 text-xs sm:text-sm font-medium"
+              aria-label="Fermer le plein écran"
+            >
+              <X size={20} />
+              <span className="hidden sm:inline">Fermer</span>
+            </button>
+          </div>
+
+          {/* Center Main Image Viewport */}
+          <div className="relative flex-1 w-full h-full flex items-center justify-center p-3 sm:p-8 overflow-hidden">
+            {/* Left arrow */}
+            {product.images.length > 1 && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedImage(prev => (prev === 0 ? product.images.length - 1 : prev - 1));
+                }}
+                className="absolute left-3 sm:left-8 top-1/2 -translate-y-1/2 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center backdrop-blur-md z-30 transition-all cursor-pointer shadow-2xl hover:scale-110 active:scale-95"
+                aria-label="Photo précédente"
+              >
+                <ChevronLeft size={30} />
+              </button>
+            )}
+
+            {/* Main high-res picture with object-contain */}
+            <div className="flex items-center justify-center w-full h-full max-w-6xl max-h-[82vh]">
+              <img
+                key={`fullscreen-img-${selectedImage}`}
+                src={product.images[selectedImage]}
+                alt={`${product.name} - Plein écran ${selectedImage + 1}`}
+                className="max-w-full max-h-[82vh] w-auto h-auto object-contain drop-shadow-2xl select-none"
+              />
+            </div>
+
+            {/* Right arrow */}
+            {product.images.length > 1 && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedImage(prev => (prev === product.images.length - 1 ? 0 : prev + 1));
+                }}
+                className="absolute right-3 sm:right-8 top-1/2 -translate-y-1/2 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center backdrop-blur-md z-30 transition-all cursor-pointer shadow-2xl hover:scale-110 active:scale-95"
+                aria-label="Photo suivante"
+              >
+                <ChevronRight size={30} />
+              </button>
+            )}
+          </div>
+
+          {/* Bottom thumbnails strip */}
+          {product.images.length > 1 && (
+            <div className="px-4 py-3 bg-black/60 border-t border-white/10 z-30">
+              <div className="flex justify-center overflow-x-auto gap-2.5 max-w-4xl mx-auto no-scrollbar py-1">
+                {product.images.map((img, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setSelectedImage(i)}
+                    className={`relative w-12 sm:w-16 aspect-[3/4] flex-shrink-0 bg-white/10 overflow-hidden border-2 transition-all duration-150 rounded-xs ${
+                      selectedImage === i
+                        ? 'border-white scale-105 ring-2 ring-white shadow-lg'
+                        : 'border-white/20 opacity-60 hover:opacity-100'
+                    }`}
+                    aria-label={`Photo ${i + 1}`}
+                  >
+                    <Image src={img} alt={`Miniature ${i + 1}`} fill className="object-cover" sizes="64px" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
