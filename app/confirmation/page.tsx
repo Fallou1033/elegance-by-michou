@@ -67,7 +67,6 @@ export default function ConfirmationPage() {
   }
 
   const PAYMENT_LABELS: Record<string, string> = {
-    cash: 'Paiement à la livraison',
     wave: 'Wave',
     'orange-money': 'Orange Money',
   };

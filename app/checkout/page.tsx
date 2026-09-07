@@ -10,7 +10,7 @@ import OrderSummary from '@/components/checkout/OrderSummary';
 import { SENEGAL_CITIES } from '@/data/products';
 import { FREE_SHIPPING_THRESHOLD, SHIPPING_COST } from '@/data/products';
 
-type PaymentMethod = 'cash' | 'wave' | 'orange-money';
+type PaymentMethod = 'wave' | 'orange-money';
 
 interface FormData {
   fullName: string;
@@ -30,7 +30,7 @@ interface FormErrors {
 export default function CheckoutPage() {
   const { items, isLoaded, getCartTotal, clearCart } = useCart();
   const router = useRouter();
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('wave');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     fullName: '',

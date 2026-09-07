@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Copy, Check } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 
-export type PaymentMethod = 'cash' | 'wave' | 'orange-money';
+export type PaymentMethod = 'wave' | 'orange-money';
 
 interface PaymentSelectorProps {
   value: PaymentMethod;
@@ -13,18 +13,6 @@ interface PaymentSelectorProps {
 }
 
 const PAYMENT_METHODS = [
-  {
-    id: 'cash' as PaymentMethod,
-    label: 'Paiement à la livraison',
-    description: 'Payez en espèces à la réception de votre colis',
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <rect x="2" y="7" width="20" height="14" rx="2"/>
-        <path d="M16 3H8L2 7h20l-6-4z"/>
-        <circle cx="12" cy="14" r="2"/>
-      </svg>
-    ),
-  },
   {
     id: 'wave' as PaymentMethod,
     label: 'Wave',
