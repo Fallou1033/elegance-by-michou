@@ -89,10 +89,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
         {/* Gallery */}
         <div className="flex flex-col gap-3">
-          {/* Main image — capped on mobile (60vh / max 440px), capped on desktop (500px), full mannequin visible */}
+          {/* Main image — edge-to-edge coverage, no vertical bands, top-anchored so head is never cut */}
           <div
             onClick={() => setIsFullscreenOpen(true)}
-            className="relative h-[60vh] max-h-[440px] md:h-[500px] md:max-h-[520px] w-full bg-[#EDE8E0] overflow-hidden rounded-xs shadow-2xs cursor-zoom-in group"
+            className="relative h-[60vh] max-h-[440px] md:h-[520px] md:max-h-[560px] w-full bg-stone/10 overflow-hidden rounded-xs shadow-2xs cursor-zoom-in group"
           >
             {hasImages ? (
               <>
@@ -100,7 +100,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                   key={`main-img-${selectedImage}`}
                   src={product.images[selectedImage]}
                   alt={`${product.name} - Vue ${selectedImage + 1}`}
-                  className="w-full h-full object-contain transition-opacity duration-300"
+                  className="w-full h-full object-cover object-top transition-opacity duration-300"
                 />
                 {product.badge && product.badge !== 'Nouveau' && (
                   <span className={`absolute top-4 left-4 text-xs font-medium px-2 py-1 tracking-wider uppercase z-10 ${
