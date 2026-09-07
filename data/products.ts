@@ -19,6 +19,10 @@ export const products: Product[] = [
     ],
     "colors": [
       {
+        "name": "Turquoise Cérémonie",
+        "hex": "#00A896"
+      },
+      {
         "name": "Noir Impérial",
         "hex": "#1A1A1A"
       },
@@ -27,8 +31,24 @@ export const products: Product[] = [
         "hex": "#C5A059"
       },
       {
+        "name": "Bleu Roi",
+        "hex": "#1F51FF"
+      },
+      {
         "name": "Bleu Marine",
         "hex": "#1F3A5F"
+      },
+      {
+        "name": "Blanc d'Apparat",
+        "hex": "#FAF9F6"
+      },
+      {
+        "name": "Bordeaux Majestueux",
+        "hex": "#6B1D2F"
+      },
+      {
+        "name": "Vert Émeraude",
+        "hex": "#124E3F"
       }
     ],
     "images": [
@@ -71,6 +91,10 @@ export const products: Product[] = [
     ],
     "colors": [
       {
+        "name": "Blanc Pur",
+        "hex": "#FFFFFF"
+      },
+      {
         "name": "Bleu Ciel",
         "hex": "#87CEEB"
       },
@@ -79,12 +103,24 @@ export const products: Product[] = [
         "hex": "#A89F91"
       },
       {
-        "name": "Blanc Pur",
-        "hex": "#FFFFFF"
-      },
-      {
         "name": "Terracotta",
         "hex": "#C4704F"
+      },
+      {
+        "name": "Beige Sable",
+        "hex": "#D2B48C"
+      },
+      {
+        "name": "Vert Sauge",
+        "hex": "#9CAF88"
+      },
+      {
+        "name": "Kaki Olive",
+        "hex": "#556B2F"
+      },
+      {
+        "name": "Noir Charbon",
+        "hex": "#222222"
       }
     ],
     "images": [
@@ -139,6 +175,30 @@ export const products: Product[] = [
       {
         "name": "Bleu Roi",
         "hex": "#2A52BE"
+      },
+      {
+        "name": "Noir Ébène",
+        "hex": "#1A1A1A"
+      },
+      {
+        "name": "Jaune Or",
+        "hex": "#D4AF37"
+      },
+      {
+        "name": "Marron Chocolat",
+        "hex": "#4A2C11"
+      },
+      {
+        "name": "Vert Bouteille",
+        "hex": "#1B4D3E"
+      },
+      {
+        "name": "Bleu Ciel Nacré",
+        "hex": "#A0C4E2"
+      },
+      {
+        "name": "Bordeaux Impérial",
+        "hex": "#5E1914"
       }
     ],
     "images": [
@@ -181,6 +241,34 @@ export const products: Product[] = [
       {
         "name": "Blanc Broderie",
         "hex": "#FAF9F6"
+      },
+      {
+        "name": "Rose Poudré",
+        "hex": "#F4C2C2"
+      },
+      {
+        "name": "Noir Élégant",
+        "hex": "#1A1A1A"
+      },
+      {
+        "name": "Bleu Ciel",
+        "hex": "#87CEEB"
+      },
+      {
+        "name": "Terracotta Pastel",
+        "hex": "#D9826C"
+      },
+      {
+        "name": "Vert Sauge",
+        "hex": "#9CAF88"
+      },
+      {
+        "name": "Jaune Pastel",
+        "hex": "#FDEAA8"
+      },
+      {
+        "name": "Lavande Douce",
+        "hex": "#BDB0D0"
       }
     ],
     "images": [
@@ -226,6 +314,26 @@ export const products: Product[] = [
       {
         "name": "Beige Sable",
         "hex": "#C8B89A"
+      },
+      {
+        "name": "Bleu Marine",
+        "hex": "#1F3A5F"
+      },
+      {
+        "name": "Gris Anthracite",
+        "hex": "#4A4A4A"
+      },
+      {
+        "name": "Vert Olive",
+        "hex": "#556B2F"
+      },
+      {
+        "name": "Marron Tabac",
+        "hex": "#5D4037"
+      },
+      {
+        "name": "Blanc Craie",
+        "hex": "#F5F5F0"
       }
     ],
     "images": [
@@ -266,8 +374,16 @@ export const products: Product[] = [
         "hex": "#1F51FF"
       },
       {
+        "name": "Noir Profond",
+        "hex": "#1A1A1A"
+      },
+      {
         "name": "Gris Anthracite",
         "hex": "#3D3D3D"
+      },
+      {
+        "name": "Blanc d'Apparat",
+        "hex": "#FAF9F6"
       },
       {
         "name": "Aubergine Foncé",
@@ -276,6 +392,14 @@ export const products: Product[] = [
       {
         "name": "Bleu Nuit",
         "hex": "#1A2B4C"
+      },
+      {
+        "name": "Vert Forêt",
+        "hex": "#1B4D3E"
+      },
+      {
+        "name": "Beige Café au Lait",
+        "hex": "#C4A482"
       }
     ],
     "images": [

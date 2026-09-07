@@ -232,7 +232,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             <p className="text-xs font-semibold uppercase tracking-wider text-anthracite mb-2">
               Couleur : <span className="font-normal text-stone normal-case tracking-normal">{selectedColor}</span>
             </p>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2.5 items-center">
               {product.colors.map(color => (
                 <button
                   key={color.name}
@@ -240,8 +240,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                   title={color.name}
                   className={`w-8 h-8 rounded-full border-2 transition-all duration-150 ${
                     selectedColor === color.name
-                      ? 'border-anthracite scale-110 shadow-md'
-                      : 'border-stone/20 hover:border-stone hover:scale-105'
+                      ? 'border-anthracite scale-110 shadow-md ring-2 ring-anthracite/20'
+                      : 'border-stone/25 hover:border-stone/60 hover:scale-105'
                   }`}
                   style={{ backgroundColor: color.hex }}
                   aria-label={color.name}

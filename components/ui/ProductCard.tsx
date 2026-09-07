@@ -113,7 +113,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Color selector */}
         {hasColors && (
-          <div className="flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1.5">
             {product.colors.map(color => (
               <button
                 key={color.name}
@@ -126,8 +126,8 @@ export default function ProductCard({ product }: ProductCardProps) {
                 title={color.name}
                 className={`w-5 h-5 rounded-full border-2 transition-transform hover:scale-110 ${
                   selectedColor === color.name
-                    ? 'border-anthracite scale-110'
-                    : 'border-transparent'
+                    ? 'border-anthracite scale-110 shadow-xs'
+                    : 'border-stone/25 hover:border-stone/60'
                 }`}
                 style={{ backgroundColor: color.hex }}
                 aria-label={color.name}
