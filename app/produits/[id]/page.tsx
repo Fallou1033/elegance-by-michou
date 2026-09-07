@@ -65,11 +65,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         </Link>
       </nav>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
         {/* Gallery */}
         <div className="flex flex-col gap-3">
-          {/* Main image — capped on mobile (60vh / max 440px), original aspect ratio on desktop */}
-          <div className="relative h-[60vh] max-h-[440px] md:h-auto md:max-h-none md:aspect-[3/4] w-full bg-stone/10 overflow-hidden rounded-xs shadow-2xs">
+          {/* Main image — capped on mobile (60vh / max 440px), capped on desktop (500px) */}
+          <div className="relative h-[60vh] max-h-[440px] md:h-[500px] md:max-h-[520px] w-full bg-stone/10 overflow-hidden rounded-xs shadow-2xs">
             {hasImages ? (
               <>
                 <Image
@@ -88,7 +88,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                   </span>
                 )}
 
-                {/* Mobile gallery navigation arrows */}
+                {/* Gallery navigation arrows (visible on mobile & desktop) */}
                 {hasImages && product.images.length > 1 && (
                   <>
                     <button
@@ -97,10 +97,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                         e.stopPropagation();
                         setSelectedImage(prev => (prev === 0 ? product.images.length - 1 : prev - 1));
                       }}
-                      className="md:hidden absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center backdrop-blur-xs z-20 transition-colors"
+                      className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-xs z-20 transition-all cursor-pointer shadow-md"
                       aria-label="Photo précédente"
                     >
-                      <ChevronLeft size={18} />
+                      <ChevronLeft size={20} />
                     </button>
                     <button
                       type="button"
@@ -108,30 +108,35 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                         e.stopPropagation();
                         setSelectedImage(prev => (prev === product.images.length - 1 ? 0 : prev + 1));
                       }}
-                      className="md:hidden absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center backdrop-blur-xs z-20 transition-colors"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-xs z-20 transition-all cursor-pointer shadow-md"
                       aria-label="Photo suivante"
                     >
-                      <ChevronRight size={18} />
+                      <ChevronRight size={20} />
                     </button>
                   </>
                 )}
 
-                {/* Mobile overlay: Product name, price and gallery position indicator */}
-                <div className="md:hidden absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pt-14 pb-3.5 px-4 flex items-end justify-between gap-3 pointer-events-none z-10">
+                {/* Overlay: Product name, price and gallery position indicator (mobile & desktop) */}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent pt-16 pb-4 px-4 md:px-5 flex items-end justify-between gap-3 pointer-events-none z-10">
                   <div className="flex-1 min-w-0">
-                    <p className="text-[11px] text-ivory/80 uppercase tracking-widest font-medium mb-0.5 truncate">
+                    <p className="text-[11px] md:text-xs text-ivory/80 uppercase tracking-widest font-medium mb-0.5 truncate">
                       {product.gender === 'homme' ? 'Homme' : product.gender === 'unisexe' ? 'Unisexe' : 'Femme'} · {product.categoryLabel || product.category}
                     </p>
-                    <h1 className="font-serif text-lg sm:text-xl font-semibold text-white leading-tight line-clamp-2 drop-shadow-xs">
+                    <h1 className="font-serif text-lg sm:text-xl md:text-2xl font-semibold text-white leading-tight line-clamp-2 drop-shadow-xs">
                       {product.name}
                     </h1>
-                    <div className="mt-1 flex items-baseline gap-2">
-                      <span className="text-lg font-bold text-white drop-shadow-xs">
+                    <div className="mt-1 flex items-baseline gap-2.5">
+                      <span className="text-lg md:text-xl font-bold text-white drop-shadow-xs">
                         {formatPrice(product.price)}
                       </span>
                       {product.originalPrice && (
-                        <span className="text-xs text-ivory/70 line-through">
+                        <span className="text-xs md:text-sm text-ivory/70 line-through">
                           {formatPrice(product.originalPrice)}
+                        </span>
+                      )}
+                      {product.discount && (
+                        <span className="text-xs bg-terracotta text-white px-1.5 py-0.5 font-medium rounded-xs">
+                          -{product.discount}%
                         </span>
                       )}
                     </div>
@@ -139,7 +144,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
                   {/* Gallery position indicator */}
                   {hasImages && product.images.length > 1 && (
-                    <div className="flex-shrink-0 bg-black/60 backdrop-blur-xs px-2.5 py-1 rounded-full text-[11px] font-semibold text-white tracking-wider border border-white/20 shadow-xs">
+                    <div className="flex-shrink-0 bg-black/60 backdrop-blur-xs px-2.5 md:px-3 py-1 rounded-full text-[11px] md:text-xs font-semibold text-white tracking-wider border border-white/20 shadow-xs">
                       {selectedImage + 1} / {product.images.length}
                     </div>
                   )}
@@ -162,17 +167,17 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     {product.badge === 'Promo' && product.discount ? `-${product.discount}%` : product.badge}
                   </span>
                 )}
-                {/* Mobile overlay for placeholder */}
-                <div className="md:hidden absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pt-14 pb-3.5 px-4 flex items-end justify-between gap-3 pointer-events-none z-10">
+                {/* Overlay for placeholder */}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent pt-16 pb-4 px-4 md:px-5 flex items-end justify-between gap-3 pointer-events-none z-10">
                   <div className="flex-1 min-w-0">
-                    <p className="text-[11px] text-ivory/80 uppercase tracking-widest font-medium mb-0.5 truncate">
+                    <p className="text-[11px] md:text-xs text-ivory/80 uppercase tracking-widest font-medium mb-0.5 truncate">
                       {product.gender === 'homme' ? 'Homme' : product.gender === 'unisexe' ? 'Unisexe' : 'Femme'} · {product.categoryLabel || product.category}
                     </p>
-                    <h1 className="font-serif text-lg sm:text-xl font-semibold text-white leading-tight line-clamp-2 drop-shadow-xs">
+                    <h1 className="font-serif text-lg sm:text-xl md:text-2xl font-semibold text-white leading-tight line-clamp-2 drop-shadow-xs">
                       {product.name}
                     </h1>
                     <div className="mt-1 flex items-baseline gap-2">
-                      <span className="text-lg font-bold text-white drop-shadow-xs">
+                      <span className="text-lg md:text-xl font-bold text-white drop-shadow-xs">
                         {formatPrice(product.price)}
                       </span>
                     </div>
@@ -181,15 +186,16 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               </>
             )}
           </div>
-          {/* Thumbnails — single horizontal scroll row on mobile, wrapped on desktop */}
+          {/* Thumbnails — single horizontal scroll row on both mobile and desktop */}
           {hasImages && product.images.length > 1 && (
-            <div className="flex overflow-x-auto md:flex-wrap gap-2 pt-1 pb-1 no-scrollbar scroll-smooth">
+            <div className="flex overflow-x-auto gap-2 pt-1 pb-1 no-scrollbar scroll-smooth">
               {product.images.map((img, i) => (
                 <button
                   key={i}
+                  type="button"
                   onClick={() => setSelectedImage(i)}
-                  className={`relative w-14 md:w-16 aspect-[3/4] flex-shrink-0 bg-stone/10 overflow-hidden border-2 transition-all duration-150 ${
-                    selectedImage === i ? 'border-anthracite shadow-sm scale-105' : 'border-transparent hover:border-stone/40'
+                  className={`relative w-14 md:w-16 aspect-[3/4] flex-shrink-0 bg-stone/10 overflow-hidden border-2 transition-all duration-150 rounded-xs ${
+                    selectedImage === i ? 'border-anthracite shadow-sm scale-105 ring-1 ring-anthracite' : 'border-transparent hover:border-stone/40 opacity-70 hover:opacity-100'
                   }`}
                   aria-label={`Afficher vue ${i + 1}`}
                 >
@@ -201,31 +207,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         </div>
 
         {/* Product info */}
-        <div className="flex flex-col gap-4 md:gap-6">
-          {/* Desktop-only title & price (on mobile it is cleanly overlaid on the photo) */}
-          <div className="hidden md:block">
-            <p className="text-xs text-stone uppercase tracking-widest mb-1">
-              {product.gender === 'homme' ? 'Homme' : product.gender === 'unisexe' ? 'Unisexe' : 'Femme'} · {product.categoryLabel || product.category}
-            </p>
-            <h1 className="font-serif text-3xl md:text-4xl font-semibold text-anthracite">{product.name}</h1>
-            <div className="mt-3">
-              {product.originalPrice ? (
-                <div className="flex items-baseline gap-3">
-                  <span className="text-2xl font-bold text-terracotta">{formatPrice(product.price)}</span>
-                  <span className="text-base text-stone line-through">{formatPrice(product.originalPrice)}</span>
-                  {product.discount && (
-                    <span className="text-sm bg-terracotta/10 text-terracotta px-2 py-0.5 font-medium">
-                      -{product.discount}%
-                    </span>
-                  )}
-                </div>
-              ) : (
-                <span className="text-2xl font-bold text-anthracite">{formatPrice(product.price)}</span>
-              )}
-            </div>
-          </div>
-
-          <p className="text-stone leading-relaxed">{product.description}</p>
+        <div className="flex flex-col gap-4 md:gap-5">
+          <p className="text-stone leading-relaxed text-sm md:text-base">{product.description}</p>
 
           {/* Color selector */}
           <div>
