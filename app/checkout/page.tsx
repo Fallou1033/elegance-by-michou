@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft, AlertCircle } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
-import { generateOrderNumber } from '@/lib/utils';
+import { generateOrderNumber, getItemUnitPrice, getProductTotalQtyInCart } from '@/lib/utils';
 import PaymentSelector from '@/components/checkout/PaymentSelector';
 import OrderSummary from '@/components/checkout/OrderSummary';
 import { SENEGAL_CITIES } from '@/data/products';
@@ -90,6 +90,18 @@ export default function CheckoutPage() {
     await new Promise(resolve => setTimeout(resolve, 600));
 
     const orderNumber = generateOrderNumber();
+    const orderItems = items.map(item => {
+      const totalQty = getProductTotalQtyInCart(items, item.product.id);
+      const unitPrice = getItemUnitPrice(item.product, totalQty);
+      return {
+        ...item,
+        product: {
+          ...item.product,
+          price: unitPrice,
+        },
+      };
+    });
+
     const orderData = {
       orderNumber,
       customerName: formData.fullName,
@@ -98,7 +110,7 @@ export default function CheckoutPage() {
       city: formData.city,
       notes: formData.notes,
       paymentMethod,
-      items,
+      items: orderItems,
       subtotal,
       shipping,
       total,

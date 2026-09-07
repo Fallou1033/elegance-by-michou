@@ -6,13 +6,15 @@ import { Minus, Plus, ShoppingBag, Ruler, ChevronLeft, ChevronRight, ArrowRight,
 import Link from 'next/link';
 import { products } from '@/data/products';
 import { useCart } from '@/context/CartContext';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, BULK_DISCOUNT_RULES } from '@/lib/utils';
 import SizeGuideModal from '@/components/ui/SizeGuideModal';
 import ProductCard from '@/components/ui/ProductCard';
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   const product = products.find(p => p.id === params.id || p.slug === params.id);
   if (!product) notFound();
+
+  const bulkRule = BULK_DISCOUNT_RULES[product.id];
 
   const { addToCart, openDrawer } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
@@ -54,6 +56,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   ].filter(p => p.id !== product.id && p.slug !== product.slug);
   const relatedProducts = otherProducts.slice(0, 4);
 
+  const isBulkDiscountEligible = !!bulkRule && quantity >= bulkRule.minQty;
+  const currentUnitPrice = isBulkDiscountEligible ? bulkRule.discountedPrice : product.price;
+  const totalPriceForQuantity = currentUnitPrice * quantity;
+  const totalSavingsForQuantity = (product.price - currentUnitPrice) * quantity;
+
   const handleAddToCart = () => {
     if (!selectedSize) {
       setSizeError(true);
@@ -63,7 +70,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       return;
     }
     setSizeError(false);
-    addToCart(product, selectedSize, selectedColor);
+    addToCart(product, selectedSize, selectedColor, quantity);
     setAddedToCart(true);
     setTimeout(() => {
       setAddedToCart(false);
@@ -163,18 +170,26 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     </h1>
                     <div className="mt-1 flex items-baseline gap-2.5">
                       <span className="text-lg md:text-xl font-bold text-white drop-shadow-xs">
-                        {formatPrice(product.price)}
+                        {formatPrice(currentUnitPrice)}
                       </span>
-                      {product.originalPrice && (
+                      {product.originalPrice ? (
                         <span className="text-xs md:text-sm text-ivory/70 line-through">
                           {formatPrice(product.originalPrice)}
                         </span>
-                      )}
-                      {product.discount && (
+                      ) : isBulkDiscountEligible ? (
+                        <span className="text-xs md:text-sm text-ivory/70 line-through">
+                          {formatPrice(product.price)}
+                        </span>
+                      ) : null}
+                      {product.discount ? (
                         <span className="text-xs bg-terracotta text-white px-1.5 py-0.5 font-medium rounded-xs">
                           -{product.discount}%
                         </span>
-                      )}
+                      ) : isBulkDiscountEligible ? (
+                        <span className="text-xs bg-green-600 text-white px-1.5 py-0.5 font-medium rounded-xs">
+                          Tarif volume
+                        </span>
+                      ) : null}
                     </div>
                   </div>
 
@@ -245,6 +260,35 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         {/* Product info */}
         <div className="flex flex-col gap-4 md:gap-5">
           <p className="text-stone leading-relaxed text-sm md:text-base">{product.description}</p>
+
+          {/* Volume offer banner */}
+          {bulkRule && (
+            <div className="bg-amber-50/90 border border-amber-300/80 rounded-xl p-3.5 sm:p-4 flex items-start gap-3 shadow-xs">
+              <span className="text-2xl leading-none flex-shrink-0">✨</span>
+              <div className="text-xs sm:text-sm space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-bold text-amber-950">Offre spéciale volume &amp; revendeurs</span>
+                  <span className="bg-amber-200 text-amber-900 text-[11px] font-semibold px-2 py-0.5 rounded-full">
+                    Plus de 5 articles
+                  </span>
+                </div>
+                <p className="text-amber-900 leading-relaxed">
+                  Pour plus de 5 articles achetés (dès 6 robes), le prix unitaire passe à{' '}
+                  <strong className="text-terracotta font-bold text-sm sm:text-base">{formatPrice(bulkRule.discountedPrice)}</strong> au lieu de{' '}
+                  <span className="line-through text-stone">{formatPrice(bulkRule.normalPrice)}</span> !
+                </p>
+                {quantity < bulkRule.minQty ? (
+                  <p className="text-[11px] sm:text-xs text-amber-800 font-medium">
+                    💡 Sélectionnez {bulkRule.minQty} pièces ou plus pour profiter de 2 000 FCFA de remise par robe.
+                  </p>
+                ) : (
+                  <p className="text-[11px] sm:text-xs text-green-700 font-bold flex items-center gap-1">
+                    <span>✓</span> Remise volume activée : {formatPrice(totalSavingsForQuantity)} d&apos;économie immédiate !
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Color selector */}
           <div>
@@ -317,7 +361,18 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
           {/* Quantity */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-anthracite mb-2">Quantité</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-semibold uppercase tracking-wider text-anthracite">Quantité</p>
+              {bulkRule && quantity < bulkRule.minQty && (
+                <button
+                  type="button"
+                  onClick={() => setQuantity(bulkRule.minQty)}
+                  className="text-xs text-terracotta font-medium hover:underline flex items-center gap-1"
+                >
+                  <span>Passer à {bulkRule.minQty} robes (11 000 FCFA/u)</span>
+                </button>
+              )}
+            </div>
             <div className="flex items-center gap-0 border border-stone/30 w-fit">
               <button
                 onClick={() => setQuantity(q => Math.max(1, q - 1))}
@@ -337,6 +392,12 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 <Plus size={14} />
               </button>
             </div>
+            {isBulkDiscountEligible && (
+              <p className="text-xs text-green-700 font-medium mt-1.5 flex items-center gap-1.5">
+                <span className="inline-block w-2 h-2 rounded-full bg-green-600"></span>
+                <span>Tarif volume appliqué : {formatPrice(currentUnitPrice)} × {quantity} = {formatPrice(totalPriceForQuantity)}</span>
+              </p>
+            )}
           </div>
 
           {/* Add to cart - desktop */}
@@ -367,7 +428,12 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               ) : (
                 <>
                   <ShoppingBag size={18} />
-                  {`Ajouter au panier — ${formatPrice(product.price * quantity)}`}
+                  <span>{`Ajouter au panier — ${formatPrice(totalPriceForQuantity)}`}</span>
+                  {totalSavingsForQuantity > 0 && (
+                    <span className="bg-terracotta text-white text-[11px] font-bold px-2 py-0.5 rounded-full ml-1 normal-case tracking-normal">
+                      -{formatPrice(totalSavingsForQuantity)}
+                    </span>
+                  )}
                 </>
               )}
             </button>
@@ -467,7 +533,12 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           ) : (
             <>
               <ShoppingBag size={18} />
-              <span>Ajouter — {formatPrice(product.price * quantity)}</span>
+              <span>Ajouter — {formatPrice(totalPriceForQuantity)}</span>
+              {totalSavingsForQuantity > 0 && (
+                <span className="bg-terracotta text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-1 normal-case tracking-normal">
+                  -{formatPrice(totalSavingsForQuantity)}
+                </span>
+              )}
             </>
           )}
         </button>

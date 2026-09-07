@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { Check, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import type { Product } from '@/types';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, BULK_DISCOUNT_RULES } from '@/lib/utils';
 import PlaceholderProductImage from './PlaceholderProductImage';
 
 interface ProductCardProps {
@@ -109,7 +109,14 @@ export default function ProductCard({ product }: ProductCardProps) {
             {product.name}
           </h3>
         </Link>
-        <div className="text-sm">{displayPrice}</div>
+        <div className="text-sm flex items-center justify-between gap-1 flex-wrap">
+          {displayPrice}
+          {BULK_DISCOUNT_RULES[product.id] && (
+            <span className="text-[10px] font-semibold text-terracotta bg-terracotta/10 px-1.5 py-0.5 rounded tracking-normal">
+              11 000 dès 6 pcs
+            </span>
+          )}
+        </div>
 
         {/* Color selector */}
         {hasColors && (

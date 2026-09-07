@@ -4,7 +4,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { X, ShoppingBag, Minus, Plus, Trash2 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
-import { formatPrice } from '@/lib/utils';
+import {
+  formatPrice,
+  getItemUnitPrice,
+  getProductTotalQtyInCart,
+  calculateCartSavings,
+} from '@/lib/utils';
 import { SHIPPING_COST, FREE_SHIPPING_THRESHOLD } from '@/data/products';
 
 export default function CartDrawer() {
@@ -13,6 +18,8 @@ export default function CartDrawer() {
   const total = getCartTotal();
   const shipping = total >= FREE_SHIPPING_THRESHOLD || total === 0 ? 0 : SHIPPING_COST;
   const grandTotal = total + shipping;
+  const totalSavings = calculateCartSavings(items);
+  const totalMiniRobes = getProductTotalQtyInCart(items, 'mini-robe-brode-anglais-100-coton');
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -85,58 +92,95 @@ export default function CartDrawer() {
           <>
             {/* Items */}
             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-              {items.map(item => (
-                <div key={item.cartItemId} className="flex gap-4 py-4 border-b border-stone/10 last:border-0">
-                  <div className="relative w-20 h-24 flex-shrink-0 bg-stone/10">
-                    <Image
-                      src={item.product.images[0]}
-                      alt={item.product.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-anthracite truncate">{item.product.name}</p>
-                    <p className="text-xs text-stone mt-0.5">
-                      {item.selectedSize} · {item.selectedColor}
-                    </p>
-                    <p className="text-sm font-semibold text-anthracite mt-1">
-                      {formatPrice(item.product.price)}
-                    </p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <button
-                        onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
-                        className="w-7 h-7 flex items-center justify-center border border-stone/30 hover:border-anthracite transition-colors"
-                        aria-label="Diminuer la quantité"
-                      >
-                        <Minus size={12} />
-                      </button>
-                      <span className="text-sm font-medium w-6 text-center">{item.quantity}</span>
-                      <button
-                        onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
-                        className="w-7 h-7 flex items-center justify-center border border-stone/30 hover:border-anthracite transition-colors"
-                        aria-label="Augmenter la quantité"
-                      >
-                        <Plus size={12} />
-                      </button>
-                      <span className="ml-auto text-sm font-semibold">
-                        {formatPrice(item.product.price * item.quantity)}
-                      </span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => removeFromCart(item.cartItemId)}
-                    className="self-start p-1.5 text-stone hover:text-red-500 transition-colors"
-                    aria-label="Supprimer l'article"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+              {/* Dynamic bulk promotion banner for mini robes */}
+              {totalMiniRobes > 0 && totalMiniRobes <= 5 && (
+                <div className="p-3 bg-amber-50 border border-amber-200 text-xs text-amber-950 rounded-xs flex items-center justify-between">
+                  <span>💡 Ajoutez encore <strong>{6 - totalMiniRobes}</strong> mini robe{6 - totalMiniRobes > 1 ? 's' : ''} (total &gt; 5) pour bénéficier du tarif de <strong>11 000 FCFA</strong> / robe !</span>
                 </div>
-              ))}
+              )}
+              {totalMiniRobes >= 6 && (
+                <div className="p-3 bg-green-50 border border-green-200 text-xs text-green-950 rounded-xs flex items-center justify-between">
+                  <span>🎉 <strong>Offre volume appliquée</strong> : vos mini robes passent à <strong>11 000 FCFA</strong> / pièce (économie de {formatPrice((13000 - 11000) * totalMiniRobes)}) !</span>
+                </div>
+              )}
+
+              {items.map(item => {
+                const totalModelQty = getProductTotalQtyInCart(items, item.product.id);
+                const unitPrice = getItemUnitPrice(item.product, totalModelQty);
+                const isDiscounted = unitPrice < item.product.price;
+                const lineTotal = unitPrice * item.quantity;
+
+                return (
+                  <div key={item.cartItemId} className="flex gap-4 py-4 border-b border-stone/10 last:border-0">
+                    <div className="relative w-20 h-24 flex-shrink-0 bg-stone/10">
+                      <Image
+                        src={item.product.images[0]}
+                        alt={item.product.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-anthracite truncate">{item.product.name}</p>
+                      <p className="text-xs text-stone mt-0.5">
+                        {item.selectedSize} · {item.selectedColor}
+                      </p>
+                      <div className="flex items-baseline gap-2 mt-1">
+                        <span className={`text-sm font-semibold ${isDiscounted ? 'text-terracotta' : 'text-anthracite'}`}>
+                          {formatPrice(unitPrice)}
+                        </span>
+                        {isDiscounted && (
+                          <span className="text-xs text-stone line-through">
+                            {formatPrice(item.product.price)}
+                          </span>
+                        )}
+                        {isDiscounted && (
+                          <span className="text-[10px] bg-terracotta/10 text-terracotta font-semibold px-1.5 py-0.5 rounded">
+                            Tarif volume (&gt;5)
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <button
+                          onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
+                          className="w-7 h-7 flex items-center justify-center border border-stone/30 hover:border-anthracite transition-colors cursor-pointer"
+                          aria-label="Diminuer la quantité"
+                        >
+                          <Minus size={12} />
+                        </button>
+                        <span className="text-sm font-medium w-6 text-center">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
+                          className="w-7 h-7 flex items-center justify-center border border-stone/30 hover:border-anthracite transition-colors cursor-pointer"
+                          aria-label="Augmenter la quantité"
+                        >
+                          <Plus size={12} />
+                        </button>
+                        <span className="ml-auto text-sm font-semibold">
+                          {formatPrice(lineTotal)}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => removeFromCart(item.cartItemId)}
+                      className="self-start p-1.5 text-stone hover:text-red-500 transition-colors cursor-pointer"
+                      aria-label="Supprimer l'article"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
 
             {/* Footer */}
             <div className="border-t border-stone/20 px-6 py-6 space-y-3 bg-white">
+              {totalSavings > 0 && (
+                <div className="flex justify-between text-xs text-green-700 font-semibold bg-green-50 p-2 border border-green-200 rounded-xs">
+                  <span>✨ Économie tarif de gros (&gt;5 robes)</span>
+                  <span>-{formatPrice(totalSavings)}</span>
+                </div>
+              )}
               {shipping === 0 ? (
                 <div className="flex justify-between text-xs text-green-600 font-medium">
                   <span>🎉 Livraison offerte !</span>
