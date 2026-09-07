@@ -1,6 +1,6 @@
 'use client';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft, AlertCircle } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
@@ -27,11 +27,14 @@ interface FormErrors {
   city?: string;
 }
 
-export default function CheckoutPage() {
-  const { items, isLoaded, getCartTotal, clearCart } = useCart();
+function CheckoutForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isCanceled = searchParams.get('paytech') === 'cancel' || searchParams.get('canceled') === 'true';
+  const { items, isLoaded, getCartTotal, clearCart } = useCart();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('wave');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submittingStep, setSubmittingStep] = useState('');
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
     phone: '',
@@ -87,7 +90,7 @@ export default function CheckoutPage() {
     }
 
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 600));
+    setSubmittingStep('Connexion sécurisée à PayTech...');
 
     const orderNumber = generateOrderNumber();
     const orderItems = items.map(item => {
@@ -117,9 +120,37 @@ export default function CheckoutPage() {
       createdAt: new Date().toISOString(),
     };
 
+    // Sauvegarde locale de la commande
     localStorage.setItem('lastOrder', JSON.stringify(orderData));
-    clearCart();
-    router.push('/confirmation');
+
+    try {
+      const response = await fetch('/api/paytech/payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData),
+      });
+
+      const data = await response.json();
+
+      if (data?.success && data?.redirectUrl) {
+        setSubmittingStep('Redirection vers le paiement...');
+        clearCart();
+        window.location.href = data.redirectUrl;
+        return;
+      }
+
+      // Si PayTech signale que le compte prod est en attente d'activation ou en cas d'erreur
+      console.warn('PayTech réponse :', data);
+      clearCart();
+      router.push(`/confirmation?ref=${encodeURIComponent(orderNumber)}&mode=direct`);
+    } catch (err) {
+      console.error('Erreur appel PayTech :', err);
+      clearCart();
+      router.push(`/confirmation?ref=${encodeURIComponent(orderNumber)}&mode=direct`);
+    } finally {
+      setIsSubmitting(false);
+      setSubmittingStep('');
+    }
   };
 
   if (!isLoaded) {
@@ -155,6 +186,16 @@ export default function CheckoutPage() {
         </Link>
       </nav>
       <h1 className="font-serif text-3xl md:text-4xl font-semibold text-anthracite mb-8">Finaliser ma commande</h1>
+
+      {isCanceled && (
+        <div className="mb-8 p-4 bg-amber-50 border border-amber-300 text-amber-950 rounded-md text-xs sm:text-sm flex items-start gap-3 shadow-2xs">
+          <span className="text-xl flex-shrink-0">⚠️</span>
+          <div>
+            <span className="font-bold block">Paiement interrompu</span>
+            <span>Votre session PayTech a été annulée. Vous pouvez vérifier ou modifier vos coordonnées ci-dessous pour réessayer.</span>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
@@ -270,16 +311,16 @@ export default function CheckoutPage() {
               className={`w-full py-4 text-sm font-medium tracking-widest uppercase flex items-center justify-center gap-3 transition-all duration-200 ${
                 isSubmitting
                   ? 'bg-stone/50 text-stone cursor-not-allowed'
-                  : 'bg-anthracite text-ivory hover:bg-terracotta'
+                  : 'bg-anthracite text-ivory hover:bg-terracotta shadow-md hover:shadow-lg'
               }`}
             >
               {isSubmitting ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Traitement de votre commande...
+                  <span>{submittingStep || 'Traitement en cours...'}</span>
                 </>
               ) : (
-                `Valider ma commande — ${new Intl.NumberFormat('fr-FR').format(total)} FCFA`
+                `Payer ${new Intl.NumberFormat('fr-FR').format(total)} FCFA via ${paymentMethod === 'orange-money' ? 'Orange Money' : 'Wave'}`
               )}
             </button>
           </div>
@@ -291,5 +332,19 @@ export default function CheckoutPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
+          <p className="text-stone text-xl">Chargement de votre commande...</p>
+        </div>
+      }
+    >
+      <CheckoutForm />
+    </Suspense>
   );
 }

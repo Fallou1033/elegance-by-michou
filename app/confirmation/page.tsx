@@ -1,13 +1,16 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { CheckCircle, MessageCircle, Copy, Check, Smartphone, PhoneCall } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { CheckCircle, MessageCircle, Copy, Check, Smartphone, PhoneCall, ShieldCheck } from 'lucide-react';
 import { formatPrice, encodeWhatsAppMessage } from '@/lib/utils';
 import { WHATSAPP_NUMBER } from '@/data/products';
 import type { OrderData } from '@/types';
 
-export default function ConfirmationPage() {
+function ConfirmationContent() {
+  const searchParams = useSearchParams();
+  const isPaytechSuccess = searchParams.get('paytech') === 'success' || searchParams.get('status') === 'success';
   const [order, setOrder] = useState<OrderData | null>(null);
   const [showContent, setShowContent] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -110,8 +113,28 @@ export default function ConfirmationPage() {
         </p>
       </div>
 
+      {/* PAYTECH SUCCESS BANNER */}
+      {isPaytechSuccess && (
+        <div className={`mb-8 p-6 bg-emerald-50 border-2 border-emerald-400 transition-all duration-700 delay-200 ${
+          showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+        }`}>
+          <div className="flex items-center gap-3 mb-3 pb-3 border-b border-emerald-200">
+            <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
+              <ShieldCheck size={24} />
+            </div>
+            <div>
+              <h2 className="font-serif text-lg font-bold text-emerald-950">Paiement validé avec succès via PayTech</h2>
+              <p className="text-xs text-emerald-800">Votre règlement de <strong>{formatPrice(order.total)}</strong> a bien été reçu et vérifié ({order.paymentMethod === 'orange-money' ? 'Orange Money' : 'Wave'}).</p>
+            </div>
+          </div>
+          <p className="text-xs text-emerald-900 leading-relaxed bg-white/80 p-3 rounded border border-emerald-200">
+            Votre commande est confirmée et prise en charge. Vous pouvez cliquer sur le bouton WhatsApp ci-dessous pour nous transmettre directement votre récapitulatif.
+          </p>
+        </div>
+      )}
+
       {/* WAVE PAYMENT INSTRUCTIONS */}
-      {order.paymentMethod === 'wave' && (
+      {!isPaytechSuccess && order.paymentMethod === 'wave' && (
         <div id="wave-payment-instructions" className={`mb-8 p-6 bg-sky-50/80 border-2 border-sky-300 transition-all duration-700 delay-200 ${
           showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
         }`}>
@@ -175,7 +198,7 @@ export default function ConfirmationPage() {
       )}
 
       {/* ORANGE MONEY PAYMENT INSTRUCTIONS */}
-      {order.paymentMethod === 'orange-money' && (
+      {!isPaytechSuccess && order.paymentMethod === 'orange-money' && (
         <div id="om-payment-instructions" className={`mb-8 p-6 bg-amber-50/80 border-2 border-amber-300 transition-all duration-700 delay-200 ${
           showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
         }`}>
@@ -326,5 +349,19 @@ export default function ConfirmationPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function ConfirmationPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="max-w-7xl mx-auto px-4 py-24 text-center">
+          <p className="text-stone text-xl">Chargement de votre confirmation...</p>
+        </div>
+      }
+    >
+      <ConfirmationContent />
+    </Suspense>
   );
 }

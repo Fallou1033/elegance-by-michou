@@ -16,7 +16,7 @@ const PAYMENT_METHODS = [
   {
     id: 'wave' as PaymentMethod,
     label: 'Wave',
-    description: 'Transfert direct vers le compte Wave de la boutique',
+    description: 'Paiement direct en 1 clic sécurisé par PayTech (ou transfert)',
     icon: (
       <Image
         src="/images/payment-methods/wave-logo.png"
@@ -30,7 +30,7 @@ const PAYMENT_METHODS = [
   {
     id: 'orange-money' as PaymentMethod,
     label: 'Orange Money',
-    description: 'Transfert direct vers le numéro Orange Money de la boutique',
+    description: 'Paiement en ligne instantané sécurisé par PayTech (#144# / Max it)',
     icon: (
       <div className="h-7 w-10 bg-white rounded border border-stone/20 flex items-center justify-center p-1 shadow-2xs">
         <Image
@@ -56,7 +56,15 @@ export default function PaymentSelector({ value, onChange, total }: PaymentSelec
   };
 
   return (
-    <div className="grid grid-cols-1 gap-3">
+    <div className="space-y-3">
+      <div className="flex items-center gap-2 p-2.5 bg-stone/5 border border-stone/20 text-xs text-stone rounded">
+        <span className="text-sm">🔒</span>
+        <span>
+          Paiement sécurisé via <strong>PayTech Sénégal</strong>. Vous pourrez valider directement sur votre application Wave ou Orange Money.
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3">
       {PAYMENT_METHODS.map(method => {
         const isSelected = value === method.id;
 
@@ -137,6 +145,7 @@ export default function PaymentSelector({ value, onChange, total }: PaymentSelec
           </div>
         );
       })}
+      </div>
     </div>
   );
 }
