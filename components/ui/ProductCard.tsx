@@ -182,7 +182,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             href={`/produits/${product.id}`}
             className="mt-auto w-full py-2.5 text-xs font-medium tracking-widest uppercase transition-all duration-200 flex items-center justify-center gap-2 bg-anthracite text-ivory hover:bg-terracotta text-center"
           >
-            Voir le produit
+            Voir les produits
           </Link>
         )}
       </div>
