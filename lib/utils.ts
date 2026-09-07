@@ -105,9 +105,9 @@ export function encodeWhatsAppMessage(order: {
   
   let paymentDetails = `💳 Paiement : ${order.paymentMethod}`;
   if (order.paymentMethod.toLowerCase().includes('wave')) {
-    paymentDetails = `💳 Paiement : Wave (Transfert vers +221 78 264 41 02)\n📸 Je vous joins la capture de mon reçu Wave ci-dessous.`;
+    paymentDetails = `💳 Paiement : Wave (Sécurisé via PayTech)`;
   } else if (order.paymentMethod.toLowerCase().includes('orange')) {
-    paymentDetails = `💳 Paiement : Orange Money (Transfert vers +221 78 264 41 02)\n📸 Je vous joins la capture de mon reçu Orange Money ci-dessous.`;
+    paymentDetails = `💳 Paiement : Orange Money (Sécurisé via PayTech)`;
   }
 
   const message = `Bonjour Elegance By Michou ! 🛍️\n\nJe confirme ma commande :\n\n📦 Commande N° ${order.orderNumber}\n\n${itemsList}\n\n💰 Total : ${formatPrice(order.total)}\n\n👤 Client : ${order.customerName}\n📍 Adresse : ${order.address}, ${order.city}\n${paymentDetails}\n\nMerci !`;

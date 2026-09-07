@@ -3,7 +3,7 @@ import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import { CheckCircle, MessageCircle, Copy, Check, Smartphone, PhoneCall, ShieldCheck } from 'lucide-react';
+import { CheckCircle, MessageCircle, ShieldCheck } from 'lucide-react';
 import { formatPrice, encodeWhatsAppMessage } from '@/lib/utils';
 import { WHATSAPP_NUMBER } from '@/data/products';
 import type { OrderData } from '@/types';
@@ -13,43 +13,6 @@ function ConfirmationContent() {
   const isPaytechSuccess = searchParams.get('paytech') === 'success' || searchParams.get('status') === 'success';
   const [order, setOrder] = useState<OrderData | null>(null);
   const [showContent, setShowContent] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [waveAppUrl, setWaveAppUrl] = useState(
-    'intent:#Intent;package=com.wave.personal;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.wave.personal;end'
-  );
-  const [maxItUrl, setMaxItUrl] = useState(
-    'intent:#Intent;package=com.orange.myorange.sn;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.orange.myorange.sn;end'
-  );
-
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const ua = navigator.userAgent || '';
-      if (/iPad|iPhone|iPod/.test(ua)) {
-        setWaveAppUrl('wave://');
-        setMaxItUrl('https://apps.apple.com/fr/app/orange-max-it-s%C3%A9n%C3%A9gal/id1527771746');
-      } else if (!/android/i.test(ua)) {
-        setWaveAppUrl('https://play.google.com/store/apps/details?id=com.wave.personal');
-        setMaxItUrl('https://maxit.orange.sn/');
-      }
-    }
-  }, []);
-
-  const handleOpenWave = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    const ua = navigator.userAgent || '';
-    if (/iPad|iPhone|iPod/.test(ua)) {
-      e.preventDefault();
-      window.location.href = 'wave://';
-      setTimeout(() => {
-        window.location.href = 'https://apps.apple.com/app/wave-mobile-money/id1487840131';
-      }, 1200);
-    }
-  };
 
   useEffect(() => {
     const raw = localStorage.getItem('lastOrder');
@@ -70,8 +33,8 @@ function ConfirmationContent() {
   }
 
   const PAYMENT_LABELS: Record<string, string> = {
-    wave: 'Wave',
-    'orange-money': 'Orange Money',
+    wave: 'Wave (PayTech)',
+    'orange-money': 'Orange Money (PayTech)',
   };
 
   const whatsappMessage = encodeWhatsAppMessage({
@@ -113,193 +76,59 @@ function ConfirmationContent() {
         </p>
       </div>
 
-      {/* PAYTECH SUCCESS BANNER */}
-      {isPaytechSuccess && (
-        <div className={`mb-8 p-6 bg-emerald-50 border-2 border-emerald-400 transition-all duration-700 delay-200 ${
-          showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-        }`}>
-          <div className="flex items-center gap-3 mb-3 pb-3 border-b border-emerald-200">
-            <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
-              <ShieldCheck size={24} />
-            </div>
-            <div>
-              <h2 className="font-serif text-lg font-bold text-emerald-950">Paiement validé avec succès via PayTech</h2>
-              <p className="text-xs text-emerald-800">Votre règlement de <strong>{formatPrice(order.total)}</strong> a bien été reçu et vérifié ({order.paymentMethod === 'orange-money' ? 'Orange Money' : 'Wave'}).</p>
-            </div>
-          </div>
-          <p className="text-xs text-emerald-900 leading-relaxed bg-white/80 p-3 rounded border border-emerald-200">
-            Votre commande est confirmée et prise en charge. Vous pouvez cliquer sur le bouton WhatsApp ci-dessous pour nous transmettre directement votre récapitulatif.
-          </p>
-        </div>
-      )}
-
-      {/* WAVE PAYMENT INSTRUCTIONS */}
-      {!isPaytechSuccess && order.paymentMethod === 'wave' && (
-        <div id="wave-payment-instructions" className={`mb-8 p-6 bg-sky-50/80 border-2 border-sky-300 transition-all duration-700 delay-200 ${
-          showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-        }`}>
-          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-sky-200">
-            <div className="w-10 h-10 rounded-full bg-white border border-sky-200 flex items-center justify-center p-1.5 shadow-2xs">
-              <Image src="/images/payment-methods/wave-logo.png" alt="Wave" width={36} height={20} className="object-contain" />
-            </div>
-            <div>
-              <h2 className="font-serif text-lg font-bold text-sky-950">Instructions de paiement Wave</h2>
-              <p className="text-xs text-sky-800">Réglez votre commande directement sur le compte Wave de la boutique</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-            <div className="bg-white p-3.5 border border-sky-200">
-              <span className="text-xs text-stone uppercase tracking-wider block font-medium">Montant exact à payer</span>
-              <span className="text-2xl font-bold text-sky-950">{formatPrice(order.total)}</span>
-            </div>
-
-            <div className="bg-white p-3.5 border border-sky-200 flex flex-col justify-between">
-              <span className="text-xs text-stone uppercase tracking-wider block font-medium">Numéro Wave boutique</span>
-              <div className="flex items-center justify-between gap-2 mt-1">
-                <span className="text-lg font-bold text-anthracite">+221 78 264 41 02</span>
-                <button
-                  type="button"
-                  onClick={() => handleCopy('782644102')}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold bg-sky-100 text-sky-900 border border-sky-300 hover:bg-sky-200 transition-colors shadow-2xs cursor-pointer"
-                >
-                  {copied ? <Check size={12} className="text-green-600" /> : <Copy size={12} />}
-                  <span>{copied ? 'Copié !' : 'Copier'}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <a
-              href={waveAppUrl}
-              onClick={handleOpenWave}
-              className="flex items-center justify-center gap-2.5 w-full py-3.5 bg-[#1DC3F4] text-white text-sm font-semibold tracking-wider uppercase hover:bg-[#0bb2e3] transition-colors shadow-xs"
-            >
-              <Smartphone size={18} />
-              Ouvrir l'application Wave
-            </a>
-
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2.5 w-full py-3.5 bg-[#25D366] text-white text-sm font-semibold tracking-wider uppercase hover:bg-[#1da851] transition-colors shadow-xs"
-            >
-              <MessageCircle size={18} />
-              Envoyer mon reçu sur WhatsApp
-            </a>
-          </div>
-
-          <p className="text-xs text-sky-900/80 text-center mt-3 leading-relaxed">
-            💡 Indiquez votre numéro de commande <strong>{order.orderNumber}</strong> en motif de transfert, puis transmettez votre reçu par WhatsApp.
-          </p>
-        </div>
-      )}
-
-      {/* ORANGE MONEY PAYMENT INSTRUCTIONS */}
-      {!isPaytechSuccess && order.paymentMethod === 'orange-money' && (
-        <div id="om-payment-instructions" className={`mb-8 p-6 bg-amber-50/80 border-2 border-amber-300 transition-all duration-700 delay-200 ${
-          showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-        }`}>
-          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-amber-200">
-            <div className="w-10 h-10 rounded-full bg-white border border-amber-200 flex items-center justify-center p-1.5 shadow-2xs">
-              <Image src="/images/payment-methods/orange-money-arrows.png" alt="Orange Money" width={28} height={18} className="object-contain" />
-            </div>
-            <div>
-              <h2 className="font-serif text-lg font-bold text-amber-950">Instructions Orange Money</h2>
-              <p className="text-xs text-amber-900">Réglez votre commande directement sur le numéro Orange Money de la boutique</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-            <div className="bg-white p-3.5 border border-amber-200">
-              <span className="text-xs text-stone uppercase tracking-wider block font-medium">Montant exact à payer</span>
-              <span className="text-2xl font-bold text-amber-950">{formatPrice(order.total)}</span>
-            </div>
-
-            <div className="bg-white p-3.5 border border-amber-200 flex flex-col justify-between">
-              <span className="text-xs text-stone uppercase tracking-wider block font-medium">Numéro OM boutique</span>
-              <div className="flex items-center justify-between gap-2 mt-1">
-                <span className="text-lg font-bold text-anthracite">+221 78 264 41 02</span>
-                <button
-                  type="button"
-                  onClick={() => handleCopy('782644102')}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 transition-colors shadow-2xs cursor-pointer"
-                >
-                  {copied ? <Check size={12} className="text-green-600" /> : <Copy size={12} />}
-                  <span>{copied ? 'Copié !' : 'Copier'}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <a
-                href="tel:#144#"
-                className="flex items-center justify-center gap-2 py-3.5 bg-[#FF7900] text-white text-xs sm:text-sm font-semibold tracking-wider uppercase hover:bg-[#e06b00] transition-colors shadow-xs"
-              >
-                <PhoneCall size={16} />
-                Composer #144#
-              </a>
-
-              <a
-                href={maxItUrl}
-                className="flex items-center justify-center gap-2 py-3.5 bg-white text-amber-950 border border-amber-400 text-xs sm:text-sm font-semibold tracking-wider uppercase hover:bg-amber-100 transition-colors shadow-xs"
-              >
-                <Smartphone size={16} />
-                Ouvrir Max it
-              </a>
-            </div>
-
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2.5 w-full py-3.5 bg-[#25D366] text-white text-sm font-semibold tracking-wider uppercase hover:bg-[#1da851] transition-colors shadow-xs"
-            >
-              <MessageCircle size={18} />
-              Envoyer mon reçu sur WhatsApp
-            </a>
-          </div>
-
-          <p className="text-xs text-amber-900/80 text-center mt-3 leading-relaxed">
-            💡 Indiquez votre numéro de commande <strong>{order.orderNumber}</strong> en référence de transfert, puis transmettez votre reçu par WhatsApp.
-          </p>
-        </div>
-      )}
-
-      {/* STANDARD WHATSAPP CTA FOR CASH OR CARD */}
-      {order.paymentMethod !== 'wave' && order.paymentMethod !== 'orange-money' && (
-        <div className={`mb-8 transition-all duration-700 delay-200 ${
-          showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-        }`}>
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-3 w-full py-4 bg-[#25D366] text-white text-sm font-medium tracking-wider uppercase hover:bg-[#1da851] transition-colors duration-200 shadow-xs"
-          >
-            <MessageCircle size={20} />
-            Confirmer via WhatsApp
-          </a>
-          <p className="text-xs text-stone text-center mt-2">Un message pré-rempli sera généré pour confirmer votre commande avec notre équipe.</p>
-        </div>
-      )}
-
-      {/* Order recap */}
-      <div className={`bg-white border border-stone/20 transition-all duration-700 delay-300 ${
+      {/* PAYTECH SUCCESS / PAYMENT BADGE */}
+      <div className={`mb-8 p-6 bg-emerald-50 border-2 border-emerald-400 transition-all duration-700 delay-200 ${
         showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
       }`}>
-        <div className="px-6 py-5 border-b border-stone/10">
-          <h2 className="font-serif text-lg font-semibold">Détail de votre commande</h2>
+        <div className="flex items-center gap-3 mb-3 pb-3 border-b border-emerald-200">
+          <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs flex-shrink-0">
+            <ShieldCheck size={24} />
+          </div>
+          <div>
+            <h2 className="font-serif text-lg font-bold text-emerald-950">
+              {isPaytechSuccess ? 'Paiement en ligne validé via PayTech' : 'Paiement sécurisé via PayTech'}
+            </h2>
+            <p className="text-xs text-emerald-800">
+              Règlement par <strong>{order.paymentMethod === 'orange-money' ? 'Orange Money' : 'Wave'}</strong> — Montant : <strong>{formatPrice(order.total)}</strong>
+            </p>
+          </div>
+        </div>
+        <p className="text-xs text-emerald-900 leading-relaxed bg-white/80 p-3 rounded border border-emerald-200">
+          Votre commande a été enregistrée et transmise à notre équipe pour préparation immédiate.
+        </p>
+      </div>
+
+      {/* WHATSAPP ACTION BUTTON */}
+      <div className={`mb-8 transition-all duration-700 delay-300 ${
+        showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+      }`}>
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-3 w-full py-4 bg-[#25D366] text-white text-sm font-semibold tracking-wider uppercase hover:bg-[#1da851] transition-colors shadow-md rounded-xs"
+        >
+          <MessageCircle size={20} />
+          <span>Notifier la boutique sur WhatsApp</span>
+        </a>
+        <p className="text-xs text-stone text-center mt-2">
+          Cliquez pour transmettre automatiquement le récapitulatif de votre commande à Michou.
+        </p>
+      </div>
+
+      {/* Order summary card */}
+      <div className={`bg-white border border-stone/20 overflow-hidden transition-all duration-700 delay-400 ${
+        showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+      }`}>
+        <div className="px-6 py-4 bg-stone/5 border-b border-stone/10 flex items-center justify-between">
+          <h2 className="font-serif text-base font-semibold">Détails de la commande</h2>
+          <span className="text-xs text-stone">{new Date(order.createdAt).toLocaleDateString('fr-FR')}</span>
         </div>
 
-        {/* Items */}
-        <div className="px-6 py-4 space-y-4">
+        {/* Items list */}
+        <div className="px-6 divide-y divide-stone/10">
           {order.items.map(item => (
-            <div key={item.cartItemId} className="flex gap-3">
+            <div key={item.cartItemId} className="py-4 flex items-center gap-4">
               <div className="relative w-14 h-16 flex-shrink-0 bg-stone/10">
                 <Image src={item.product.images[0]} alt={item.product.name} fill className="object-cover" sizes="56px" />
               </div>
@@ -322,7 +151,7 @@ function ConfirmationContent() {
             <span>{order.shipping === 0 ? <span className="text-green-600">Gratuite</span> : formatPrice(order.shipping)}</span>
           </div>
           <div className="flex justify-between text-base font-bold pt-2 border-t border-stone/10">
-            <span>Total payé</span><span className="text-lg text-anthracite">{formatPrice(order.total)}</span>
+            <span>Total</span><span className="text-lg text-anthracite">{formatPrice(order.total)}</span>
           </div>
         </div>
 
