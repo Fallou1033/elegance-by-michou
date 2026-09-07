@@ -1,8 +1,8 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { Minus, Plus, ShoppingBag, Ruler, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { Minus, Plus, ShoppingBag, Ruler, ChevronLeft, ChevronRight, ArrowRight, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { products } from '@/data/products';
 import { useCart } from '@/context/CartContext';
@@ -22,6 +22,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [sizeError, setSizeError] = useState(false);
+  const sizeSectionRef = useRef<HTMLDivElement>(null);
+  const sizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // With 6 products in total, pick from the other 5 products regardless of category/gender
   const currentIndex = products.findIndex(p => p.id === product.id || p.slug === product.id);
@@ -34,9 +36,12 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const handleAddToCart = () => {
     if (!selectedSize) {
       setSizeError(true);
-      setTimeout(() => setSizeError(false), 3000);
+      if (sizeTimeoutRef.current) clearTimeout(sizeTimeoutRef.current);
+      sizeTimeoutRef.current = setTimeout(() => setSizeError(false), 5000);
+      sizeSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
+    setSizeError(false);
     addToCart(product, selectedSize, selectedColor);
     setAddedToCart(true);
     setTimeout(() => {
@@ -246,12 +251,24 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           </div>
 
           {/* Size selector */}
-          <div>
+          <div
+            ref={sizeSectionRef}
+            className={`scroll-mt-28 p-3 -m-3 rounded-xl transition-all duration-300 ${
+              sizeError ? 'bg-red-50 ring-2 ring-red-400' : ''
+            }`}
+          >
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-anthracite">
-                Taille {sizeError && <span className="text-red-500 normal-case tracking-normal"> — Veuillez sélectionner une taille</span>}
+              <p className="text-xs font-semibold uppercase tracking-wider text-anthracite flex items-center gap-2">
+                <span>Taille</span>
+                {sizeError && (
+                  <span className="text-red-600 font-bold normal-case tracking-normal flex items-center gap-1 animate-pulse">
+                    <AlertCircle size={13} />
+                    Veuillez sélectionner une taille
+                  </span>
+                )}
               </p>
               <button
+                type="button"
                 onClick={() => setSizeGuideOpen(true)}
                 className="flex items-center gap-1 text-xs text-stone hover:text-terracotta transition-colors"
               >
@@ -263,12 +280,13 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               {product.sizes.map(size => (
                 <button
                   key={size}
+                  type="button"
                   onClick={() => { setSelectedSize(size); setSizeError(false); }}
-                  className={`min-w-[44px] h-11 px-3 border text-sm transition-all duration-150 ${
+                  className={`min-w-[44px] h-11 px-3 border text-sm transition-all duration-150 font-medium ${
                     selectedSize === size
-                      ? 'border-anthracite bg-anthracite text-ivory font-medium'
+                      ? 'border-anthracite bg-anthracite text-ivory'
                       : sizeError
-                      ? 'border-red-400 text-anthracite hover:border-anthracite'
+                      ? 'border-red-400 bg-white text-anthracite hover:border-red-600 hover:bg-red-50'
                       : 'border-stone/30 text-anthracite hover:border-anthracite'
                   }`}
                 >
@@ -303,17 +321,38 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           </div>
 
           {/* Add to cart - desktop */}
-          <button
-            onClick={handleAddToCart}
-            className={`hidden md:flex items-center justify-center gap-3 w-full py-4 text-sm font-medium tracking-widest uppercase transition-all duration-200 ${
-              addedToCart
-                ? 'bg-green-600 text-white'
-                : 'bg-anthracite text-ivory hover:bg-terracotta'
-            }`}
-          >
-            <ShoppingBag size={18} />
-            {addedToCart ? 'Ajouté au panier !' : `Ajouter au panier — ${formatPrice(product.price * quantity)}`}
-          </button>
+          <div className="hidden md:flex flex-col gap-2">
+            {sizeError && (
+              <div className="py-2.5 px-4 bg-red-600 text-white text-xs font-semibold rounded-md flex items-center justify-center gap-2 shadow-md animate-bounce">
+                <AlertCircle size={16} />
+                <span>Veuillez sélectionner une taille</span>
+              </div>
+            )}
+            <button
+              onClick={handleAddToCart}
+              className={`flex items-center justify-center gap-3 w-full py-4 text-sm font-medium tracking-widest uppercase transition-all duration-200 ${
+                sizeError
+                  ? 'bg-red-600 text-white shadow-lg'
+                  : addedToCart
+                  ? 'bg-green-600 text-white'
+                  : 'bg-anthracite text-ivory hover:bg-terracotta'
+              }`}
+            >
+              {sizeError ? (
+                <>
+                  <AlertCircle size={18} />
+                  Veuillez sélectionner une taille
+                </>
+              ) : addedToCart ? (
+                'Ajouté au panier !'
+              ) : (
+                <>
+                  <ShoppingBag size={18} />
+                  {`Ajouter au panier — ${formatPrice(product.price * quantity)}`}
+                </>
+              )}
+            </button>
+          </div>
 
           {/* Product details */}
           <div className="border-t border-stone/20 pt-6 space-y-3">
@@ -379,17 +418,39 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       )}
 
       {/* Sticky mobile CTA */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-ivory border-t border-stone/20 p-4">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-ivory/95 backdrop-blur-md border-t border-stone/20 p-4 shadow-2xl">
+        {sizeError && (
+          <div className="mb-2.5 py-2.5 px-4 bg-red-600 text-white text-xs font-semibold rounded-lg flex items-center justify-center gap-2 shadow-xl animate-bounce">
+            <AlertCircle size={16} className="flex-shrink-0" />
+            <span>Veuillez sélectionner une taille</span>
+          </div>
+        )}
         <button
           onClick={handleAddToCart}
           className={`w-full py-4 text-sm font-medium tracking-widest uppercase flex items-center justify-center gap-3 transition-all duration-200 ${
-            addedToCart
+            sizeError
+              ? 'bg-red-600 text-white shadow-lg'
+              : addedToCart
               ? 'bg-green-600 text-white'
-              : 'bg-anthracite text-ivory'
+              : 'bg-anthracite text-ivory active:scale-[0.99]'
           }`}
         >
-          <ShoppingBag size={18} />
-          {addedToCart ? 'Ajouté au panier !' : `Ajouter — ${formatPrice(product.price * quantity)}`}
+          {sizeError ? (
+            <>
+              <AlertCircle size={18} />
+              <span>Veuillez sélectionner une taille</span>
+            </>
+          ) : addedToCart ? (
+            <>
+              <ShoppingBag size={18} />
+              <span>Ajouté au panier !</span>
+            </>
+          ) : (
+            <>
+              <ShoppingBag size={18} />
+              <span>Ajouter — {formatPrice(product.price * quantity)}</span>
+            </>
+          )}
         </button>
       </div>
 
