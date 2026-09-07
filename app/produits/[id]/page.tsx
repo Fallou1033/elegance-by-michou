@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { Minus, Plus, ShoppingBag, Ruler, ChevronLeft } from 'lucide-react';
+import { Minus, Plus, ShoppingBag, Ruler, ChevronLeft, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { products } from '@/data/products';
 import { useCart } from '@/context/CartContext';
@@ -23,9 +23,13 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const [addedToCart, setAddedToCart] = useState(false);
   const [sizeError, setSizeError] = useState(false);
 
-  const relatedProducts = products
-    .filter(p => p.id !== product.id && (p.category === product.category || product.relatedProducts?.includes(p.id)))
-    .slice(0, 4);
+  // With 6 products in total, pick from the other 5 products regardless of category/gender
+  const currentIndex = products.findIndex(p => p.id === product.id || p.slug === product.id);
+  const otherProducts = [
+    ...products.slice(currentIndex + 1),
+    ...products.slice(0, currentIndex >= 0 ? currentIndex : 0),
+  ].filter(p => p.id !== product.id && p.slug !== product.slug);
+  const relatedProducts = otherProducts.slice(0, 4);
 
   const handleAddToCart = () => {
     if (!selectedSize) {
@@ -44,12 +48,15 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const hasImages = product.images.length > 0;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
-      {/* Breadcrumb */}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 pb-32 md:pb-20">
+      {/* Breadcrumb / Retour */}
       <nav className="mb-6 md:mb-8">
-        <Link href="/" className="flex items-center gap-1 text-stone text-sm hover:text-terracotta transition-colors">
-          <ChevronLeft size={16} />
-          Retour à la boutique
+        <Link
+          href="/#catalogue"
+          className="inline-flex items-center gap-2 text-stone text-sm font-medium hover:text-terracotta transition-colors py-1.5 px-2 -ml-2 rounded-md hover:bg-stone/10 w-fit group"
+        >
+          <ChevronLeft size={18} className="transition-transform group-hover:-translate-x-1" />
+          <span>Retour à la boutique</span>
         </Link>
       </nav>
 
@@ -257,14 +264,42 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         </div>
       </div>
 
-      {/* Related products */}
+      {/* Related products / Discover more pieces */}
       {relatedProducts.length > 0 && (
-        <section className="mt-20">
-          <h2 className="font-serif text-2xl md:text-3xl font-semibold text-anthracite mb-8">
-            Vous aimerez aussi
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {relatedProducts.map(p => <ProductCard key={p.id} product={p} />)}
+        <section className="mt-16 md:mt-24 pt-12 border-t border-stone/20">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+            <div>
+              <p className="text-terracotta text-xs font-semibold uppercase tracking-[0.25em] mb-2">
+                Collection Elegance By Michou
+              </p>
+              <h2 className="font-serif text-2xl md:text-3xl font-semibold text-anthracite">
+                Découvrez aussi nos autres pièces
+              </h2>
+            </div>
+            <Link
+              href="/#catalogue"
+              className="hidden sm:inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-anthracite hover:text-terracotta transition-colors"
+            >
+              <span>Voir tout le catalogue</span>
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {relatedProducts.map(p => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+
+          {/* Second clear exit point to full catalogue */}
+          <div className="mt-12 text-center">
+            <Link
+              href="/#catalogue"
+              className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-anthracite text-ivory text-xs md:text-sm font-semibold tracking-widest uppercase hover:bg-terracotta transition-colors duration-200 shadow-xs"
+            >
+              <span>Voir tous nos articles</span>
+              <ArrowRight size={16} />
+            </Link>
           </div>
         </section>
       )}
