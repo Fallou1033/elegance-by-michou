@@ -59,7 +59,6 @@ export const products: Product[] = [
       "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.03.41%20(1).jpeg",
       "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.03.41%20(2).jpeg",
       "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.03.41%20(3).jpeg",
-      "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.03.41.jpeg",
       "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.04.15.jpeg",
       "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.05.27.jpeg"
     ],
@@ -403,13 +402,12 @@ export const products: Product[] = [
       }
     ],
     "images": [
-      "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.06%20(1).jpeg",
-      "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.06.jpeg",
+      "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(5).jpeg",
       "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(1).jpeg",
+      "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.06.jpeg",
       "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(2).jpeg",
       "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(3).jpeg",
       "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(4).jpeg",
-      "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(5).jpeg",
       "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(6).jpeg",
       "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(7).jpeg",
       "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07.jpeg",
@@ -426,7 +424,7 @@ export const products: Product[] = [
       "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.09%20(3).jpeg",
       "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.09.jpeg"
     ],
-    "hoverImage": "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(5).jpeg",
+    "hoverImage": "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(1).jpeg",
     "description": "Ensemble 2 pièces signature Élégance by Michou (tunique mi-longue et pantalon droit) en coton haute qualité avec broderies stylisées sur la poche et le col. L'incontournable du vestiaire masculin élégant.",
     "material": "100% Coton premium et broderies de prestige",
     "care": "Lavage doux à 30°C ou nettoyage à sec. Repassage sur l'envers.",

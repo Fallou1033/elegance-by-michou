@@ -40,7 +40,7 @@ export interface OrderData {
   address: string;
   city: string;
   notes: string;
-  paymentMethod: 'cash' | 'wave' | 'orange-money' | 'card';
+  paymentMethod: 'cash' | 'wave' | 'orange-money';
   items: CartItem[];
   subtotal: number;
   shipping: number;

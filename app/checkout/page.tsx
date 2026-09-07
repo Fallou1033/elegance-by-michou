@@ -10,7 +10,7 @@ import OrderSummary from '@/components/checkout/OrderSummary';
 import { SENEGAL_CITIES } from '@/data/products';
 import { FREE_SHIPPING_THRESHOLD, SHIPPING_COST } from '@/data/products';
 
-type PaymentMethod = 'cash' | 'wave' | 'orange-money' | 'card';
+type PaymentMethod = 'cash' | 'wave' | 'orange-money';
 
 interface FormData {
   fullName: string;

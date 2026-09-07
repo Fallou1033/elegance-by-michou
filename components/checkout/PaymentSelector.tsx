@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Copy, Check } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 
-export type PaymentMethod = 'cash' | 'wave' | 'orange-money' | 'card';
+export type PaymentMethod = 'cash' | 'wave' | 'orange-money';
 
 interface PaymentSelectorProps {
   value: PaymentMethod;
@@ -53,20 +53,6 @@ const PAYMENT_METHODS = [
           className="h-5 w-auto object-contain"
         />
       </div>
-    ),
-  },
-  {
-    id: 'card' as PaymentMethod,
-    label: 'Carte bancaire',
-    description: 'Visa, Mastercard, etc.',
-    icon: (
-      <svg width="28" height="20" viewBox="0 0 32 22" fill="none">
-        <rect width="32" height="22" rx="3" fill="#1A1A1A"/>
-        <rect y="6" width="32" height="5" fill="#C4704F"/>
-        <rect x="3" y="14" width="10" height="4" rx="1" fill="#FAF9F6" opacity="0.6"/>
-        <circle cx="26" cy="16" r="3" fill="#FFD700" opacity="0.8"/>
-        <circle cx="23" cy="16" r="3" fill="#FF4444" opacity="0.7"/>
-      </svg>
     ),
   },
 ];

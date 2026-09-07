@@ -70,7 +70,6 @@ export default function ConfirmationPage() {
     cash: 'Paiement à la livraison',
     wave: 'Wave',
     'orange-money': 'Orange Money',
-    card: 'Carte bancaire',
   };
 
   const whatsappMessage = encodeWhatsAppMessage({
