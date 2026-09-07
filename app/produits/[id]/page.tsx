@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { Minus, Plus, ShoppingBag, Ruler, ChevronLeft, ArrowRight } from 'lucide-react';
+import { Minus, Plus, ShoppingBag, Ruler, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { products } from '@/data/products';
 import { useCart } from '@/context/CartContext';
@@ -48,9 +48,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const hasImages = product.images.length > 0;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 pb-32 md:pb-20">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-32 md:py-16 md:pb-20">
       {/* Breadcrumb / Retour */}
-      <nav className="mb-6 md:mb-8">
+      <nav className="mb-3 md:mb-8">
         <Link
           href="/#catalogue"
           className="inline-flex items-center gap-2 text-stone text-sm font-medium hover:text-terracotta transition-colors py-1.5 px-2 -ml-2 rounded-md hover:bg-stone/10 w-fit group"
@@ -63,8 +63,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16">
         {/* Gallery */}
         <div className="flex flex-col gap-3">
-          {/* Main image */}
-          <div className="relative aspect-[3/4] bg-stone/10 overflow-hidden">
+          {/* Main image — capped on mobile (60vh / max 440px), original aspect ratio on desktop */}
+          <div className="relative h-[60vh] max-h-[440px] md:h-auto md:max-h-none md:aspect-[3/4] w-full bg-stone/10 overflow-hidden rounded-xs shadow-2xs">
             {hasImages ? (
               <>
                 <Image
@@ -76,12 +76,69 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
                 {product.badge && product.badge !== 'Nouveau' && (
-                  <span className={`absolute top-4 left-4 text-xs font-medium px-2 py-1 tracking-wider uppercase ${
+                  <span className={`absolute top-4 left-4 text-xs font-medium px-2 py-1 tracking-wider uppercase z-10 ${
                     product.badge === 'Promo' ? 'bg-terracotta text-white' : 'bg-anthracite text-ivory'
                   }`}>
                     {product.badge === 'Promo' && product.discount ? `-${product.discount}%` : product.badge}
                   </span>
                 )}
+
+                {/* Mobile gallery navigation arrows */}
+                {hasImages && product.images.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedImage(prev => (prev === 0 ? product.images.length - 1 : prev - 1));
+                      }}
+                      className="md:hidden absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center backdrop-blur-xs z-20 transition-colors"
+                      aria-label="Photo précédente"
+                    >
+                      <ChevronLeft size={18} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedImage(prev => (prev === product.images.length - 1 ? 0 : prev + 1));
+                      }}
+                      className="md:hidden absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center backdrop-blur-xs z-20 transition-colors"
+                      aria-label="Photo suivante"
+                    >
+                      <ChevronRight size={18} />
+                    </button>
+                  </>
+                )}
+
+                {/* Mobile overlay: Product name, price and gallery position indicator */}
+                <div className="md:hidden absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pt-14 pb-3.5 px-4 flex items-end justify-between gap-3 pointer-events-none z-10">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[11px] text-ivory/80 uppercase tracking-widest font-medium mb-0.5 truncate">
+                      {product.gender === 'homme' ? 'Homme' : product.gender === 'unisexe' ? 'Unisexe' : 'Femme'} · {product.categoryLabel || product.category}
+                    </p>
+                    <h1 className="font-serif text-lg sm:text-xl font-semibold text-white leading-tight line-clamp-2 drop-shadow-xs">
+                      {product.name}
+                    </h1>
+                    <div className="mt-1 flex items-baseline gap-2">
+                      <span className="text-lg font-bold text-white drop-shadow-xs">
+                        {formatPrice(product.price)}
+                      </span>
+                      {product.originalPrice && (
+                        <span className="text-xs text-ivory/70 line-through">
+                          {formatPrice(product.originalPrice)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Gallery position indicator */}
+                  {hasImages && product.images.length > 1 && (
+                    <div className="flex-shrink-0 bg-black/60 backdrop-blur-xs px-2.5 py-1 rounded-full text-[11px] font-semibold text-white tracking-wider border border-white/20 shadow-xs">
+                      {selectedImage + 1} / {product.images.length}
+                    </div>
+                  )}
+                </div>
               </>
             ) : (
               <>
@@ -94,23 +151,39 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                   <span className="text-sm font-medium text-stone tracking-wide uppercase">Photo à venir</span>
                 </div>
                 {product.badge && product.badge !== 'Nouveau' && (
-                  <span className={`absolute top-4 left-4 text-xs font-medium px-2 py-1 tracking-wider uppercase ${
+                  <span className={`absolute top-4 left-4 text-xs font-medium px-2 py-1 tracking-wider uppercase z-10 ${
                     product.badge === 'Promo' ? 'bg-terracotta text-white' : 'bg-anthracite text-ivory'
                   }`}>
                     {product.badge === 'Promo' && product.discount ? `-${product.discount}%` : product.badge}
                   </span>
                 )}
+                {/* Mobile overlay for placeholder */}
+                <div className="md:hidden absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pt-14 pb-3.5 px-4 flex items-end justify-between gap-3 pointer-events-none z-10">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[11px] text-ivory/80 uppercase tracking-widest font-medium mb-0.5 truncate">
+                      {product.gender === 'homme' ? 'Homme' : product.gender === 'unisexe' ? 'Unisexe' : 'Femme'} · {product.categoryLabel || product.category}
+                    </p>
+                    <h1 className="font-serif text-lg sm:text-xl font-semibold text-white leading-tight line-clamp-2 drop-shadow-xs">
+                      {product.name}
+                    </h1>
+                    <div className="mt-1 flex items-baseline gap-2">
+                      <span className="text-lg font-bold text-white drop-shadow-xs">
+                        {formatPrice(product.price)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </>
             )}
           </div>
-          {/* Thumbnails — only shown when multiple real photos exist */}
+          {/* Thumbnails — single horizontal scroll row on mobile, wrapped on desktop */}
           {hasImages && product.images.length > 1 && (
-            <div className="flex flex-wrap gap-2 pt-1">
+            <div className="flex overflow-x-auto md:flex-wrap gap-2 pt-1 pb-1 no-scrollbar scroll-smooth">
               {product.images.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => setSelectedImage(i)}
-                  className={`relative w-14 md:w-16 aspect-[3/4] bg-stone/10 overflow-hidden border-2 transition-all duration-150 ${
+                  className={`relative w-14 md:w-16 aspect-[3/4] flex-shrink-0 bg-stone/10 overflow-hidden border-2 transition-all duration-150 ${
                     selectedImage === i ? 'border-anthracite shadow-sm scale-105' : 'border-transparent hover:border-stone/40'
                   }`}
                   aria-label={`Afficher vue ${i + 1}`}
@@ -123,8 +196,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         </div>
 
         {/* Product info */}
-        <div className="flex flex-col gap-6">
-          <div>
+        <div className="flex flex-col gap-4 md:gap-6">
+          {/* Desktop-only title & price (on mobile it is cleanly overlaid on the photo) */}
+          <div className="hidden md:block">
             <p className="text-xs text-stone uppercase tracking-widest mb-1">
               {product.gender === 'homme' ? 'Homme' : product.gender === 'unisexe' ? 'Unisexe' : 'Femme'} · {product.categoryLabel || product.category}
             </p>

@@ -9,6 +9,8 @@
 }
 @layer utilities {
   .animate-badge-pop { animation: badgePop 0.3s ease-out; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }
 @keyframes badgePop {
   0%, 100% { transform: scale(1); }
