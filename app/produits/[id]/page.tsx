@@ -448,13 +448,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               </summary>
               <p className="text-sm text-stone mt-2 leading-relaxed">{product.material}</p>
             </details>
-            <details className="group">
-              <summary className="flex justify-between items-center cursor-pointer text-sm font-medium py-2 hover:text-terracotta transition-colors">
-                Entretien
-                <span className="text-stone group-open:rotate-180 transition-transform">▼</span>
-              </summary>
-              <p className="text-sm text-stone mt-2 leading-relaxed">{product.care}</p>
-            </details>
             <div className="py-2">
               <p className="text-sm text-stone">🚚 Livraison partout au Sénégal — gratuite dès 70 000 FCFA d&apos;achat</p>
             </div>
