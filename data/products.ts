@@ -56,7 +56,6 @@ export const products: Product[] = [
       "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.03.40%20(1).jpeg",
       "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.03.40%20(2).jpeg",
       "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.03.40.jpeg",
-      "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.03.41%20(1).jpeg",
       "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.03.41%20(2).jpeg",
       "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.03.41%20(3).jpeg",
       "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.04.15.jpeg",
