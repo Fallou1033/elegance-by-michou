@@ -12,7 +12,9 @@ import {
   Clock, 
   ChevronLeft, 
   ArrowRight,
-  Scissors
+  Scissors,
+  ExternalLink,
+  Navigation
 } from 'lucide-react';
 import { WHATSAPP_NUMBER } from '@/data/products';
 
@@ -244,19 +246,23 @@ export default function AProposPage() {
           </a>
 
           {/* Localisation */}
-          <div className="bg-white border border-stone/20 p-6 rounded-2xl shadow-xs flex flex-col justify-between">
+          <a
+            href="#google-map"
+            className="bg-white border border-stone/20 hover:border-terracotta p-6 rounded-2xl shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group"
+          >
             <div>
-              <div className="w-12 h-12 rounded-xl bg-anthracite/10 text-anthracite flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-xl bg-anthracite/10 text-anthracite flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <MapPin size={24} />
               </div>
               <h3 className="font-serif text-lg font-semibold text-anthracite mb-1">Localisation</h3>
-              <p className="text-xs text-stone mb-3">Atelier &amp; Boutique</p>
-              <p className="text-sm font-bold text-anthracite">Dakar, Sénégal</p>
+              <p className="text-xs text-stone mb-2">Atelier &amp; Boutique</p>
+              <p className="text-sm font-bold text-anthracite">Liberté 6</p>
+              <p className="text-xs text-stone mt-0.5">En face Camp Pénal, Dakar</p>
             </div>
-            <span className="mt-6 text-xs text-stone">
-              🚚 Expédition partout au Sénégal
+            <span className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-terracotta uppercase tracking-wider group-hover:gap-3 transition-all">
+              Voir sur la carte ↓
             </span>
-          </div>
+          </a>
 
           {/* Horaires */}
           <div className="bg-white border border-stone/20 p-6 rounded-2xl shadow-xs flex flex-col justify-between">
@@ -272,6 +278,65 @@ export default function AProposPage() {
             <span className="mt-6 text-xs text-green-700 font-medium flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-green-500" /> Ouvert aujourd&apos;hui
             </span>
+          </div>
+        </div>
+
+        {/* Section Google Maps interactive */}
+        <div id="google-map" className="mb-14 scroll-mt-24">
+          <div className="bg-white border border-stone/20 rounded-3xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+            {/* Header de la carte */}
+            <div className="p-6 sm:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-stone/15 bg-[#FAF9F6]">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-terracotta/10 text-terracotta text-xs font-semibold uppercase tracking-wider mb-2">
+                  <MapPin size={13} />
+                  <span>Emplacement de l&apos;Atelier &amp; Boutique</span>
+                </div>
+                <h3 className="font-serif text-2xl sm:text-3xl font-semibold text-anthracite">
+                  Liberté 6, en face Camp Pénal
+                </h3>
+                <p className="text-stone text-sm mt-1">
+                  Dakar, Sénégal — Repère : Juste en face de l&apos;entrée principale du Camp Pénal de Liberté 6
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <a
+                  href="https://www.google.com/maps/search/?api=1&query=Camp+P%C3%A9nal+Libert%C3%A9+6+Dakar"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-none bg-anthracite hover:bg-terracotta text-ivory text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                >
+                  <Navigation size={14} />
+                  <span>Ouvrir l&apos;Itinéraire GPS</span>
+                  <ExternalLink size={13} />
+                </a>
+              </div>
+            </div>
+
+            {/* Iframe Google Maps */}
+            <div className="relative w-full h-[360px] sm:h-[420px] md:h-[480px] bg-stone/10">
+              <iframe
+                title="Carte Google Maps Elegance By Michou - Liberté 6 en face Camp Pénal Dakar"
+                src="https://maps.google.com/maps?q=Camp%20P%C3%A9nal%2C%20Libert%C3%A9%206%2C%20Dakar&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                className="w-full h-full border-0"
+                loading="lazy"
+                allowFullScreen
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </div>
+
+            {/* Informations pratiques sous la carte */}
+            <div className="p-4 sm:p-6 bg-white flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone border-t border-stone/15">
+              <div className="flex items-center gap-2 text-center sm:text-left">
+                <span className="text-base">📍</span>
+                <span>
+                  <strong>Accès facile :</strong> En plein cœur de Liberté 6, en face du Camp Pénal. Atelier et essayages ouverts 7j/7 de 9h à 21h.
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-center sm:text-right font-medium text-anthracite">
+                <span>🚚 Livraison express également disponible partout à Dakar et dans les régions !</span>
+              </div>
+            </div>
           </div>
         </div>
 
