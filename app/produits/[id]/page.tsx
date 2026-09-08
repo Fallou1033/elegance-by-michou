@@ -2,10 +2,11 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { Minus, Plus, ShoppingBag, Ruler, ChevronLeft, ChevronRight, ArrowRight, AlertCircle, Maximize2, X } from 'lucide-react';
+import { Minus, Plus, ShoppingBag, Ruler, ChevronLeft, ChevronRight, ArrowRight, AlertCircle, Maximize2, X, Heart } from 'lucide-react';
 import Link from 'next/link';
 import { products } from '@/data/products';
 import { useCart } from '@/context/CartContext';
+import { useFavorites } from '@/context/FavoritesContext';
 import { formatPrice, BULK_DISCOUNT_RULES } from '@/lib/utils';
 import SizeGuideModal from '@/components/ui/SizeGuideModal';
 import ProductCard from '@/components/ui/ProductCard';
@@ -17,6 +18,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const bulkRule = BULK_DISCOUNT_RULES[product.id];
 
   const { addToCart, openDrawer } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favorited = isFavorite(product.id);
+
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState(product.colors[0]?.name || '');
@@ -116,6 +120,24 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     {product.badge === 'Promo' && product.discount ? `-${product.discount}%` : product.badge}
                   </span>
                 )}
+
+                {/* Favorite heart button on main image */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(product.id);
+                  }}
+                  className={`absolute top-3.5 right-13 md:right-14 w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center backdrop-blur-xs z-20 transition-all cursor-pointer shadow-md hover:scale-105 ${
+                    favorited
+                      ? 'bg-white text-red-500'
+                      : 'bg-black/40 hover:bg-black/70 text-white'
+                  }`}
+                  aria-label={favorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                  title={favorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                >
+                  <Heart size={16} className={favorited ? 'fill-red-500 text-red-500' : ''} />
+                </button>
 
                 {/* Fullscreen expand button */}
                 <button
@@ -408,35 +430,51 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 <span>Veuillez sélectionner une taille</span>
               </div>
             )}
-            <button
-              onClick={handleAddToCart}
-              className={`flex items-center justify-center gap-3 w-full py-4 text-sm font-medium tracking-widest uppercase transition-all duration-200 ${
-                sizeError
-                  ? 'bg-red-600 text-white shadow-lg'
-                  : addedToCart
-                  ? 'bg-green-600 text-white'
-                  : 'bg-anthracite text-ivory hover:bg-terracotta'
-              }`}
-            >
-              {sizeError ? (
-                <>
-                  <AlertCircle size={18} />
-                  Veuillez sélectionner une taille
-                </>
-              ) : addedToCart ? (
-                'Ajouté au panier !'
-              ) : (
-                <>
-                  <ShoppingBag size={18} />
-                  <span>{`Ajouter au panier — ${formatPrice(totalPriceForQuantity)}`}</span>
-                  {totalSavingsForQuantity > 0 && (
-                    <span className="bg-terracotta text-white text-[11px] font-bold px-2 py-0.5 rounded-full ml-1 normal-case tracking-normal">
-                      -{formatPrice(totalSavingsForQuantity)}
-                    </span>
-                  )}
-                </>
-              )}
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleAddToCart}
+                className={`flex-1 flex items-center justify-center gap-3 py-4 text-sm font-medium tracking-widest uppercase transition-all duration-200 ${
+                  sizeError
+                    ? 'bg-red-600 text-white shadow-lg'
+                    : addedToCart
+                    ? 'bg-green-600 text-white'
+                    : 'bg-anthracite text-ivory hover:bg-terracotta'
+                }`}
+              >
+                {sizeError ? (
+                  <>
+                    <AlertCircle size={18} />
+                    Veuillez sélectionner une taille
+                  </>
+                ) : addedToCart ? (
+                  'Ajouté au panier !'
+                ) : (
+                  <>
+                    <ShoppingBag size={18} />
+                    <span>{`Ajouter au panier — ${formatPrice(totalPriceForQuantity)}`}</span>
+                    {totalSavingsForQuantity > 0 && (
+                      <span className="bg-terracotta text-white text-[11px] font-bold px-2 py-0.5 rounded-full ml-1 normal-case tracking-normal">
+                        -{formatPrice(totalSavingsForQuantity)}
+                      </span>
+                    )}
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => toggleFavorite(product.id)}
+                className={`h-[54px] w-[54px] flex-shrink-0 flex items-center justify-center border transition-all duration-200 cursor-pointer ${
+                  favorited
+                    ? 'border-red-500 bg-red-50 text-red-500 shadow-xs'
+                    : 'border-stone/30 text-stone hover:border-anthracite hover:text-red-500 hover:bg-stone/5'
+                }`}
+                aria-label={favorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                title={favorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+              >
+                <Heart size={22} className={favorited ? 'fill-red-500 text-red-500' : ''} />
+              </button>
+            </div>
           </div>
 
           {/* Product details */}
@@ -503,38 +541,54 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             <span>Veuillez sélectionner une taille</span>
           </div>
         )}
-        <button
-          onClick={handleAddToCart}
-          className={`w-full py-4 text-sm font-medium tracking-widest uppercase flex items-center justify-center gap-3 transition-all duration-200 ${
-            sizeError
-              ? 'bg-red-600 text-white shadow-lg'
-              : addedToCart
-              ? 'bg-green-600 text-white'
-              : 'bg-anthracite text-ivory active:scale-[0.99]'
-          }`}
-        >
-          {sizeError ? (
-            <>
-              <AlertCircle size={18} />
-              <span>Veuillez sélectionner une taille</span>
-            </>
-          ) : addedToCart ? (
-            <>
-              <ShoppingBag size={18} />
-              <span>Ajouté au panier !</span>
-            </>
-          ) : (
-            <>
-              <ShoppingBag size={18} />
-              <span>Ajouter — {formatPrice(totalPriceForQuantity)}</span>
-              {totalSavingsForQuantity > 0 && (
-                <span className="bg-terracotta text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-1 normal-case tracking-normal">
-                  -{formatPrice(totalSavingsForQuantity)}
-                </span>
-              )}
-            </>
-          )}
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={handleAddToCart}
+            className={`flex-1 py-4 text-sm font-medium tracking-widest uppercase flex items-center justify-center gap-2 transition-all duration-200 ${
+              sizeError
+                ? 'bg-red-600 text-white shadow-lg'
+                : addedToCart
+                ? 'bg-green-600 text-white'
+                : 'bg-anthracite text-ivory active:scale-[0.99]'
+            }`}
+          >
+            {sizeError ? (
+              <>
+                <AlertCircle size={18} />
+                <span>Sélectionner une taille</span>
+              </>
+            ) : addedToCart ? (
+              <>
+                <ShoppingBag size={18} />
+                <span>Ajouté !</span>
+              </>
+            ) : (
+              <>
+                <ShoppingBag size={18} />
+                <span className="truncate">Ajouter — {formatPrice(totalPriceForQuantity)}</span>
+                {totalSavingsForQuantity > 0 && (
+                  <span className="bg-terracotta text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-1 normal-case tracking-normal">
+                    -{formatPrice(totalSavingsForQuantity)}
+                  </span>
+                )}
+              </>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => toggleFavorite(product.id)}
+            className={`h-[52px] w-[52px] flex-shrink-0 flex items-center justify-center border transition-all duration-200 cursor-pointer rounded-xs ${
+              favorited
+                ? 'border-red-500 bg-red-50 text-red-500'
+                : 'border-stone/30 bg-white text-stone active:scale-95'
+            }`}
+            aria-label={favorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+            title={favorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+          >
+            <Heart size={22} className={favorited ? 'fill-red-500 text-red-500' : ''} />
+          </button>
+        </div>
       </div>
 
       <SizeGuideModal isOpen={sizeGuideOpen} onClose={() => setSizeGuideOpen(false)} />

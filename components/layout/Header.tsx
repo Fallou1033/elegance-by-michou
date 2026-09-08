@@ -3,12 +3,14 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
+import { useFavorites } from '@/context/FavoritesContext';
 import CartDrawer from '@/components/cart/CartDrawer';
-import { ShoppingBag, Search, Menu, X } from 'lucide-react';
+import { ShoppingBag, Search, Menu, X, Heart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function Header() {
   const { getCartCount, openDrawer, isDrawerOpen } = useCart();
+  const { getFavoritesCount } = useFavorites();
   const [cartCount, setCartCount] = useState(0);
   const [prevCount, setPrevCount] = useState(0);
   const [badgeAnimating, setBadgeAnimating] = useState(false);
@@ -19,6 +21,7 @@ export default function Header() {
   const router = useRouter();
 
   const currentCount = getCartCount();
+  const favCount = getFavoritesCount();
 
   useEffect(() => {
     if (currentCount !== prevCount) {
@@ -52,6 +55,7 @@ export default function Header() {
     { href: '/?gender=homme', label: 'Homme' },
     { href: '/?badge=Nouveau', label: 'Nouveautés' },
     { href: '/?badge=Promo', label: 'Promotions' },
+    { href: '/favoris', label: 'Favoris' },
   ];
 
   return (
@@ -94,9 +98,14 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-sm font-medium text-anthracite hover:text-terracotta transition-colors tracking-wider uppercase"
+                  className="text-sm font-medium text-anthracite hover:text-terracotta transition-colors tracking-wider uppercase flex items-center gap-1.5"
                 >
-                  {link.label}
+                  <span>{link.label}</span>
+                  {link.label === 'Favoris' && favCount > 0 && (
+                    <span className="text-[11px] bg-terracotta text-white font-bold px-1.5 py-0.2 rounded-full leading-tight">
+                      {favCount}
+                    </span>
+                  )}
                 </Link>
               ))}
             </nav>
@@ -143,6 +152,23 @@ export default function Header() {
                 <Search size={20} />
               </button>
 
+              {/* Favorites button */}
+              <Link
+                href="/favoris"
+                className="relative p-2 text-anthracite hover:text-terracotta transition-colors"
+                aria-label={`Favoris (${favCount} article${favCount > 1 ? 's' : ''})`}
+                title="Mes favoris"
+              >
+                <Heart size={21} className={favCount > 0 ? "fill-terracotta/20 text-terracotta" : ""} />
+                {favCount > 0 && (
+                  <span
+                    className="absolute -top-0.5 -right-0.5 bg-terracotta text-white text-[10px] font-bold rounded-full w-4 h-4 md:w-5 md:h-5 md:text-xs flex items-center justify-center transition-transform"
+                  >
+                    {favCount > 9 ? '9+' : favCount}
+                  </span>
+                )}
+              </Link>
+
               {/* Cart button */}
               <button
                 onClick={openDrawer}
@@ -152,7 +178,7 @@ export default function Header() {
                 <ShoppingBag size={22} />
                 {cartCount > 0 && (
                   <span
-                    className={`absolute -top-0.5 -right-0.5 bg-terracotta text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center transition-transform ${badgeAnimating ? 'animate-badge-pop' : ''}`}
+                    className={`absolute -top-0.5 -right-0.5 bg-anthracite text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center transition-transform ${badgeAnimating ? 'animate-badge-pop' : ''}`}
                   >
                     {cartCount > 9 ? '9+' : cartCount}
                   </span>
@@ -171,9 +197,15 @@ export default function Header() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-base font-medium text-anthracite hover:text-terracotta transition-colors"
+                  className="flex items-center justify-between text-base font-medium text-anthracite hover:text-terracotta transition-colors py-1"
                 >
-                  {link.label}
+                  <span>{link.label}</span>
+                  {link.label === 'Favoris' && favCount > 0 && (
+                    <span className="bg-terracotta text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <Heart size={11} className="fill-white" />
+                      {favCount}
+                    </span>
+                  )}
                 </Link>
               ))}
             </nav>

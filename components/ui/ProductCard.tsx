@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Check, ShoppingBag } from 'lucide-react';
+import { Check, ShoppingBag, Heart } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useFavorites } from '@/context/FavoritesContext';
 import type { Product } from '@/types';
 import { formatPrice, BULK_DISCOUNT_RULES } from '@/lib/utils';
 import PlaceholderProductImage from './PlaceholderProductImage';
@@ -15,14 +16,23 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart, openDrawer } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const searchParams = useSearchParams();
   const hasSizes = Boolean(product.sizes && product.sizes.length > 0);
   const hasColors = Boolean(product.colors && product.colors.length > 0);
+
+  const favorited = isFavorite(product.id);
 
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>(product.colors?.[0]?.name || '');
   const [isHovered, setIsHovered] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
+
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleFavorite(product.id);
+  };
 
   // Reset selected size whenever URL search params or product change
   useEffect(() => {
@@ -61,46 +71,66 @@ export default function ProductCard({ product }: ProductCardProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Image */}
-      <Link href={`/produits/${product.id}`} className="relative block overflow-hidden bg-stone/10 aspect-[3/4]">
-        {hasImages ? (
-          <>
-            <Image
-              src={product.images[0]}
-              alt={product.name}
-              fill
-              className={`object-cover transition-all duration-500 group-hover:scale-105 ${
-                hoverImage && isHovered ? 'opacity-0' : 'opacity-100'
-              }`}
-              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-            />
-            {hoverImage && (
+      {/* Image Container with Favorite button */}
+      <div className="relative block overflow-hidden bg-stone/10 aspect-[3/4] rounded-xs group/img">
+        <Link href={`/produits/${product.id}`} className="block w-full h-full">
+          {hasImages ? (
+            <>
               <Image
-                src={hoverImage}
-                alt={`${product.name} - vue alternative`}
+                src={product.images[0]}
+                alt={product.name}
                 fill
-                className={`object-cover transition-all duration-500 group-hover:scale-105 ${
-                  isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                className={`object-cover transition-all duration-500 group-hover/img:scale-105 ${
+                  hoverImage && isHovered ? 'opacity-0' : 'opacity-100'
                 }`}
                 sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
               />
-            )}
-          </>
-        ) : (
-          <PlaceholderProductImage />
-        )}
+              {hoverImage && (
+                <Image
+                  src={hoverImage}
+                  alt={`${product.name} - vue alternative`}
+                  fill
+                  className={`object-cover transition-all duration-500 group-hover/img:scale-105 ${
+                    isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                  }`}
+                  sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                />
+              )}
+            </>
+          ) : (
+            <PlaceholderProductImage />
+          )}
 
-        {/* Badge — only show for Promo or special badges, not Nouveau */}
-        {product.badge && product.badge !== 'Nouveau' && (
-          <span className={`absolute top-3 left-3 text-xs font-medium px-2 py-1 tracking-wider uppercase ${
-            product.badge === 'Promo'
-              ? 'bg-terracotta text-white'
-              : 'bg-anthracite text-ivory'
-          }`}>
-            {product.badge === 'Promo' && product.discount ? `-${product.discount}%` : product.badge}
-          </span>
-        )}
-      </Link>
+          {/* Badge — only show for Promo or special badges, not Nouveau */}
+          {product.badge && product.badge !== 'Nouveau' && (
+            <span className={`absolute top-3 left-3 text-xs font-medium px-2 py-1 tracking-wider uppercase z-10 ${
+              product.badge === 'Promo'
+                ? 'bg-terracotta text-white'
+                : 'bg-anthracite text-ivory'
+            }`}>
+              {product.badge === 'Promo' && product.discount ? `-${product.discount}%` : product.badge}
+            </span>
+          )}
+        </Link>
+
+        {/* Favorite heart button */}
+        <button
+          type="button"
+          onClick={handleToggleFavorite}
+          className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-xs transition-all duration-200 cursor-pointer shadow-xs ${
+            favorited
+              ? 'bg-white text-red-500 hover:scale-110 shadow-sm'
+              : 'bg-white/80 hover:bg-white text-stone hover:text-red-500 hover:scale-110'
+          }`}
+          aria-label={favorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+          title={favorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+        >
+          <Heart
+            size={16}
+            className={`transition-colors ${favorited ? 'fill-red-500 text-red-500' : ''}`}
+          />
+        </button>
+      </div>
 
       {/* Info */}
       <div className="mt-3 flex-1 flex flex-col gap-2">

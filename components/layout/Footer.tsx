@@ -28,10 +28,16 @@ export default function Footer() {
           <div>
             <h4 className="text-sm font-semibold uppercase tracking-widest text-stone mb-4">Collections</h4>
             <ul className="space-y-3">
-              {['Femme', 'Homme', 'Nouveautés', 'Promotions'].map(item => (
-                <li key={item}>
-                  <Link href={`/?gender=${item.toLowerCase()}`} className="text-sm text-ivory/70 hover:text-terracotta transition-colors">
-                    {item}
+              {[
+                { label: 'Femme', href: '/?gender=femme' },
+                { label: 'Homme', href: '/?gender=homme' },
+                { label: 'Nouveautés', href: '/?badge=Nouveau' },
+                { label: 'Promotions', href: '/?badge=Promo' },
+                { label: 'Mes Favoris', href: '/favoris' },
+              ].map(item => (
+                <li key={item.label}>
+                  <Link href={item.href} className="text-sm text-ivory/70 hover:text-terracotta transition-colors">
+                    {item.label}
                   </Link>
                 </li>
               ))}
