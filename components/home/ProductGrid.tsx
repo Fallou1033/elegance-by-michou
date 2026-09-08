@@ -1,58 +1,159 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import ProductCard from '@/components/ui/ProductCard';
 import SkeletonCard from '@/components/ui/SkeletonCard';
 import FilterBar from './FilterBar';
 import { products } from '@/data/products';
+import { BULK_DISCOUNT_RULES } from '@/lib/utils';
 
 export default function ProductGrid() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [activeCategory, setActiveCategory] = useState('all');
   const [activeGender, setActiveGender] = useState('all');
+  const [activeBadge, setActiveBadge] = useState<string | null>(null);
 
-  // Sync URL params for filtering
+  // Sync URL params for filtering and scroll smoothly to catalogue
   useEffect(() => {
     const gender = searchParams.get('gender');
+    const badge = searchParams.get('badge');
+
     if (gender === 'homme') {
       setActiveGender('homme');
+      setActiveCategory('all');
+      setActiveBadge(null);
     } else if (gender === 'femme') {
       setActiveGender('femme');
+      setActiveCategory('all');
+      setActiveBadge(null);
+    } else {
+      setActiveGender('all');
+    }
+
+    if (badge) {
+      setActiveBadge(badge);
+      setActiveCategory('all');
+      if (badge === 'Nouveau' || badge === 'Promo') {
+        setActiveGender('all');
+      }
+    } else if (!gender) {
+      setActiveBadge(null);
+    }
+
+    // Scroll into view if navigation came from header filter
+    if (gender || badge || (typeof window !== 'undefined' && window.location.hash === '#catalogue')) {
+      setTimeout(() => {
+        const el = document.getElementById('catalogue');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
     }
   }, [searchParams]);
 
   const filteredProducts = useMemo(() => {
     const search = searchParams.get('search')?.toLowerCase();
-    const badge = searchParams.get('badge');
+    const badge = searchParams.get('badge') || activeBadge;
 
     return products.filter(p => {
+      // Filtre badge (Promotions ou Nouveautés)
+      if (badge === 'Promo') {
+        const isPromo =
+          p.badge === 'Promo' ||
+          Boolean(p.originalPrice && p.originalPrice > p.price) ||
+          Boolean(BULK_DISCOUNT_RULES[p.id]);
+        if (!isPromo) return false;
+      } else if (badge === 'Nouveau') {
+        if (p.badge !== 'Nouveau' && p.badge !== 'Promo') return false;
+      }
+
+      // Filtre catégorie
       if (activeCategory !== 'all' && p.category !== activeCategory) return false;
-      if (activeGender !== 'all' && p.gender !== activeGender && !(activeGender === 'femme' && p.gender === 'unisexe')) return false;
-      if (badge && p.badge !== badge) return false;
-      if (search && !p.name.toLowerCase().includes(search) && !p.description.toLowerCase().includes(search)) return false;
+
+      // Filtre genre
+      if (
+        activeGender !== 'all' &&
+        p.gender !== activeGender &&
+        !(activeGender === 'femme' && p.gender === 'unisexe')
+      ) {
+        return false;
+      }
+
+      // Recherche textuelle
+      if (
+        search &&
+        !p.name.toLowerCase().includes(search) &&
+        !p.description.toLowerCase().includes(search)
+      ) {
+        return false;
+      }
+
       return true;
     });
-  }, [activeCategory, activeGender, searchParams]);
+  }, [activeCategory, activeGender, activeBadge, searchParams]);
+
+  const handleCategoryChange = (cat: string) => {
+    setActiveCategory(cat);
+    setActiveBadge(null);
+  };
+
+  const handleGenderChange = (gen: string) => {
+    setActiveGender(gen);
+    setActiveBadge(null);
+  };
+
+  const handleResetFilters = () => {
+    setActiveBadge(null);
+    setActiveGender('all');
+    setActiveCategory('all');
+    router.push('/#catalogue');
+  };
 
   return (
-    <section id="catalogue" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div className="mb-8">
-        <h2 className="font-serif text-3xl md:text-4xl font-semibold text-anthracite">
-          Notre Collection
-        </h2>
-        {searchParams.get('search') && (
-          <p className="text-stone mt-2 text-sm">
-            Résultats pour « {searchParams.get('search')} »
-          </p>
+    <section id="catalogue" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 scroll-mt-24">
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h2 className="font-serif text-3xl md:text-4xl font-semibold text-anthracite">
+            {activeBadge === 'Promo'
+              ? 'Nos Promotions & Offres Spéciales'
+              : activeBadge === 'Nouveau'
+              ? 'Nouveautés Collection 2026'
+              : activeGender === 'femme'
+              ? 'Collection Femme'
+              : activeGender === 'homme'
+              ? 'Collection Homme'
+              : 'Notre Collection'}
+          </h2>
+          {activeBadge === 'Promo' && (
+            <p className="text-terracotta mt-2 text-sm font-medium">
+              Profitez de réductions exclusives et de tarifs volume sur vos articles préférés !
+            </p>
+          )}
+          {searchParams.get('search') && (
+            <p className="text-stone mt-2 text-sm">
+              Résultats pour « {searchParams.get('search')} »
+            </p>
+          )}
+        </div>
+
+        {(activeBadge || activeGender !== 'all' || activeCategory !== 'all') && (
+          <button
+            type="button"
+            onClick={handleResetFilters}
+            className="text-xs text-stone hover:text-terracotta underline uppercase tracking-wider self-start sm:self-auto cursor-pointer"
+          >
+            Voir toute la collection
+          </button>
         )}
       </div>
 
       <FilterBar
         activeCategory={activeCategory}
         activeGender={activeGender}
-        onCategoryChange={setActiveCategory}
-        onGenderChange={setActiveGender}
+        onCategoryChange={handleCategoryChange}
+        onGenderChange={handleGenderChange}
         productCount={filteredProducts.length}
       />
 
@@ -61,13 +162,19 @@ export default function ProductGrid() {
           Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
         ) : filteredProducts.length === 0 ? (
           <div className="col-span-full py-20 text-center">
-            <p className="text-stone text-lg">Aucun produit trouvé.</p>
-            <p className="text-stone text-sm mt-2">Essayez d&apos;autres filtres.</p>
+            <p className="text-stone text-lg">Aucun article ne correspond à cette sélection.</p>
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className="mt-4 px-6 py-2.5 bg-anthracite text-white text-xs font-medium uppercase tracking-wider hover:bg-terracotta transition-colors"
+            >
+              Afficher toute la boutique
+            </button>
           </div>
         ) : (
           filteredProducts.map(product => (
             <ProductCard
-              key={`${product.id}-${activeCategory}-${activeGender}`}
+              key={`${product.id}-${activeCategory}-${activeGender}-${activeBadge || 'all'}`}
               product={product}
             />
           ))

@@ -51,12 +51,45 @@ export default function Header() {
   };
 
   const navLinks = [
-    { href: '/?gender=femme', label: 'Femme' },
-    { href: '/?gender=homme', label: 'Homme' },
-    { href: '/?badge=Nouveau', label: 'Nouveautés' },
-    { href: '/?badge=Promo', label: 'Promotions' },
+    { href: '/?gender=femme#catalogue', label: 'Femme' },
+    { href: '/?gender=homme#catalogue', label: 'Homme' },
+    { href: '/?badge=Nouveau#catalogue', label: 'Nouveautés' },
+    { href: '/?badge=Promo#catalogue', label: 'Promotions' },
     { href: '/favoris', label: 'Favoris' },
   ];
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith('/favoris')) {
+      return;
+    }
+    if (typeof window !== 'undefined' && window.location.pathname === '/') {
+      e.preventDefault();
+      router.push(href);
+      setTimeout(() => {
+        const catalogueEl = document.getElementById('catalogue');
+        if (catalogueEl) {
+          catalogueEl.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 50);
+    }
+  };
+
+  const handleMobileNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    setMobileMenuOpen(false);
+    if (href.startsWith('/favoris')) {
+      return;
+    }
+    if (typeof window !== 'undefined' && window.location.pathname === '/') {
+      e.preventDefault();
+      router.push(href);
+      setTimeout(() => {
+        const catalogueEl = document.getElementById('catalogue');
+        if (catalogueEl) {
+          catalogueEl.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 150);
+    }
+  };
 
   return (
     <>
@@ -98,6 +131,7 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
+                  onClick={(e) => handleNavClick(e, link.href)}
                   className="text-sm font-medium text-anthracite hover:text-terracotta transition-colors tracking-wider uppercase flex items-center gap-1.5"
                 >
                   <span>{link.label}</span>
@@ -196,7 +230,7 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={(e) => handleMobileNavClick(e, link.href)}
                   className="flex items-center justify-between text-base font-medium text-anthracite hover:text-terracotta transition-colors py-1"
                 >
                   <span>{link.label}</span>
