@@ -14,7 +14,7 @@ const INSTAGRAM_POSTS = [
     likes: '238',
   },
   {
-    image: '/images/products/Grand%20boubou/WhatsApp%20Image%202026-09-05%20at%2014.00.52.jpeg',
+    image: '/images/products/Grand%20boubou/WhatsApp%20Image%202026-09-05%20at%2014.00.51%20(4).jpeg',
     title: 'Grand Boubou Cérémonie',
     likes: '315',
   },

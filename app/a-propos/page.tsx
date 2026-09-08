@@ -63,7 +63,7 @@ export default function AProposPage() {
           {/* Photo d'ambiance / Savoir-faire */}
           <div className="relative aspect-[4/5] w-full max-w-lg mx-auto rounded-2xl overflow-hidden shadow-2xl bg-stone/10">
             <Image
-              src="/images/products/Grand%20boubou/WhatsApp%20Image%202026-09-05%20at%2014.00.52.jpeg"
+              src="/images/products/Grand%20boubou/WhatsApp%20Image%202026-09-05%20at%2014.00.51%20(4).jpeg"
               alt="Artisanat et création Elegance By Michou"
               fill
               className="object-cover object-top"
