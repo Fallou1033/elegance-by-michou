@@ -6,7 +6,6 @@ import {
   Sparkles, 
   ShieldCheck, 
   Truck, 
-  Phone, 
   MessageCircle, 
   MapPin, 
   Clock, 
@@ -207,7 +206,7 @@ export default function AProposPage() {
         </div>
 
         {/* Grille des moyens de contact */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {/* WhatsApp */}
           <a
             href={whatsappUrl}
@@ -225,24 +224,6 @@ export default function AProposPage() {
             </div>
             <span className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-[#25D366] uppercase tracking-wider group-hover:gap-3 transition-all">
               Écrire sur WhatsApp →
-            </span>
-          </a>
-
-          {/* Téléphone / Appel */}
-          <a
-            href="tel:+221782644102"
-            className="bg-white border border-stone/20 hover:border-terracotta p-6 rounded-2xl shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group"
-          >
-            <div>
-              <div className="w-12 h-12 rounded-xl bg-terracotta/10 text-terracotta flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Phone size={24} />
-              </div>
-              <h3 className="font-serif text-lg font-semibold text-anthracite mb-1">Appel Téléphonique</h3>
-              <p className="text-xs text-stone mb-3">Pour vos échanges directs</p>
-              <p className="text-sm font-bold text-anthracite font-mono">+221 78 264 41 02</p>
-            </div>
-            <span className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-terracotta uppercase tracking-wider group-hover:gap-3 transition-all">
-              Appeler maintenant →
             </span>
           </a>
 
