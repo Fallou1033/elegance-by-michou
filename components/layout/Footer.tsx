@@ -13,7 +13,7 @@ export default function Footer() {
               Votre boutique de mode au Sénégal. Des collections tendance pour femmes et hommes, livrées partout au Sénégal.
             </p>
             <div className="mt-4 flex items-center gap-2 text-xs text-stone">
-              <MapPin size={15} className="text-terracotta flex-shrink-0" />
+              <MapPin size={15} className="text-terracotta flex-shrink-0" /> 
               <Link href="/a-propos#google-map" className="hover:text-terracotta transition-colors">
                 Liberté 6, en face Camp Pénal — Dakar
               </Link>

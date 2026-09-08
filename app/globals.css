@@ -4,8 +4,15 @@
 @tailwind utilities;
 
 @layer base {
-  html { font-family: 'Inter', sans-serif; }
-  body { background-color: #FAF9F6; color: #1A1A1A; }
+  html {
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+  body {
+    background-color: #FAF9F6;
+    color: #1A1A1A;
+    overflow-x: hidden;
+  }
 }
 @layer utilities {
   .animate-badge-pop { animation: badgePop 0.3s ease-out; }

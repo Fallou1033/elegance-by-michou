@@ -151,33 +151,33 @@ export default function Header() {
   return (
     <>
       <header className="sticky top-0 z-50 bg-ivory/95 backdrop-blur-sm border-b border-stone/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 md:h-20">
+        <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 md:h-20 gap-1 sm:gap-2">
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-md text-anthracite hover:text-terracotta transition-colors"
+              className="md:hidden p-1.5 sm:p-2 rounded-md text-anthracite hover:text-terracotta transition-colors flex-shrink-0"
               aria-label="Menu de navigation"
             >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
 
             {/* Logo */}
             <Link
               href="/"
-              className="flex items-center gap-2 md:gap-2.5 group transition-colors"
+              className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 group transition-colors min-w-0 flex-shrink"
             >
               <div className="relative h-6 sm:h-7 md:h-8 aspect-[464/584] flex-shrink-0">
                 <Image
                   src="/images/logo-em.png"
                   alt="ÉM Logo"
                   fill
-                  sizes="(max-width: 768px) 32px, 40px"
+                  sizes="(max-width: 768px) 26px, 40px"
                   className="object-contain"
                   priority
                 />
               </div>
-              <span className="font-serif text-lg sm:text-xl md:text-2xl font-semibold text-anthracite group-hover:text-terracotta transition-colors tracking-tight sm:tracking-wide whitespace-nowrap">
+              <span className="font-serif text-[15px] sm:text-xl md:text-2xl font-semibold text-anthracite group-hover:text-terracotta transition-colors tracking-tight sm:tracking-wide truncate">
                 Elegance By Michou
               </span>
             </Link>
@@ -202,7 +202,7 @@ export default function Header() {
             </nav>
 
             {/* Right actions */}
-            <div className="flex items-center gap-3 md:gap-4">
+            <div className="flex items-center gap-1 sm:gap-2.5 md:gap-4 flex-shrink-0">
               {/* Desktop search */}
               <div ref={searchContainerRef} className="hidden md:flex items-center relative">
                 {searchOpen ? (
@@ -290,10 +290,10 @@ export default function Header() {
               {/* Mobile search */}
               <button
                 onClick={() => setSearchOpen(true)}
-                className="md:hidden p-2 text-anthracite hover:text-terracotta transition-colors"
+                className="md:hidden p-1.5 sm:p-2 text-anthracite hover:text-terracotta transition-colors"
                 aria-label="Rechercher"
               >
-                <Search size={20} />
+                <Search size={19} className="sm:w-5 sm:h-5" />
               </button>
 
               {/* Instagram link */}
@@ -311,14 +311,14 @@ export default function Header() {
               {/* Favorites button */}
               <Link
                 href="/favoris"
-                className="relative p-2 text-anthracite hover:text-terracotta transition-colors"
+                className="relative p-1.5 sm:p-2 text-anthracite hover:text-terracotta transition-colors"
                 aria-label={`Favoris (${favCount} article${favCount > 1 ? 's' : ''})`}
                 title="Mes favoris"
               >
-                <Heart size={21} className={favCount > 0 ? "fill-terracotta/20 text-terracotta" : ""} />
+                <Heart size={20} className={`sm:w-[21px] sm:h-[21px] ${favCount > 0 ? "fill-terracotta/20 text-terracotta" : ""}`} />
                 {favCount > 0 && (
                   <span
-                    className="absolute -top-0.5 -right-0.5 bg-terracotta text-white text-[10px] font-bold rounded-full w-4 h-4 md:w-5 md:h-5 md:text-xs flex items-center justify-center transition-transform"
+                    className="absolute -top-0.5 -right-0.5 bg-terracotta text-white text-[9px] sm:text-[10px] font-bold rounded-full w-4 h-4 sm:w-4 sm:h-4 flex items-center justify-center transition-transform"
                   >
                     {favCount > 9 ? '9+' : favCount}
                   </span>
@@ -328,13 +328,13 @@ export default function Header() {
               {/* Cart button */}
               <button
                 onClick={openDrawer}
-                className="relative p-2 text-anthracite hover:text-terracotta transition-colors"
+                className="relative p-1.5 sm:p-2 text-anthracite hover:text-terracotta transition-colors"
                 aria-label={`Panier (${cartCount} article${cartCount > 1 ? 's' : ''})`}
               >
-                <ShoppingBag size={22} />
+                <ShoppingBag size={21} className="sm:w-[22px] sm:h-[22px]" />
                 {cartCount > 0 && (
                   <span
-                    className={`absolute -top-0.5 -right-0.5 bg-anthracite text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center transition-transform ${badgeAnimating ? 'animate-badge-pop' : ''}`}
+                    className={`absolute -top-0.5 -right-0.5 bg-anthracite text-white text-[9px] sm:text-xs font-bold rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center transition-transform ${badgeAnimating ? 'animate-badge-pop' : ''}`}
                   >
                     {cartCount > 9 ? '9+' : cartCount}
                   </span>
