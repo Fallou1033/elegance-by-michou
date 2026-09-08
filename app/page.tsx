@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import HeroBanner from '@/components/home/HeroBanner';
 import ProductGrid from '@/components/home/ProductGrid';
+import TestimonialsSection from '@/components/home/TestimonialsSection';
 import SkeletonCard from '@/components/ui/SkeletonCard';
 
 function ProductGridFallback() {
@@ -21,6 +22,7 @@ export default function HomePage({ searchParams }: { searchParams?: { slide?: st
       <Suspense fallback={<ProductGridFallback />}>
         <ProductGrid />
       </Suspense>
+      <TestimonialsSection />
     </>
   );
 }
