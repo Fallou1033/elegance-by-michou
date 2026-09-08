@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
@@ -7,6 +7,8 @@ import { useFavorites } from '@/context/FavoritesContext';
 import CartDrawer from '@/components/cart/CartDrawer';
 import { ShoppingBag, Search, Menu, X, Heart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { products } from '@/data/products';
+import { formatPrice } from '@/lib/utils';
 
 export default function Header() {
   const { getCartCount, openDrawer, isDrawerOpen } = useCart();
@@ -18,10 +20,26 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   const currentCount = getCartCount();
   const favCount = getFavoritesCount();
+
+  // Instant live search suggestions
+  const liveResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return products
+      .filter(p =>
+        p.name.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q) ||
+        p.categoryLabel?.toLowerCase().includes(q) ||
+        p.category.toLowerCase().includes(q) ||
+        p.gender.toLowerCase().includes(q)
+      )
+      .slice(0, 5);
+  }, [searchQuery]);
 
   useEffect(() => {
     if (currentCount !== prevCount) {
@@ -42,11 +60,49 @@ export default function Header() {
     }
   }, [searchOpen]);
 
+  // Click outside search container to close dropdown on desktop
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        // Only clear if empty, or keep open
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+    const query = searchQuery.trim();
+    if (!query) return;
+
+    const q = query.toLowerCase();
+    // Check if there is an exact or single product match
+    const matched = products.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      p.description.toLowerCase().includes(q) ||
+      p.categoryLabel?.toLowerCase().includes(q) ||
+      p.category.toLowerCase().includes(q)
+    );
+
+    // If exactly 1 matching product, send customer DIRECTLY to this product!
+    if (matched.length === 1) {
+      router.push(`/produits/${matched[0].id}`);
       setSearchOpen(false);
+      setSearchQuery('');
+      return;
+    }
+
+    // Otherwise, direct scroll to catalogue with search results
+    router.push(`/?search=${encodeURIComponent(query)}#catalogue`);
+    setSearchOpen(false);
+    if (typeof window !== 'undefined' && window.location.pathname === '/') {
+      setTimeout(() => {
+        const catalogueEl = document.getElementById('catalogue');
+        if (catalogueEl) {
+          catalogueEl.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 60);
     }
   };
 
@@ -147,25 +203,78 @@ export default function Header() {
             {/* Right actions */}
             <div className="flex items-center gap-3 md:gap-4">
               {/* Desktop search */}
-              <div className="hidden md:flex items-center">
+              <div ref={searchContainerRef} className="hidden md:flex items-center relative">
                 {searchOpen ? (
-                  <form onSubmit={handleSearch} className="flex items-center gap-2">
-                    <input
-                      ref={searchRef}
-                      type="text"
-                      value={searchQuery}
-                      onChange={e => setSearchQuery(e.target.value)}
-                      placeholder="Rechercher..."
-                      className="w-48 text-sm border-b border-anthracite bg-transparent outline-none py-1 placeholder:text-stone"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => { setSearchOpen(false); setSearchQuery(''); }}
-                      className="text-stone hover:text-anthracite"
-                    >
-                      <X size={16} />
-                    </button>
-                  </form>
+                  <>
+                    <form onSubmit={handleSearch} className="flex items-center gap-2">
+                      <input
+                        ref={searchRef}
+                        type="text"
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        placeholder="Rechercher un vêtement..."
+                        className="w-56 text-sm border-b border-anthracite bg-transparent outline-none py-1 placeholder:text-stone"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => { setSearchOpen(false); setSearchQuery(''); }}
+                        className="text-stone hover:text-anthracite cursor-pointer"
+                        aria-label="Fermer la recherche"
+                      >
+                        <X size={16} />
+                      </button>
+                    </form>
+
+                    {/* Instant suggestions dropdown */}
+                    {liveResults.length > 0 && (
+                      <div className="absolute top-full right-0 mt-3 w-80 bg-white border border-stone/20 rounded-md shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-stone bg-stone/5 border-b border-stone/10 flex justify-between items-center">
+                          <span>Suggestions ({liveResults.length})</span>
+                          <span className="text-[9px] lowercase font-normal text-stone/80">cliquez pour ouvrir</span>
+                        </div>
+                        <div className="max-h-72 overflow-y-auto divide-y divide-stone/10">
+                          {liveResults.map(p => (
+                            <Link
+                              key={p.id}
+                              href={`/produits/${p.id}`}
+                              onClick={() => {
+                                setSearchOpen(false);
+                                setSearchQuery('');
+                              }}
+                              className="flex items-center gap-3 p-2.5 hover:bg-stone/5 transition-colors group/item"
+                            >
+                              <div className="relative w-10 h-12 bg-stone/10 rounded-xs overflow-hidden flex-shrink-0">
+                                {p.images?.[0] && (
+                                  <Image
+                                    src={p.images[0]}
+                                    alt={p.name}
+                                    fill
+                                    className="object-cover group-hover/item:scale-105 transition-transform"
+                                    sizes="40px"
+                                  />
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium text-anthracite group-hover/item:text-terracotta truncate transition-colors">
+                                  {p.name}
+                                </p>
+                                <p className="text-xs font-semibold text-terracotta mt-0.5">
+                                  {formatPrice(p.price)}
+                                </p>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleSearch}
+                          className="w-full py-2 text-center text-xs font-semibold text-anthracite hover:text-terracotta bg-stone/5 border-t border-stone/10 transition-colors cursor-pointer"
+                        >
+                          Voir tous les résultats →
+                        </button>
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <button
                     onClick={() => setSearchOpen(true)}
@@ -248,10 +357,10 @@ export default function Header() {
 
         {/* Mobile search overlay */}
         {searchOpen && (
-          <div className="md:hidden fixed inset-0 z-50 bg-ivory/98 backdrop-blur-sm flex items-start pt-20 px-6">
+          <div className="md:hidden fixed inset-0 z-50 bg-ivory/98 backdrop-blur-md flex flex-col pt-16 px-6 overflow-y-auto">
             <form onSubmit={handleSearch} className="w-full">
               <div className="flex items-center gap-3 border-b-2 border-anthracite pb-2">
-                <Search size={20} className="text-stone" />
+                <Search size={22} className="text-stone" />
                 <input
                   ref={searchRef}
                   type="text"
@@ -263,12 +372,63 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={() => { setSearchOpen(false); setSearchQuery(''); }}
-                  className="text-stone hover:text-anthracite"
+                  className="text-stone hover:text-anthracite p-1 cursor-pointer"
+                  aria-label="Fermer la recherche"
                 >
                   <X size={24} />
                 </button>
               </div>
             </form>
+
+            {/* Mobile live results */}
+            {liveResults.length > 0 && (
+              <div className="mt-4 bg-white border border-stone/20 rounded-md shadow-xl overflow-hidden divide-y divide-stone/10">
+                <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-stone bg-stone/5">
+                  Résultats instantanés ({liveResults.length})
+                </div>
+                {liveResults.map(p => (
+                  <Link
+                    key={p.id}
+                    href={`/produits/${p.id}`}
+                    onClick={() => {
+                      setSearchOpen(false);
+                      setSearchQuery('');
+                    }}
+                    className="flex items-center gap-3 p-3 hover:bg-stone/5 transition-colors"
+                  >
+                    <div className="relative w-12 h-14 bg-stone/10 rounded-xs overflow-hidden flex-shrink-0">
+                      {p.images?.[0] && (
+                        <Image
+                          src={p.images[0]}
+                          alt={p.name}
+                          fill
+                          className="object-cover"
+                          sizes="48px"
+                        />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-anthracite truncate">
+                        {p.name}
+                      </p>
+                      <p className="text-xs font-semibold text-terracotta mt-0.5">
+                        {formatPrice(p.price)}
+                      </p>
+                      <p className="text-[11px] text-stone capitalize">
+                        {p.gender} · {p.categoryLabel || p.category}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+                <button
+                  type="button"
+                  onClick={handleSearch}
+                  className="w-full py-3 text-center text-xs font-semibold text-anthracite hover:text-terracotta bg-stone/5 transition-colors cursor-pointer"
+                >
+                  Voir tous les résultats dans le catalogue →
+                </button>
+              </div>
+            )}
           </div>
         )}
       </header>

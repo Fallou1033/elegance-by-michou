@@ -42,8 +42,10 @@ export default function ProductGrid() {
       setActiveBadge(null);
     }
 
-    // Scroll into view if navigation came from header filter
-    if (gender || badge || (typeof window !== 'undefined' && window.location.hash === '#catalogue')) {
+    const search = searchParams.get('search');
+
+    // Scroll into view if navigation came from header filter or search
+    if (gender || badge || search || (typeof window !== 'undefined' && window.location.hash === '#catalogue')) {
       setTimeout(() => {
         const el = document.getElementById('catalogue');
         if (el) {
@@ -116,7 +118,9 @@ export default function ProductGrid() {
       <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h2 className="font-serif text-3xl md:text-4xl font-semibold text-anthracite">
-            {activeBadge === 'Promo'
+            {searchParams.get('search')
+              ? `Résultats pour « ${searchParams.get('search')} »`
+              : activeBadge === 'Promo'
               ? 'Nos Promotions & Offres Spéciales'
               : activeBadge === 'Nouveau'
               ? 'Nouveautés Collection 2026'
@@ -126,19 +130,18 @@ export default function ProductGrid() {
               ? 'Collection Homme'
               : 'Notre Collection'}
           </h2>
-          {activeBadge === 'Promo' && (
+          {searchParams.get('search') ? (
+            <p className="text-stone mt-2 text-sm">
+              {filteredProducts.length} article{filteredProducts.length > 1 ? 's' : ''} trouvé{filteredProducts.length > 1 ? 's' : ''} pour votre recherche
+            </p>
+          ) : activeBadge === 'Promo' ? (
             <p className="text-terracotta mt-2 text-sm font-medium">
               Profitez de réductions exclusives et de tarifs volume sur vos articles préférés !
             </p>
-          )}
-          {searchParams.get('search') && (
-            <p className="text-stone mt-2 text-sm">
-              Résultats pour « {searchParams.get('search')} »
-            </p>
-          )}
+          ) : null}
         </div>
 
-        {(activeBadge || activeGender !== 'all' || activeCategory !== 'all') && (
+        {(searchParams.get('search') || activeBadge || activeGender !== 'all' || activeCategory !== 'all') && (
           <button
             type="button"
             onClick={handleResetFilters}
