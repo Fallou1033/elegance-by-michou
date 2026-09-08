@@ -5,9 +5,9 @@ import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 import { useFavorites } from '@/context/FavoritesContext';
 import CartDrawer from '@/components/cart/CartDrawer';
-import { ShoppingBag, Search, Menu, X, Heart } from 'lucide-react';
+import { ShoppingBag, Search, Menu, X, Heart, Instagram } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { products } from '@/data/products';
+import { products, INSTAGRAM_URL } from '@/data/products';
 import { formatPrice } from '@/lib/utils';
 
 export default function Header() {
@@ -296,6 +296,18 @@ export default function Header() {
                 <Search size={20} />
               </button>
 
+              {/* Instagram link */}
+              <a
+                href={INSTAGRAM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden lg:flex p-2 text-anthracite hover:text-[#E1306C] transition-colors"
+                aria-label="Instagram Elegance By Michou"
+                title="Suivre @elegance_by_michou sur Instagram"
+              >
+                <Instagram size={20} />
+              </a>
+
               {/* Favorites button */}
               <Link
                 href="/favoris"
@@ -352,6 +364,18 @@ export default function Header() {
                   )}
                 </Link>
               ))}
+
+              <div className="pt-3 mt-2 border-t border-stone/10">
+                <a
+                  href={INSTAGRAM_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm font-semibold text-anthracite hover:text-[#E1306C] transition-colors py-1"
+                >
+                  <Instagram size={18} className="text-[#E1306C]" />
+                  <span>Instagram @elegance_by_michou</span>
+                </a>
+              </div>
             </nav>
           </div>
         )}

@@ -14,9 +14,10 @@ import {
   ArrowRight,
   Scissors,
   ExternalLink,
-  Navigation
+  Navigation,
+  Instagram
 } from 'lucide-react';
-import { WHATSAPP_NUMBER } from '@/data/products';
+import { WHATSAPP_NUMBER, INSTAGRAM_URL, INSTAGRAM_HANDLE } from '@/data/products';
 
 export const metadata: Metadata = {
   title: 'À Propos de Nous & Contacts | Elegance By Michou',
@@ -206,7 +207,7 @@ export default function AProposPage() {
         </div>
 
         {/* Grille des moyens de contact */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 mb-12">
           {/* WhatsApp */}
           <a
             href={whatsappUrl}
@@ -242,6 +243,27 @@ export default function AProposPage() {
             </div>
             <span className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-terracotta uppercase tracking-wider group-hover:gap-3 transition-all">
               Appeler maintenant →
+            </span>
+          </a>
+
+          {/* Instagram Officiel */}
+          <a
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-white border border-stone/20 hover:border-[#E1306C] p-6 rounded-2xl shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group"
+          >
+            <div>
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-xs">
+                <Instagram size={24} />
+              </div>
+              <h3 className="font-serif text-lg font-semibold text-anthracite mb-1">Instagram</h3>
+              <p className="text-xs text-stone mb-2">Communauté &amp; Stories</p>
+              <p className="text-sm font-bold text-anthracite font-mono">@elegance_by_michou</p>
+              <p className="text-xs text-stone mt-0.5">Arrivages &amp; Looks exclusifs</p>
+            </div>
+            <span className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-[#E1306C] uppercase tracking-wider group-hover:gap-3 transition-all">
+              Rejoindre sur Instagram →
             </span>
           </a>
 
@@ -354,21 +376,30 @@ export default function AProposPage() {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-4 flex-shrink-0 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row items-center gap-3.5 flex-shrink-0 w-full md:w-auto">
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-none bg-[#25D366] text-white text-xs font-semibold tracking-widest uppercase hover:bg-[#20bd5a] transition-colors shadow-md"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-none bg-[#25D366] text-white text-xs font-semibold tracking-widest uppercase hover:bg-[#20bd5a] transition-colors shadow-md"
             >
               <MessageCircle size={16} />
-              <span>Discuter sur WhatsApp</span>
+              <span>WhatsApp</span>
+            </a>
+            <a
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-none bg-gradient-to-r from-purple-600 via-rose-500 to-amber-500 text-white text-xs font-semibold tracking-widest uppercase hover:opacity-90 transition-opacity shadow-md"
+            >
+              <Instagram size={16} />
+              <span>Instagram</span>
             </a>
             <Link
               href="/#catalogue"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-none border border-ivory/30 text-ivory hover:border-terracotta hover:text-terracotta text-xs font-semibold tracking-widest uppercase transition-colors"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-none border border-ivory/30 text-ivory hover:border-terracotta hover:text-terracotta text-xs font-semibold tracking-widest uppercase transition-colors"
             >
-              <span>Voir la boutique</span>
+              <span>Boutique</span>
               <ArrowRight size={14} />
             </Link>
           </div>

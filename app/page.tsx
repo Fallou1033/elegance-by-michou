@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import HeroBanner from '@/components/home/HeroBanner';
 import ProductGrid from '@/components/home/ProductGrid';
 import TestimonialsSection from '@/components/home/TestimonialsSection';
+import InstagramSection from '@/components/home/InstagramSection';
 import SkeletonCard from '@/components/ui/SkeletonCard';
 
 function ProductGridFallback() {
@@ -23,6 +24,7 @@ export default function HomePage({ searchParams }: { searchParams?: { slide?: st
         <ProductGrid />
       </Suspense>
       <TestimonialsSection />
+      <InstagramSection />
     </>
   );
 }
