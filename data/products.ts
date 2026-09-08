@@ -339,9 +339,9 @@ export const products: Product[] = [
       }
     ],
     "images": [
+      "/images/products/Safari%20Supercen/WhatsApp%20Image%202026-09-05%20at%2014.01.31%20(1).jpeg",
       "/images/products/Safari%20Supercen/WhatsApp%20Image%202026-09-05%20at%2014.01.30%20(1).jpeg",
       "/images/products/Safari%20Supercen/WhatsApp%20Image%202026-09-05%20at%2014.01.30.jpeg",
-      "/images/products/Safari%20Supercen/WhatsApp%20Image%202026-09-05%20at%2014.01.31%20(1).jpeg",
       "/images/products/Safari%20Supercen/WhatsApp%20Image%202026-09-05%20at%2014.01.31.jpeg"
     ],
     "hoverImage": "/images/products/Safari%20Supercen/WhatsApp%20Image%202026-09-05%20at%2014.01.31%20(1).jpeg",

@@ -9,7 +9,7 @@ const INSTAGRAM_POSTS = [
     likes: '142',
   },
   {
-    image: '/images/products/Mini%20robe%20brod%C3%A9%20anglais%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2014.05.00%20(1).jpeg',
+    image: '/images/products/Mini%20robe%20brod%C3%A9%20anglais%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.59.50.jpeg',
     title: 'Mini Robe Broderie Anglaise',
     likes: '238',
   },
@@ -19,7 +19,7 @@ const INSTAGRAM_POSTS = [
     likes: '315',
   },
   {
-    image: '/images/products/ensemble%20lin%20homme/WhatsApp%20Image%202026-09-05%20at%2013.53.11%20(1).jpeg',
+    image: '/images/products/ensemble%20lin%20homme/WhatsApp%20Image%202026-09-05%20at%2013.53.13%20(4).jpeg',
     title: 'Ensemble Pur Lin Homme',
     likes: '189',
   },
@@ -29,8 +29,8 @@ const INSTAGRAM_POSTS = [
     likes: '204',
   },
   {
-    image: '/images/products/Safari%20Supercen/WhatsApp%20Image%202026-09-05%20at%2014.01.30.jpeg',
-    title: 'Ensemble Safari Supercen',
+    image: '/images/products/Safari%20Supercen/WhatsApp%20Image%202026-09-05%20at%2014.01.31%20(1).jpeg',
+    title: 'Costume Safari Supercen',
     likes: '167',
   },
 ];
