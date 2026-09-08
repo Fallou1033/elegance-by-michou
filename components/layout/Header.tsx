@@ -112,10 +112,11 @@ export default function Header() {
     { href: '/?badge=Nouveau#catalogue', label: 'Nouveautés' },
     { href: '/?badge=Promo#catalogue', label: 'Promotions' },
     { href: '/favoris', label: 'Favoris' },
+    { href: '/a-propos', label: 'À Propos' },
   ];
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    if (href.startsWith('/favoris')) {
+    if (href.startsWith('/favoris') || href.startsWith('/a-propos')) {
       return;
     }
     if (typeof window !== 'undefined' && window.location.pathname === '/') {
@@ -132,7 +133,7 @@ export default function Header() {
 
   const handleMobileNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     setMobileMenuOpen(false);
-    if (href.startsWith('/favoris')) {
+    if (href.startsWith('/favoris') || href.startsWith('/a-propos')) {
       return;
     }
     if (typeof window !== 'undefined' && window.location.pathname === '/') {
@@ -182,7 +183,7 @@ export default function Header() {
             </Link>
 
             {/* Desktop nav */}
-            <nav className="hidden md:flex items-center gap-8">
+            <nav className="hidden md:flex items-center gap-5 lg:gap-8">
               {navLinks.map(link => (
                 <Link
                   key={link.href}

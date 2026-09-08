@@ -48,15 +48,15 @@ export default function Footer() {
             <h4 className="text-sm font-semibold uppercase tracking-widest text-stone mb-4">Informations</h4>
             <ul className="space-y-3">
               {[
-                { label: 'Livraison & Retours', href: '#' },
-                { label: 'Guide des tailles', href: '#' },
-                { label: 'Paiement sécurisé', href: '#' },
-                { label: 'Contactez-nous', href: '#' },
+                { label: 'À propos de nous', href: '/a-propos' },
+                { label: 'Contact & WhatsApp', href: '/a-propos#contact' },
+                { label: 'Livraison & Retours', href: '/a-propos#contact' },
+                { label: 'Paiement sécurisé', href: '/checkout' },
               ].map(item => (
                 <li key={item.label}>
-                  <a href={item.href} className="text-sm text-ivory/70 hover:text-terracotta transition-colors">
+                  <Link href={item.href} className="text-sm text-ivory/70 hover:text-terracotta transition-colors">
                     {item.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
