@@ -76,9 +76,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const navItems = [
     { href: '/admin', label: 'Tableau de bord', icon: LayoutDashboard },
-    { href: '/admin/produits', label: 'Catalogue & Prix', icon: Package },
+    { href: '/admin/produits', label: 'Catalogue et Prix', icon: Package },
     { href: '/admin/commandes', label: 'Commandes', icon: ShoppingBag },
-    { href: '/admin/finances', label: 'Finances & Bilan', icon: TrendingUp },
+    { href: '/admin/finances', label: 'Finances et Bilan', icon: TrendingUp },
   ];
 
   return (

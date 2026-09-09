@@ -125,7 +125,7 @@ export default function AdminDashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-serif text-2xl sm:text-3xl font-semibold text-anthracite">
-            Tableau de Bord & Finances
+            Tableau de Bord et Finances
           </h1>
           <p className="text-xs sm:text-sm text-stone mt-1">
             Aperçu en temps réel de votre activité commerciale et financière.

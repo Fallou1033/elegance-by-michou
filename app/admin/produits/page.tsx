@@ -143,7 +143,7 @@ export default function AdminProductsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-serif text-2xl sm:text-3xl font-semibold text-anthracite">
-            Catalogue & Gestion des Prix
+            Catalogue et Gestion des Prix
           </h1>
           <p className="text-xs sm:text-sm text-stone mt-1">
             Gérez vos articles, ajustez vos tarifs de vente et ajoutez de nouvelles pièces.
@@ -196,7 +196,7 @@ export default function AdminProductsPage() {
               onChange={e => setSelectedGender(e.target.value)}
               className="w-full py-2 px-3 text-xs rounded-xl border border-stone/20 bg-white focus:border-terracotta outline-none"
             >
-              <option value="all">Tous les genres (Femme & Homme)</option>
+              <option value="all">Tous les genres (Femme et Homme)</option>
               <option value="femme">Mode Femme</option>
               <option value="homme">Mode Homme</option>
               <option value="unisexe">Unisexe</option>
@@ -230,7 +230,7 @@ export default function AdminProductsPage() {
                 <th className="py-3 px-4">Article</th>
                 <th className="py-3 px-4">Catégorie</th>
                 <th className="py-3 px-4">Prix de Vente</th>
-                <th className="py-3 px-4">Tailles & Couleurs</th>
+                <th className="py-3 px-4">Tailles et Couleurs</th>
                 <th className="py-3 px-4">Badge</th>
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>

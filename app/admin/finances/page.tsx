@@ -58,7 +58,7 @@ export default function AdminFinancesPage() {
       {/* Header */}
       <div>
         <h1 className="font-serif text-2xl sm:text-3xl font-semibold text-anthracite">
-          Finances & Bilan de la Boutique
+          Finances et Bilan de la Boutique
         </h1>
         <p className="text-xs sm:text-sm text-stone mt-1">
           Suivez la rentabilité de votre marque, les flux d&apos;encaissements Wave et Orange Money, ainsi que les ventes régionales.

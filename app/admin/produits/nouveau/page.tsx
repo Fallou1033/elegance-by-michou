@@ -190,9 +190,9 @@ export default function NewProductPage() {
                 className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-stone/20 bg-white focus:border-terracotta outline-none"
               >
                 <option value="robes">Robes</option>
-                <option value="ensembles">Ensembles & Tradi-Moderne</option>
-                <option value="homme">Mode Masculine (Costumes & Boubous)</option>
-                <option value="hauts">Hauts & Chemises</option>
+                <option value="ensembles">Ensembles et Tradi-Moderne</option>
+                <option value="homme">Mode Masculine (Costumes et Boubous)</option>
+                <option value="hauts">Hauts et Chemises</option>
                 <option value="pantalons">Pantalons</option>
                 <option value="jupes">Jupes</option>
                 <option value="accessoires">Accessoires</option>
@@ -219,7 +219,7 @@ export default function NewProductPage() {
         {/* Tarification & Badges */}
         <div className="bg-white p-6 rounded-2xl border border-stone/15 shadow-xs space-y-4">
           <h2 className="font-serif text-base font-semibold text-anthracite border-b border-stone/10 pb-2">
-            2. Prix & Promotions (en FCFA)
+            2. Prix et Promotions (en FCFA)
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -413,7 +413,7 @@ export default function NewProductPage() {
         {/* Description & Savoir-faire */}
         <div className="bg-white p-6 rounded-2xl border border-stone/15 shadow-xs space-y-4">
           <h2 className="font-serif text-base font-semibold text-anthracite border-b border-stone/10 pb-2">
-            5. Détails & Matières
+            5. Détails et Matières
           </h2>
 
           <div>
@@ -475,7 +475,7 @@ export default function NewProductPage() {
             ) : (
               <>
                 <Save size={16} />
-                <span>Enregistrer & Publier</span>
+                <span>Enregistrer et Publier</span>
               </>
             )}
           </button>
