@@ -15,6 +15,7 @@ import {
   Check,
 } from 'lucide-react';
 import { ProductColor } from '@/types';
+import { detectColorName, POPULAR_COLOR_PRESETS } from '@/lib/colors';
 
 const COMMON_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', 'Unique'];
 
@@ -35,8 +36,8 @@ export default function NewProductPage() {
     { name: 'Noir Impérial', hex: '#1A1A1A' },
     { name: 'Blanc Nacré', hex: '#FAF9F6' },
   ]);
-  const [newColorName, setNewColorName] = useState('');
   const [newColorHex, setNewColorHex] = useState('#C4704F');
+  const [newColorName, setNewColorName] = useState('Terracotta');
   const [images, setImages] = useState<string[]>(['']);
   const [description, setDescription] = useState('');
   const [material, setMaterial] = useState('100% Coton');
@@ -48,10 +49,16 @@ export default function NewProductPage() {
     );
   };
 
+  const handleColorHexChange = (hex: string) => {
+    setNewColorHex(hex);
+    setNewColorName(detectColorName(hex));
+  };
+
   const handleAddColor = () => {
     if (!newColorName.trim()) return;
     setColors(prev => [...prev, { name: newColorName.trim(), hex: newColorHex }]);
-    setNewColorName('');
+    setNewColorHex('#1A1A1A');
+    setNewColorName('Noir Intense');
   };
 
   const handleRemoveColor = (index: number) => {
@@ -326,29 +333,71 @@ export default function NewProductPage() {
               ))}
             </div>
 
-            {/* Ajouter une couleur */}
-            <div className="flex items-center gap-2 bg-stone/5 p-2.5 rounded-xl max-w-md">
-              <input
-                type="color"
-                value={newColorHex}
-                onChange={e => setNewColorHex(e.target.value)}
-                className="w-8 h-8 rounded-lg cursor-pointer border-0 bg-transparent"
-                title="Choisir la couleur"
-              />
-              <input
-                type="text"
-                value={newColorName}
-                onChange={e => setNewColorName(e.target.value)}
-                placeholder="Nom (ex: Bleu Nuit, Émeraude...)"
-                className="flex-1 px-3 py-1.5 text-xs rounded-lg border border-stone/20 bg-white focus:border-terracotta outline-none"
-              />
-              <button
-                type="button"
-                onClick={handleAddColor}
-                className="bg-anthracite text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-terracotta transition-colors"
-              >
-                Ajouter
-              </button>
+            {/* Suggestions de teintes rapides en 1 clic */}
+            <div className="mb-3">
+              <span className="text-[11px] text-stone font-medium block mb-1.5">
+                Couleurs populaires en un clic :
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {POPULAR_COLOR_PRESETS.map(preset => (
+                  <button
+                    key={preset.name}
+                    type="button"
+                    onClick={() => {
+                      setNewColorHex(preset.hex);
+                      setNewColorName(preset.name);
+                    }}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs border transition-all ${
+                      newColorHex.toLowerCase() === preset.hex.toLowerCase()
+                        ? 'border-terracotta bg-terracotta/10 text-anthracite font-bold shadow-xs'
+                        : 'border-stone/20 bg-white text-stone hover:text-anthracite hover:border-stone/40'
+                    }`}
+                  >
+                    <span
+                      className="w-2.5 h-2.5 rounded-full border border-black/15 shrink-0"
+                      style={{ backgroundColor: preset.hex }}
+                    />
+                    <span>{preset.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Sélecteur de couleur personnalisé avec nom automatique */}
+            <div className="bg-stone/5 p-3 rounded-xl border border-stone/15 max-w-lg space-y-2">
+              <span className="text-[11px] text-stone font-medium block">
+                Ou choisissez n&apos;importe quelle couleur personnalisée (le nom s&apos;affiche automatiquement) :
+              </span>
+              <div className="flex items-center gap-2.5">
+                <div className="relative flex items-center justify-center shrink-0">
+                  <input
+                    type="color"
+                    value={newColorHex}
+                    onChange={e => handleColorHexChange(e.target.value)}
+                    className="w-10 h-10 rounded-xl cursor-pointer border border-stone/30 bg-white p-0.5 shadow-xs"
+                    title="Cliquez pour changer la teinte"
+                  />
+                </div>
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    value={newColorName}
+                    onChange={e => setNewColorName(e.target.value)}
+                    placeholder="Nom automatique de la couleur"
+                    className="w-full pl-3 pr-20 py-2.5 text-xs rounded-xl border border-stone/20 bg-white focus:border-terracotta outline-none font-semibold text-anthracite"
+                  />
+                  <span className="text-[10px] text-stone font-mono absolute right-3 top-1/2 -translate-y-1/2 uppercase bg-stone/10 px-1.5 py-0.5 rounded">
+                    {newColorHex}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddColor}
+                  className="bg-anthracite hover:bg-terracotta text-white px-4 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors shrink-0 shadow-xs"
+                >
+                  Ajouter
+                </button>
+              </div>
             </div>
           </div>
         </div>
