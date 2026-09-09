@@ -60,7 +60,20 @@ export default function EditProductPage() {
         }
         const data = await res.json();
         if (data.success) {
-          const found = data.products.find((p: Product) => 
+          let list = data.products;
+          try {
+            const cached = localStorage.getItem('admin_local_products');
+            if (cached) {
+              const parsed = JSON.parse(cached);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                const map = new Map<string, Product>();
+                list.forEach((p: Product) => map.set(p.id, p));
+                parsed.forEach((p: Product) => map.set(p.id, p));
+                list = Array.from(map.values());
+              }
+            }
+          } catch {}
+          const found = list.find((p: Product) => 
             p.id === id || p.slug === id || (id.includes('lin') && id.includes('femme') && (p.slug || p.id).includes('lin') && (p.slug || p.id).includes('femme'))
           );
           if (found) {

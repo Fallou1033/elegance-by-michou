@@ -37,7 +37,20 @@ export default function ProductGrid() {
       .then(res => res.json())
       .then(data => {
         if (data.success && Array.isArray(data.products) && data.products.length > 0) {
-          setProductsList(data.products);
+          let merged = data.products;
+          try {
+            const cached = localStorage.getItem('admin_local_products');
+            if (cached) {
+              const parsed = JSON.parse(cached);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                const map = new Map<string, Product>();
+                merged.forEach((p: Product) => map.set(p.id, p));
+                parsed.forEach((p: Product) => map.set(p.id, p));
+                merged = Array.from(map.values());
+              }
+            }
+          } catch {}
+          setProductsList(merged);
         }
       })
       .catch(() => {});

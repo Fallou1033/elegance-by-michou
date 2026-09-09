@@ -45,6 +45,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const sizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    let hasLocalOverride = false;
     try {
       const cached = localStorage.getItem('admin_local_products');
       if (cached) {
@@ -53,6 +54,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           const localFound = parsed.find((p: Product) => matchesProductSlug(p, params.id));
           if (localFound) {
             setProduct(localFound);
+            hasLocalOverride = true;
             setLoading(false);
           }
         }
@@ -63,10 +65,28 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       .then(res => res.json())
       .then(data => {
         if (data.success && Array.isArray(data.products)) {
-          setAllProducts(data.products);
-          const found = data.products.find((p: Product) => matchesProductSlug(p, params.id));
+          let mergedList = data.products;
+          try {
+            const cached = localStorage.getItem('admin_local_products');
+            if (cached) {
+              const parsed = JSON.parse(cached);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                const map = new Map<string, Product>();
+                mergedList.forEach((p: Product) => map.set(p.id, p));
+                parsed.forEach((p: Product) => map.set(p.id, p));
+                mergedList = Array.from(map.values());
+              }
+            }
+          } catch {}
+
+          setAllProducts(mergedList);
+
+          const found = mergedList.find((p: Product) => matchesProductSlug(p, params.id));
           if (found) {
-            setProduct(found);
+            // Si on a un override local, on garde la version locale prioritaire
+            if (!hasLocalOverride) {
+              setProduct(found);
+            }
             setSelectedColor(prev => {
               if (prev && found.colors?.some((c: any) => c.name === prev)) return prev;
               return found.colors?.[0]?.name || '';

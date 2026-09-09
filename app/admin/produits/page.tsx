@@ -43,7 +43,20 @@ export default function AdminProductsPage() {
       }
       const data = await res.json();
       if (data.success) {
-        setProducts(data.products);
+        let list = data.products;
+        try {
+          const cached = localStorage.getItem('admin_local_products');
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              const map = new Map<string, Product>();
+              list.forEach((p: Product) => map.set(p.id, p));
+              parsed.forEach((p: Product) => map.set(p.id, p));
+              list = Array.from(map.values());
+            }
+          }
+        } catch {}
+        setProducts(list);
       }
     } catch (err) {
       console.error('Erreur chargement produits:', err);
