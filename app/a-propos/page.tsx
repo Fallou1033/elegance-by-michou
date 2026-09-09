@@ -1,31 +1,36 @@
-import type { Metadata } from 'next';
-import Image from 'next/image';
-import Link from 'next/link';
-import { 
-  Heart, 
-  Sparkles, 
-  ShieldCheck, 
-  Truck, 
-  MessageCircle, 
-  MapPin, 
-  Clock, 
-  ChevronLeft, 
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import {
+  Heart,
+  Sparkles,
+  ShieldCheck,
+  Truck,
+  MessageCircle,
+  MapPin,
+  Clock,
+  ChevronLeft,
   ArrowRight,
   Scissors,
   ExternalLink,
   Navigation,
-  Instagram
-} from 'lucide-react';
-import { WHATSAPP_NUMBER, INSTAGRAM_URL, INSTAGRAM_HANDLE } from '@/data/products';
+  Instagram,
+} from "lucide-react";
+import {
+  WHATSAPP_NUMBER,
+  INSTAGRAM_URL,
+  INSTAGRAM_HANDLE,
+} from "@/data/products";
 
 export const metadata: Metadata = {
-  title: 'À Propos de Nous & Contacts | Elegance By Michou',
-  description: 'Découvrez l’histoire d’Elegance By Michou, notre passion pour la mode sénégalaise haut de gamme et contactez notre créatrice.',
+  title: "À Propos de Nous & Contacts | Elegance By Michou",
+  description:
+    "Découvrez l’histoire d’Elegance By Michou, notre passion pour la mode sénégalaise haut de gamme et contactez notre créatrice.",
 };
 
 export default function AProposPage() {
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-    "Bonjour Michou ! Je visite votre boutique et j'aimerais avoir plus d'informations sur vos créations."
+    "Bonjour Michou ! Je visite votre boutique et j'aimerais avoir plus d'informations sur vos créations.",
   )}`;
 
   return (
@@ -36,7 +41,10 @@ export default function AProposPage() {
           href="/#catalogue"
           className="inline-flex items-center gap-2 text-stone text-sm font-medium hover:text-terracotta transition-colors py-1.5 px-2 -ml-2 rounded-md hover:bg-stone/10 w-fit group"
         >
-          <ChevronLeft size={18} className="transition-transform group-hover:-translate-x-1" />
+          <ChevronLeft
+            size={18}
+            className="transition-transform group-hover:-translate-x-1"
+          />
           <span>Retour à la boutique</span>
         </Link>
       </div>
@@ -52,7 +60,9 @@ export default function AProposPage() {
             L&apos;Histoire d&apos;Elegance By Michou
           </h1>
           <p className="text-stone text-base sm:text-lg md:text-xl leading-relaxed">
-            Sublimer chaque silhouette à travers l&apos;alliance harmonieuse du raffinement traditionnel sénégalais et des coupes contemporaines les plus chics.
+            Sublimer chaque silhouette à travers l&apos;alliance harmonieuse du
+            raffinement traditionnel sénégalais et des coupes contemporaines les
+            plus chics.
           </p>
         </div>
       </section>
@@ -73,10 +83,13 @@ export default function AProposPage() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end p-6 sm:p-8 text-white">
               <div className="flex items-center gap-2.5 mb-1.5">
                 <span className="w-6 h-px bg-terracotta" />
-                <span className="text-xs uppercase tracking-widest text-terracotta font-bold">Fait au Sénégal</span>
+                <span className="text-xs uppercase tracking-widest text-terracotta font-bold">
+                  Fait au Sénégal
+                </span>
               </div>
               <p className="font-serif text-xl sm:text-2xl font-semibold">
-                « L&apos;élégance n&apos;est pas de se faire remarquer, mais de se faire retenir. »
+                « L&apos;élégance n&apos;est pas de se faire remarquer, mais de
+                se faire retenir. »
               </p>
               <p className="text-xs text-ivory/80 mt-1">— Michou, Fondatrice</p>
             </div>
@@ -90,17 +103,31 @@ export default function AProposPage() {
               </h2>
             </div>
             <h3 className="font-serif text-3xl sm:text-4xl font-semibold text-anthracite leading-snug">
-              Une passion pour le vêtement d&apos;exception et le sens du détail.
+              Une passion pour le vêtement d&apos;exception et le sens du
+              détail.
             </h3>
             <div className="space-y-4 text-stone text-sm sm:text-base leading-relaxed">
               <p>
-                Fondée à Dakar par <strong>Michou</strong>, la marque <strong>Elegance By Michou</strong> est née d&apos;une conviction profonde : la mode doit célébrer l&apos;identité culturelle tout en offrant un confort et une allure moderne au quotidien.
+                Fondée à Dakar par <strong>Michou</strong>, la marque{" "}
+                <strong>Elegance By Michou</strong> est née d&apos;une
+                conviction profonde : la mode doit célébrer l&apos;identité
+                culturelle tout en offrant un confort et une allure moderne au
+                quotidien.
               </p>
               <p>
-                Chaque pièce de nos collections — de nos délicates <em>mini robes en broderie anglaise</em> à nos <em>ensembles masculins en pur lin</em>, en passant par nos prestigieux <em>costumes africains</em> et <em>grands boubous d&apos;apparat</em> — est pensée pour révéler votre prestance lors de vos grandes cérémonies comme dans vos instants précieux.
+                Chaque pièce de nos collections — de nos délicates{" "}
+                <em>mini robes en broderie anglaise</em> à nos{" "}
+                <em>ensembles masculins en pur lin</em>, en passant par nos
+                prestigieux <em>costumes africains</em> et{" "}
+                <em>grands boubous d&apos;apparat</em> — est pensée pour révéler
+                votre prestance lors de vos grandes cérémonies comme dans vos
+                instants précieux.
               </p>
               <p>
-                Nous travaillons en étroite collaboration avec des artisans tailleurs d&apos;excellence à Dakar, perpétuant le savoir-faire textile sénégalais avec des finitions dignes de la haute couture.
+                Nous travaillons en étroite collaboration avec des artisans
+                tailleurs d&apos;excellence à Dakar, perpétuant le savoir-faire
+                textile sénégalais avec des finitions dignes de la haute
+                couture.
               </p>
             </div>
 
@@ -111,7 +138,9 @@ export default function AProposPage() {
                   <Scissors size={18} />
                 </span>
                 <div>
-                  <h4 className="text-xs font-bold text-anthracite">Coupes Sur-Mesure</h4>
+                  <h4 className="text-xs font-bold text-anthracite">
+                    Coupes Sur-Mesure
+                  </h4>
                   <p className="text-[11px] text-stone">Finitions manuelles</p>
                 </div>
               </div>
@@ -120,7 +149,9 @@ export default function AProposPage() {
                   <Heart size={18} />
                 </span>
                 <div>
-                  <h4 className="text-xs font-bold text-anthracite">100% Coton &amp; Lin</h4>
+                  <h4 className="text-xs font-bold text-anthracite">
+                    100% Coton &amp; Lin
+                  </h4>
                   <p className="text-[11px] text-stone">Matières naturelles</p>
                 </div>
               </div>
@@ -129,7 +160,9 @@ export default function AProposPage() {
                   <ShieldCheck size={18} />
                 </span>
                 <div>
-                  <h4 className="text-xs font-bold text-anthracite">Qualité Garantie</h4>
+                  <h4 className="text-xs font-bold text-anthracite">
+                    Qualité Garantie
+                  </h4>
                   <p className="text-[11px] text-stone">Retours faciles</p>
                 </div>
               </div>
@@ -159,7 +192,9 @@ export default function AProposPage() {
                 Matières Nobles &amp; Authentiques
               </h4>
               <p className="text-stone text-sm leading-relaxed">
-                Nous sélectionnons rigoureusement nos tissus : lin naturel ultra-respirant, broderie anglaise 100% coton, et bazin de haute qualité pour une tenue impeccable dans le temps.
+                Nous sélectionnons rigoureusement nos tissus : lin naturel
+                ultra-respirant, broderie anglaise 100% coton, et bazin de haute
+                qualité pour une tenue impeccable dans le temps.
               </p>
             </div>
 
@@ -171,7 +206,9 @@ export default function AProposPage() {
                 L&apos;Excellence de l&apos;Artisanat Sénégalais
               </h4>
               <p className="text-stone text-sm leading-relaxed">
-                Nos créations sont conçues à la main au Sénégal. Chaque couture, chaque bouton et chaque broderie géométrique témoigne de la fierté et de la virtuosité de nos maîtres artisans.
+                Nos créations sont conçues à la main au Sénégal. Chaque couture,
+                chaque bouton et chaque broderie géométrique témoigne de la
+                fierté et de la virtuosité de nos maîtres artisans.
               </p>
             </div>
 
@@ -183,7 +220,9 @@ export default function AProposPage() {
                 Une Proximité &amp; Écoute Totale
               </h4>
               <p className="text-stone text-sm leading-relaxed">
-                Parce que chaque client est unique, nous vous accompagnons personnellement par WhatsApp pour choisir votre taille, ajuster une coupe ou suivre votre commande pas à pas.
+                Parce que chaque client est unique, nous vous accompagnons
+                personnellement par WhatsApp pour choisir votre taille, ajuster
+                une coupe ou suivre votre commande pas à pas.
               </p>
             </div>
           </div>
@@ -191,7 +230,10 @@ export default function AProposPage() {
       </section>
 
       {/* Section Contacts & Coordonnées */}
-      <section id="contact" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 scroll-mt-24">
+      <section
+        id="contact"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 scroll-mt-24"
+      >
         <div className="text-center max-w-2xl mx-auto mb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-semibold uppercase tracking-[0.2em] mb-3">
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
@@ -201,7 +243,8 @@ export default function AProposPage() {
             Contactez Elegance By Michou
           </h2>
           <p className="text-stone text-sm sm:text-base leading-relaxed">
-            Une question sur un modèle, une taille ou une commande sur-mesure ? Nous vous répondons avec le plus grand plaisir.
+            Une question sur un modèle, une taille ou une commande sur-mesure ?
+            Nous vous répondons avec le plus grand plaisir.
           </p>
         </div>
 
@@ -218,9 +261,15 @@ export default function AProposPage() {
               <div className="w-12 h-12 rounded-xl bg-[#25D366]/10 text-[#25D366] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <MessageCircle size={26} />
               </div>
-              <h3 className="font-serif text-lg font-semibold text-anthracite mb-1">WhatsApp Direct</h3>
-              <p className="text-xs text-stone mb-3">Réponse rapide en quelques minutes</p>
-              <p className="text-sm font-bold text-anthracite font-mono">+221 78 871 00 69</p>
+              <h3 className="font-serif text-lg font-semibold text-anthracite mb-1">
+                WhatsApp Direct
+              </h3>
+              <p className="text-xs text-stone mb-3">
+                Réponse rapide en quelques minutes
+              </p>
+              <p className="text-sm font-bold text-anthracite font-mono">
+                +221 78 871 00 69
+              </p>
             </div>
             <span className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-[#25D366] uppercase tracking-wider group-hover:gap-3 transition-all">
               Écrire sur WhatsApp →
@@ -238,10 +287,18 @@ export default function AProposPage() {
               <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-xs">
                 <Instagram size={24} />
               </div>
-              <h3 className="font-serif text-lg font-semibold text-anthracite mb-1">Instagram</h3>
-              <p className="text-xs text-stone mb-2">Communauté &amp; Stories</p>
-              <p className="text-sm font-bold text-anthracite font-mono">@elegance_by_michou</p>
-              <p className="text-xs text-stone mt-0.5">Arrivages &amp; Looks exclusifs</p>
+              <h3 className="font-serif text-lg font-semibold text-anthracite mb-1">
+                Instagram
+              </h3>
+              <p className="text-xs text-stone mb-2">
+                Communauté &amp; Stories
+              </p>
+              <p className="text-sm font-bold text-anthracite font-mono">
+                @elegance_by_michou
+              </p>
+              <p className="text-xs text-stone mt-0.5">
+                Arrivages &amp; Looks exclusifs
+              </p>
             </div>
             <span className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-[#E1306C] uppercase tracking-wider group-hover:gap-3 transition-all">
               Rejoindre sur Instagram →
@@ -257,10 +314,14 @@ export default function AProposPage() {
               <div className="w-12 h-12 rounded-xl bg-anthracite/10 text-anthracite flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <MapPin size={24} />
               </div>
-              <h3 className="font-serif text-lg font-semibold text-anthracite mb-1">Localisation</h3>
+              <h3 className="font-serif text-lg font-semibold text-anthracite mb-1">
+                Localisation
+              </h3>
               <p className="text-xs text-stone mb-2">Atelier &amp; Boutique</p>
               <p className="text-sm font-bold text-anthracite">Liberté 6</p>
-              <p className="text-xs text-stone mt-0.5">En face Camp Pénal, Dakar</p>
+              <p className="text-xs text-stone mt-0.5">
+                En face Camp Pénal, Dakar
+              </p>
             </div>
             <span className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-terracotta uppercase tracking-wider group-hover:gap-3 transition-all">
               Voir sur la carte ↓
@@ -273,13 +334,16 @@ export default function AProposPage() {
               <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center mb-4">
                 <Clock size={24} />
               </div>
-              <h3 className="font-serif text-lg font-semibold text-anthracite mb-1">Horaires d&apos;Ouverture</h3>
+              <h3 className="font-serif text-lg font-semibold text-anthracite mb-1">
+                Horaires d&apos;Ouverture
+              </h3>
               <p className="text-xs text-stone mb-3">Disponibilité continue</p>
               <p className="text-sm font-bold text-anthracite">7 jours sur 7</p>
-              <p className="text-xs text-stone mt-0.5">De 09h00 à 21h00 GMT</p>
+              <p className="text-xs text-stone mt-0.5">De 09h00 à 22h00 GMT</p>
             </div>
             <span className="mt-6 text-xs text-green-700 font-medium flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-green-500" /> Ouvert aujourd&apos;hui
+              <span className="w-2 h-2 rounded-full bg-green-500" /> Ouvert
+              aujourd&apos;hui
             </span>
           </div>
         </div>
@@ -298,7 +362,8 @@ export default function AProposPage() {
                   Liberté 6, en face Camp Pénal
                 </h3>
                 <p className="text-stone text-sm mt-1">
-                  Dakar, Sénégal — Repère : Juste en face de l&apos;entrée principale du Camp Pénal de Liberté 6
+                  Dakar, Sénégal — Repère : Juste en face de l&apos;entrée
+                  principale du Camp Pénal de Liberté 6
                 </p>
               </div>
 
@@ -333,11 +398,16 @@ export default function AProposPage() {
               <div className="flex items-center gap-2 text-center sm:text-left">
                 <span className="text-base">📍</span>
                 <span>
-                  <strong>Accès facile :</strong> En plein cœur de Liberté 6, en face du Camp Pénal. Atelier et essayages ouverts 7j/7 de 9h à 21h.
+                  <strong>Accès facile :</strong> En plein cœur de Liberté 6, en
+                  face du Camp Pénal. Atelier et essayages ouverts 7j/7 de 9h à
+                  22h.
                 </span>
               </div>
               <div className="flex items-center gap-2 text-center sm:text-right font-medium text-anthracite">
-                <span>🚚 Livraison express également disponible partout à Dakar et dans les régions !</span>
+                <span>
+                  🚚 Livraison express également disponible partout à Dakar et
+                  dans les régions !
+                </span>
               </div>
             </div>
           </div>
@@ -353,7 +423,9 @@ export default function AProposPage() {
               Prêt(e) à trouver votre tenue idéale ?
             </h3>
             <p className="text-stone text-sm leading-relaxed">
-              Consultez nos collections en ligne ou envoyez-nous un message WhatsApp pour des conseils personnalisés sur les tailles et les coloris.
+              Consultez nos collections en ligne ou envoyez-nous un message
+              WhatsApp pour des conseils personnalisés sur les tailles et les
+              coloris.
             </p>
           </div>
 

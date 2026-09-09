@@ -123,6 +123,17 @@ function CheckoutForm() {
     // Sauvegarde locale de la commande
     localStorage.setItem('lastOrder', JSON.stringify(orderData));
 
+    // Enregistrement automatique de la commande dans le système administrateur
+    try {
+      await fetch('/api/orders/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData),
+      });
+    } catch (dbErr) {
+      console.warn('Enregistrement commande admin:', dbErr);
+    }
+
     try {
       const response = await fetch('/api/paytech/payment', {
         method: 'POST',

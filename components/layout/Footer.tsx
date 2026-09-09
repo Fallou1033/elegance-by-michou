@@ -97,7 +97,13 @@ export default function Footer() {
 
         <div className="border-t border-ivory/10 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-stone">
           <p>© 2026 Elegance By Michou. Tous droits réservés.</p>
-          <p>Fait avec ❤️ au Sénégal</p>
+          <div className="flex items-center gap-4">
+            <Link href="/admin" className="hover:text-terracotta transition-colors flex items-center gap-1 opacity-75 hover:opacity-100">
+              <span className="w-1.5 h-1.5 rounded-full bg-stone/50" />
+              <span>Espace Gérant</span>
+            </Link>
+            <p>Fait avec ❤️ au Sénégal</p>
+          </div>
         </div>
       </div>
     </footer>

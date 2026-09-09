@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { CartProvider } from '@/context/CartContext';
 import { FavoritesProvider } from '@/context/FavoritesContext';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import StoreLayoutWrapper from '@/components/layout/StoreLayoutWrapper';
 
 export const metadata: Metadata = {
   title: 'Elegance By Michou | Mode Féminine & Masculine',
@@ -23,9 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-ivory font-sans antialiased">
         <FavoritesProvider>
           <CartProvider>
-            <Header />
-            <main>{children}</main>
-            <Footer />
+            <StoreLayoutWrapper>{children}</StoreLayoutWrapper>
           </CartProvider>
         </FavoritesProvider>
       </body>
