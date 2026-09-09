@@ -48,12 +48,17 @@ export default function AdminProductsPage() {
           const cached = localStorage.getItem('admin_local_products');
           if (cached) {
             const parsed = JSON.parse(cached);
-            if (Array.isArray(parsed) && parsed.length > 0) {
               const map = new Map<string, Product>();
               list.forEach((p: Product) => map.set(p.id, p));
-              parsed.forEach((p: Product) => map.set(p.id, p));
+              parsed.forEach((p: Product) => {
+                const existing = map.get(p.id);
+                if (existing && (!p.colors || p.colors.length < (existing.colors?.length || 0))) {
+                  map.set(p.id, { ...p, colors: existing.colors });
+                } else {
+                  map.set(p.id, p);
+                }
+              });
               list = Array.from(map.values());
-            }
           }
 
           const deletedCached = localStorage.getItem('admin_deleted_product_ids');
@@ -389,17 +394,17 @@ export default function AdminProductsPage() {
                             </span>
                           ))}
                         </div>
-                        <div className="flex items-center gap-1">
-                          {product.colors?.slice(0, 4).map(c => (
+                        <div className="flex items-center gap-1 flex-wrap max-w-[140px]">
+                          {product.colors?.slice(0, 8).map(c => (
                             <span
                               key={c.name}
                               title={c.name}
-                              className="w-3 h-3 rounded-full border border-stone/30 inline-block"
+                              className="w-3.5 h-3.5 rounded-full border border-stone/30 inline-block shadow-2xs hover:scale-125 transition-transform"
                               style={{ backgroundColor: c.hex }}
                             />
                           ))}
-                          {product.colors && product.colors.length > 4 && (
-                            <span className="text-[10px] text-stone">+{product.colors.length - 4}</span>
+                          {product.colors && product.colors.length > 8 && (
+                            <span className="text-[10px] text-stone font-medium">+{product.colors.length - 8}</span>
                           )}
                         </div>
                       </div>

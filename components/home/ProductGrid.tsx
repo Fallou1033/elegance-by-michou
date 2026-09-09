@@ -50,12 +50,17 @@ export default function ProductGrid() {
             const cached = localStorage.getItem('admin_local_products');
             if (cached) {
               const parsed = JSON.parse(cached);
-              if (Array.isArray(parsed) && parsed.length > 0) {
                 const map = new Map<string, Product>();
                 merged.forEach((p: Product) => map.set(p.id, p));
-                parsed.forEach((p: Product) => map.set(p.id, p));
+                parsed.forEach((p: Product) => {
+                  const existing = map.get(p.id);
+                  if (existing && (!p.colors || p.colors.length < (existing.colors?.length || 0))) {
+                    map.set(p.id, { ...p, colors: existing.colors });
+                  } else {
+                    map.set(p.id, p);
+                  }
+                });
                 merged = Array.from(map.values());
-              }
             }
 
             const deletedCached = localStorage.getItem('admin_deleted_product_ids');

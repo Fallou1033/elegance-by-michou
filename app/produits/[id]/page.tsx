@@ -73,7 +73,14 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               if (Array.isArray(parsed) && parsed.length > 0) {
                 const map = new Map<string, Product>();
                 mergedList.forEach((p: Product) => map.set(p.id, p));
-                parsed.forEach((p: Product) => map.set(p.id, p));
+                parsed.forEach((p: Product) => {
+                  const existing = map.get(p.id);
+                  if (existing && (!p.colors || p.colors.length < (existing.colors?.length || 0))) {
+                    map.set(p.id, { ...p, colors: existing.colors });
+                  } else {
+                    map.set(p.id, p);
+                  }
+                });
                 mergedList = Array.from(map.values());
               }
             }
@@ -83,10 +90,12 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
           const found = mergedList.find((p: Product) => matchesProductSlug(p, params.id));
           if (found) {
-            // Si on a un override local, on garde la version locale prioritaire
-            if (!hasLocalOverride) {
-              setProduct(found);
-            }
+            setProduct(prev => {
+              if (prev && prev.colors && prev.colors.length > (found.colors?.length || 0)) {
+                return { ...found, colors: prev.colors };
+              }
+              return found;
+            });
             setSelectedColor(prev => {
               if (prev && found.colors?.some((c: any) => c.name === prev)) return prev;
               return found.colors?.[0]?.name || '';

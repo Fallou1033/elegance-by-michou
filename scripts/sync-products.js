@@ -37,9 +37,14 @@ const KNOWN_CONFIGS = {
     price: 50000,
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
     colors: [
+      { name: 'Turquoise Cérémonie', hex: '#00A896' },
       { name: 'Noir Impérial', hex: '#1A1A1A' },
       { name: 'Or & Bronze', hex: '#C5A059' },
-      { name: 'Bleu Marine', hex: '#1F3A5F' }
+      { name: 'Bleu Roi', hex: '#1F51FF' },
+      { name: 'Bleu Marine', hex: '#1F3A5F' },
+      { name: "Blanc d'Apparat", hex: '#FAF9F6' },
+      { name: 'Bordeaux Majestueux', hex: '#6B1D2F' },
+      { name: 'Vert Émeraude', hex: '#124E3F' }
     ],
     material: 'Tissu tailleur supérieur et broderies de prestige',
     care: 'Nettoyage à sec uniquement par un professionnel.',
@@ -53,10 +58,14 @@ const KNOWN_CONFIGS = {
     price: 20000,
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
     colors: [
+      { name: 'Blanc Pur', hex: '#FFFFFF' },
       { name: 'Bleu Ciel', hex: '#87CEEB' },
       { name: 'Rayé Marron & Blanc', hex: '#A89F91' },
-      { name: 'Blanc Pur', hex: '#FFFFFF' },
-      { name: 'Terracotta', hex: '#C4704F' }
+      { name: 'Terracotta', hex: '#C4704F' },
+      { name: 'Beige Sable', hex: '#D2B48C' },
+      { name: 'Vert Sauge', hex: '#9CAF88' },
+      { name: 'Kaki Olive', hex: '#556B2F' },
+      { name: 'Noir Charbon', hex: '#222222' }
     ],
     material: '100% Lin naturel et respirant',
     care: 'Lavage en machine à 30°C. Séchage sur cintre.',
@@ -70,7 +79,13 @@ const KNOWN_CONFIGS = {
     sizes: ['M', 'L', 'XL', 'XXL'],
     colors: [
       { name: "Blanc d'Apparat", hex: '#FAF9F6' },
-      { name: 'Bleu Roi', hex: '#2A52BE' }
+      { name: 'Bleu Roi', hex: '#2A52BE' },
+      { name: 'Noir Ébène', hex: '#1A1A1A' },
+      { name: 'Jaune Or', hex: '#D4AF37' },
+      { name: 'Marron Chocolat', hex: '#4A2C11' },
+      { name: 'Vert Bouteille', hex: '#1B4D3E' },
+      { name: 'Bleu Ciel Nacré', hex: '#A0C4E2' },
+      { name: 'Bordeaux Impérial', hex: '#5E1914' }
     ],
     material: 'Bazin riche 100% coton teinté et brodé',
     care: 'Nettoyage à sec par un professionnel recommandé.',
@@ -83,7 +98,14 @@ const KNOWN_CONFIGS = {
     price: 13000,
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     colors: [
-      { name: 'Blanc Broderie', hex: '#FAF9F6' }
+      { name: 'Blanc Broderie', hex: '#FAF9F6' },
+      { name: 'Rose Poudré', hex: '#F4C2C2' },
+      { name: 'Noir Élégant', hex: '#1A1A1A' },
+      { name: 'Bleu Ciel', hex: '#87CEEB' },
+      { name: 'Terracotta Pastel', hex: '#D9826C' },
+      { name: 'Vert Sauge', hex: '#9CAF88' },
+      { name: 'Jaune Pastel', hex: '#FDEAA8' },
+      { name: 'Lavande Douce', hex: '#BDB0D0' }
     ],
     material: 'Broderie anglaise 100% coton',
     care: "Lavage délicat à 30°C ou à la main. Repassage doux sur l'envers.",
@@ -100,7 +122,12 @@ const KNOWN_CONFIGS = {
       { name: 'Terracotta', hex: '#C4704F' },
       { name: 'Noir Intense', hex: '#1A1A1A' },
       { name: 'Kaki Safari', hex: '#4B5320' },
-      { name: 'Beige Sable', hex: '#C8B89A' }
+      { name: 'Beige Sable', hex: '#C8B89A' },
+      { name: 'Bleu Marine', hex: '#1F3A5F' },
+      { name: 'Gris Anthracite', hex: '#4A4A4A' },
+      { name: 'Vert Olive', hex: '#556B2F' },
+      { name: 'Marron Tabac', hex: '#5D4037' },
+      { name: 'Blanc Craie', hex: '#F5F5F0' }
     ],
     material: 'Tissu Supercent résistant et respirant',
     care: 'Lavage en machine à 30°C. Repassage doux.',
@@ -135,9 +162,13 @@ const KNOWN_CONFIGS = {
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
     colors: [
       { name: 'Bleu Roi Signature', hex: '#1F51FF' },
+      { name: 'Noir Profond', hex: '#1A1A1A' },
       { name: 'Gris Anthracite', hex: '#3D3D3D' },
+      { name: "Blanc d'Apparat", hex: '#FAF9F6' },
       { name: 'Aubergine Foncé', hex: '#4A154B' },
-      { name: 'Bleu Nuit', hex: '#1A2B4C' }
+      { name: 'Bleu Nuit', hex: '#1A2B4C' },
+      { name: 'Vert Forêt', hex: '#1B4D3E' },
+      { name: 'Beige Café au Lait', hex: '#C4A482' }
     ],
     material: '100% Coton premium et broderies de prestige',
     care: "Lavage doux à 30°C ou nettoyage à sec. Repassage sur l'envers.",
