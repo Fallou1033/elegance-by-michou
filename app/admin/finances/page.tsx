@@ -188,27 +188,33 @@ export default function AdminFinancesPage() {
           </div>
 
           <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
-            {stats.topCities.map((city: any) => {
-              const percentage =
-                stats.totalRevenue > 0 ? Math.round((city.amount / stats.totalRevenue) * 100) : 0;
-              return (
-                <div key={city.city} className="space-y-1">
-                  <div className="flex justify-between text-xs">
-                    <span className="font-medium text-anthracite">{city.city}</span>
-                    <span className="font-bold text-anthracite">{formatPrice(city.amount)}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 bg-stone/10 h-1.5 rounded-full overflow-hidden">
-                      <div
-                        className="bg-terracotta h-full rounded-full"
-                        style={{ width: `${percentage}%` }}
-                      />
+            {stats.topCities.length === 0 ? (
+              <p className="text-xs text-stone py-6 text-center">
+                Aucune vente par ville pour le moment
+              </p>
+            ) : (
+              stats.topCities.map((city: any) => {
+                const percentage =
+                  stats.totalRevenue > 0 ? Math.round((city.amount / stats.totalRevenue) * 100) : 0;
+                return (
+                  <div key={city.city} className="space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span className="font-medium text-anthracite">{city.city}</span>
+                      <span className="font-bold text-anthracite">{formatPrice(city.amount)}</span>
                     </div>
-                    <span className="text-[10px] text-stone w-8 text-right">{percentage}%</span>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 bg-stone/10 h-1.5 rounded-full overflow-hidden">
+                        <div
+                          className="bg-terracotta h-full rounded-full"
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] text-stone w-8 text-right">{percentage}%</span>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         </div>
       </div>
@@ -229,16 +235,24 @@ export default function AdminFinancesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-stone/10">
-              {stats.topProducts.map((p: any, idx: number) => (
-                <tr key={p.id} className="hover:bg-stone/5 transition-colors">
-                  <td className="py-3.5 px-4 font-bold text-anthracite">#{idx + 1}</td>
-                  <td className="py-3.5 px-4 font-semibold text-anthracite">{p.name}</td>
-                  <td className="py-3.5 px-4 text-stone">{p.quantity} pièce(s)</td>
-                  <td className="py-3.5 px-4 text-right font-bold text-anthracite text-sm">
-                    {formatPrice(p.totalRevenue)}
+              {stats.topProducts.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="py-8 text-center text-stone">
+                    Aucune vente enregistrée pour le moment.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                stats.topProducts.map((p: any, idx: number) => (
+                  <tr key={p.id} className="hover:bg-stone/5 transition-colors">
+                    <td className="py-3.5 px-4 font-bold text-anthracite">#{idx + 1}</td>
+                    <td className="py-3.5 px-4 font-semibold text-anthracite">{p.name}</td>
+                    <td className="py-3.5 px-4 text-stone">{p.quantity} pièce(s)</td>
+                    <td className="py-3.5 px-4 text-right font-bold text-anthracite text-sm">
+                      {formatPrice(p.totalRevenue)}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

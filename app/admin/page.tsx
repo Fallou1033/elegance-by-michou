@@ -246,57 +246,71 @@ export default function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone/10">
-                {stats.recentOrders.map((order: AdminOrder) => (
-                  <tr key={order.orderNumber} className="hover:bg-stone/5 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-medium text-anthracite">
-                      {order.orderNumber}
-                      <span className="block text-[10px] text-stone font-sans">
-                        {new Date(order.createdAt).toLocaleDateString('fr-FR', {
-                          day: 'numeric',
-                          month: 'short',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className="font-medium text-anthracite block">{order.customerName}</span>
-                      <span className="text-[11px] text-stone">{order.city} · {order.phone}</span>
-                    </td>
-                    <td className="py-3.5 px-4 font-semibold text-anthracite">
-                      {formatPrice(order.total)}
-                      <span className="block text-[10px] text-stone uppercase">
-                        {order.paymentMethod}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <select
-                        value={order.status}
-                        disabled={updatingOrderId === order.orderNumber}
-                        onChange={e => handleUpdateStatus(order.orderNumber, e.target.value)}
-                        className="text-xs rounded-lg border border-stone/20 bg-white py-1 px-2 font-medium focus:outline-none focus:border-terracotta cursor-pointer"
-                      >
-                        <option value="en_attente">⏳ En attente</option>
-                        <option value="confirmee">✓ Confirmée</option>
-                        <option value="en_livraison">🚚 En livraison</option>
-                        <option value="livree">🎉 Livrée</option>
-                        <option value="annulee">✖ Annulée</option>
-                      </select>
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <a
-                        href={generateWhatsAppMessage(order)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-colors"
-                        title="Contacter sur WhatsApp"
-                      >
-                        <MessageCircle size={13} />
-                        <span>WhatsApp</span>
-                      </a>
+                {stats.recentOrders.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-12 text-center text-stone">
+                      <ShoppingBag size={32} className="mx-auto text-stone/30 mb-2" />
+                      <p className="font-medium text-anthracite text-xs sm:text-sm">
+                        Aucune commande enregistrée pour le moment
+                      </p>
+                      <p className="text-[11px] text-stone mt-0.5">
+                        Les commandes passées par vos clients apparaîtront ici automatiquement en direct.
+                      </p>
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  stats.recentOrders.map((order: AdminOrder) => (
+                    <tr key={order.orderNumber} className="hover:bg-stone/5 transition-colors">
+                      <td className="py-3.5 px-4 font-mono font-medium text-anthracite">
+                        {order.orderNumber}
+                        <span className="block text-[10px] text-stone font-sans">
+                          {new Date(order.createdAt).toLocaleDateString('fr-FR', {
+                            day: 'numeric',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className="font-medium text-anthracite block">{order.customerName}</span>
+                        <span className="text-[11px] text-stone">{order.city} · {order.phone}</span>
+                      </td>
+                      <td className="py-3.5 px-4 font-semibold text-anthracite">
+                        {formatPrice(order.total)}
+                        <span className="block text-[10px] text-stone uppercase">
+                          {order.paymentMethod}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <select
+                          value={order.status}
+                          disabled={updatingOrderId === order.orderNumber}
+                          onChange={e => handleUpdateStatus(order.orderNumber, e.target.value)}
+                          className="text-xs rounded-lg border border-stone/20 bg-white py-1 px-2 font-medium focus:outline-none focus:border-terracotta cursor-pointer"
+                        >
+                          <option value="en_attente">⏳ En attente</option>
+                          <option value="confirmee">✓ Confirmée</option>
+                          <option value="en_livraison">🚚 En livraison</option>
+                          <option value="livree">🎉 Livrée</option>
+                          <option value="annulee">✖ Annulée</option>
+                        </select>
+                      </td>
+                      <td className="py-3.5 px-4 text-right">
+                        <a
+                          href={generateWhatsAppMessage(order)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-colors"
+                          title="Contacter sur WhatsApp"
+                        >
+                          <MessageCircle size={13} />
+                          <span>WhatsApp</span>
+                        </a>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -371,22 +385,28 @@ export default function AdminDashboardPage() {
               </Link>
             </div>
             <div className="space-y-3">
-              {stats.topProducts.map((p: any, idx: number) => (
-                <div key={p.id} className="flex items-center justify-between text-xs pb-2 border-b border-stone/10 last:border-0 last:pb-0">
-                  <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 rounded-full bg-stone/10 text-anthracite text-[10px] font-bold flex items-center justify-center shrink-0">
-                      {idx + 1}
-                    </span>
-                    <span className="font-medium text-anthracite truncate max-w-[140px]">
-                      {p.name}
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <span className="font-semibold block">{formatPrice(p.totalRevenue)}</span>
-                    <span className="text-[10px] text-stone">{p.quantity} vendus</span>
-                  </div>
+              {stats.topProducts.length === 0 ? (
+                <div className="py-6 text-center text-stone text-xs">
+                  <p>Aucune vente enregistrée pour l&apos;instant</p>
                 </div>
-              ))}
+              ) : (
+                stats.topProducts.map((p: any, idx: number) => (
+                  <div key={p.id} className="flex items-center justify-between text-xs pb-2 border-b border-stone/10 last:border-0 last:pb-0">
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-full bg-stone/10 text-anthracite text-[10px] font-bold flex items-center justify-center shrink-0">
+                        {idx + 1}
+                      </span>
+                      <span className="font-medium text-anthracite truncate max-w-[140px]">
+                        {p.name}
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-semibold block">{formatPrice(p.totalRevenue)}</span>
+                      <span className="text-[10px] text-stone">{p.quantity} vendus</span>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>

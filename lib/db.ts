@@ -26,101 +26,8 @@ const DATA_DIR = path.join(process.cwd(), 'data');
 const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
 const PRODUCTS_OVERRIDE_FILE = path.join(DATA_DIR, 'products-override.json');
 
-// Commandes de départ pour initialiser le tableau de bord avec de réelles métriques
-const INITIAL_ORDERS: AdminOrder[] = [
-  {
-    orderNumber: 'CMD-2026-84920',
-    customerName: 'Aissatou Diallo',
-    phone: '+221 77 452 89 12',
-    address: 'Almadies, Villa 42 en face King Fahd',
-    city: 'Dakar',
-    notes: 'Livrer de préférence en début d’après-midi svp',
-    paymentMethod: 'wave',
-    status: 'livree',
-    items: [
-      {
-        product: initialProducts[0] || { id: 'costume-africain', name: 'Costume africain', price: 50000 },
-        selectedSize: 'L',
-        selectedColor: 'Noir Impérial',
-        quantity: 1,
-        cartItemId: 'costume-africain-L-Noir',
-      },
-    ],
-    subtotal: 50000,
-    shipping: 0,
-    total: 50000,
-    createdAt: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString(),
-  },
-  {
-    orderNumber: 'CMD-2026-73194',
-    customerName: 'Cheikh Tidiane Ndiaye',
-    phone: '+221 78 120 54 88',
-    address: 'Mermoz Pyrotechnie, près de la Brioche Dorée',
-    city: 'Dakar',
-    notes: 'Appeler 15 minutes avant d’arriver',
-    paymentMethod: 'orange-money',
-    status: 'en_livraison',
-    items: [
-      {
-        product: initialProducts[1] || { id: 'ensemble-lin-homme', name: 'Ensemble lin homme', price: 20000 },
-        selectedSize: 'XL',
-        selectedColor: 'Bleu Ciel',
-        quantity: 2,
-        cartItemId: 'ensemble-lin-homme-XL-Bleu',
-      },
-    ],
-    subtotal: 40000,
-    shipping: 3500,
-    total: 43500,
-    createdAt: new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString(),
-  },
-  {
-    orderNumber: 'CMD-2026-92015',
-    customerName: 'Marieme Ba',
-    phone: '+221 76 893 21 00',
-    address: 'Quartier Cité Lamy',
-    city: 'Thiès',
-    notes: 'Commande urgente pour le week-end',
-    paymentMethod: 'wave',
-    status: 'confirmee',
-    items: [
-      {
-        product: initialProducts[3] || { id: 'mini-robe-brode-anglais', name: 'Mini robe brodé anglais', price: 13000 },
-        selectedSize: 'M',
-        selectedColor: 'Blanc Broderie',
-        quantity: 1,
-        cartItemId: 'mini-robe-M-Blanc',
-      },
-    ],
-    subtotal: 13000,
-    shipping: 3500,
-    total: 16500,
-    createdAt: new Date(Date.now() - 6 * 3600 * 1000).toISOString(),
-  },
-  {
-    orderNumber: 'CMD-2026-95431',
-    customerName: 'Ousmane Noel Dieng',
-    phone: '+221 77 612 34 56',
-    address: 'Saly Portudal, Résidence Palmeraie',
-    city: 'Mbour',
-    notes: 'Paiement Wave validé',
-    paymentMethod: 'wave',
-    status: 'en_attente',
-    items: [
-      {
-        product: initialProducts[2] || { id: 'grand-boubou', name: 'Grand boubou', price: 170000 },
-        selectedSize: 'XL',
-        selectedColor: "Blanc d'Apparat",
-        quantity: 1,
-        cartItemId: 'grand-boubou-XL-Blanc',
-      },
-    ],
-    subtotal: 170000,
-    shipping: 0,
-    total: 170000,
-    createdAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
-  },
-];
+// Initialement aucune commande : données 100% réelles issues des vrais clients
+const INITIAL_ORDERS: AdminOrder[] = [];
 
 // Cache mémoire pour garantir la réactivité même si le système de fichiers est restreint
 let memoryOrders: AdminOrder[] = [...INITIAL_ORDERS];
@@ -133,7 +40,7 @@ function ensureDataLoaded() {
     if (fs.existsSync(ORDERS_FILE)) {
       const data = fs.readFileSync(ORDERS_FILE, 'utf-8');
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         memoryOrders = parsed;
       }
     }
