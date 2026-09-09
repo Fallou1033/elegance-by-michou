@@ -258,17 +258,20 @@ export async function saveDbProduct(productData: Partial<Product> & { name: stri
 
 export async function deleteDbProduct(id: string): Promise<boolean> {
   ensureDataLoaded();
-  const initialLength = memoryProducts.length;
-  memoryProducts = memoryProducts.filter(p => p.id !== id && p.slug !== id);
-  if (memoryProducts.length < initialLength) {
-    persistProducts();
-    const cfg = getRedisConfig();
-    if (cfg) {
-      await redisSet('elegance_michou_products', memoryProducts);
-    }
+  const normalized = id.toLowerCase().replace(/[^a-z0-9]+/g, '');
+  memoryProducts = memoryProducts.filter(p => {
+    if (p.id === id || p.slug === id) return false;
+    const pNorm = (p.slug || p.id || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+    if (pNorm === normalized) return false;
     return true;
+  });
+
+  persistProducts();
+  const cfg = getRedisConfig();
+  if (cfg) {
+    await redisSet('elegance_michou_products', memoryProducts);
   }
-  return false;
+  return true;
 }
 
 // ==================== COMMANDES ====================

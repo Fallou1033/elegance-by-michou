@@ -55,6 +55,14 @@ export default function AdminProductsPage() {
               list = Array.from(map.values());
             }
           }
+
+          const deletedCached = localStorage.getItem('admin_deleted_product_ids');
+          if (deletedCached) {
+            const deletedIds = JSON.parse(deletedCached);
+            if (Array.isArray(deletedIds) && deletedIds.length > 0) {
+              list = list.filter((p: Product) => !deletedIds.includes(p.id) && !deletedIds.includes(p.slug));
+            }
+          }
         } catch {}
         setProducts(list);
       }
@@ -105,12 +113,34 @@ export default function AdminProductsPage() {
     }
     setDeletingId(id);
     try {
-      const res = await fetch(`/api/admin/products?id=${encodeURIComponent(id)}`, {
+      // 1. Nettoyage immédiat du stockage local (localStorage)
+      try {
+        const cached = localStorage.getItem('admin_local_products');
+        if (cached) {
+          const list = JSON.parse(cached);
+          if (Array.isArray(list)) {
+            const filtered = list.filter((p: any) => p.id !== id && p.slug !== id);
+            localStorage.setItem('admin_local_products', JSON.stringify(filtered));
+          }
+        }
+
+        const deletedCached = localStorage.getItem('admin_deleted_product_ids');
+        const deletedList = deletedCached ? JSON.parse(deletedCached) : [];
+        if (!deletedList.includes(id)) {
+          deletedList.push(id);
+          localStorage.setItem('admin_deleted_product_ids', JSON.stringify(deletedList));
+        }
+      } catch (e) {
+        console.error('LocalStorage delete error:', e);
+      }
+
+      // 2. Mise à jour immédiate de l'interface
+      setProducts(prev => prev.filter(p => p.id !== id && p.slug !== id));
+
+      // 3. Appel serveur pour répercuter la suppression
+      await fetch(`/api/admin/products?id=${encodeURIComponent(id)}`, {
         method: 'DELETE',
       });
-      if (res.ok) {
-        setProducts(prev => prev.filter(p => p.id !== id));
-      }
     } catch (err) {
       console.error('Erreur suppression:', err);
     } finally {

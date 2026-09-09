@@ -48,11 +48,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'ID du produit manquant' }, { status: 400 });
     }
 
-    const deleted = await deleteDbProduct(id);
-    if (!deleted) {
-      return NextResponse.json({ error: 'Produit non trouvé' }, { status: 404 });
-    }
-
+    await deleteDbProduct(id);
     return NextResponse.json({ success: true, message: 'Produit supprimé' });
   } catch (error: any) {
     return NextResponse.json({ error: error?.message || 'Erreur serveur' }, { status: 500 });

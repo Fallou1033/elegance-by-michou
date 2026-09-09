@@ -27,7 +27,15 @@ export default function ProductGrid() {
             const map = new Map<string, Product>();
             prev.forEach(p => map.set(p.id, p));
             parsed.forEach((p: Product) => map.set(p.id, p));
-            return Array.from(map.values());
+            let res = Array.from(map.values());
+            const deletedCached = localStorage.getItem('admin_deleted_product_ids');
+            if (deletedCached) {
+              const deletedIds = JSON.parse(deletedCached);
+              if (Array.isArray(deletedIds) && deletedIds.length > 0) {
+                res = res.filter((p: Product) => !deletedIds.includes(p.id) && !deletedIds.includes(p.slug));
+              }
+            }
+            return res;
           });
         }
       }
@@ -47,6 +55,14 @@ export default function ProductGrid() {
                 merged.forEach((p: Product) => map.set(p.id, p));
                 parsed.forEach((p: Product) => map.set(p.id, p));
                 merged = Array.from(map.values());
+              }
+            }
+
+            const deletedCached = localStorage.getItem('admin_deleted_product_ids');
+            if (deletedCached) {
+              const deletedIds = JSON.parse(deletedCached);
+              if (Array.isArray(deletedIds) && deletedIds.length > 0) {
+                merged = merged.filter((p: Product) => !deletedIds.includes(p.id) && !deletedIds.includes(p.slug));
               }
             }
           } catch {}
