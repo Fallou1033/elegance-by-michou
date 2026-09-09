@@ -17,6 +17,21 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const initialProduct = products.find(p => p.id === params.id || p.slug === params.id);
   const [product, setProduct] = useState<Product | undefined>(initialProduct);
   const [allProducts, setAllProducts] = useState<Product[]>(products);
+  const [loading, setLoading] = useState(!initialProduct);
+
+  const { addToCart, openDrawer } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
+
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedSize, setSelectedSize] = useState('');
+  const [selectedColor, setSelectedColor] = useState(initialProduct?.colors?.[0]?.name || '');
+  const [quantity, setQuantity] = useState(1);
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+  const [addedToCart, setAddedToCart] = useState(false);
+  const [sizeError, setSizeError] = useState(false);
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
+  const sizeSectionRef = useRef<HTMLDivElement>(null);
+  const sizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     fetch('/api/products')
@@ -28,43 +43,27 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           if (found) {
             setProduct(found);
             setSelectedColor(prev => {
-              if (found.colors.some((c: any) => c.name === prev)) return prev;
-              return found.colors[0]?.name || '';
+              if (prev && found.colors?.some((c: any) => c.name === prev)) return prev;
+              return found.colors?.[0]?.name || '';
             });
           }
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        setLoading(false);
+      });
   }, [params.id]);
-
-  if (!product) notFound();
-
-  const bulkRule = BULK_DISCOUNT_RULES[product.id];
-
-  const { addToCart, openDrawer } = useCart();
-  const { isFavorite, toggleFavorite } = useFavorites();
-  const favorited = isFavorite(product.id);
-
-  const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState('');
-  const [selectedColor, setSelectedColor] = useState(product.colors[0]?.name || '');
-  const [quantity, setQuantity] = useState(1);
-  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
-  const [addedToCart, setAddedToCart] = useState(false);
-  const [sizeError, setSizeError] = useState(false);
-  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
-  const sizeSectionRef = useRef<HTMLDivElement>(null);
-  const sizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Fullscreen keyboard navigation and scroll lock
   useEffect(() => {
-    if (!isFullscreenOpen) return;
+    if (!isFullscreenOpen || !product) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setIsFullscreenOpen(false);
-      } else if (e.key === 'ArrowLeft' && product.images.length > 1) {
+      } else if (e.key === 'ArrowLeft' && product.images && product.images.length > 1) {
         setSelectedImage(prev => (prev === 0 ? product.images.length - 1 : prev - 1));
-      } else if (e.key === 'ArrowRight' && product.images.length > 1) {
+      } else if (e.key === 'ArrowRight' && product.images && product.images.length > 1) {
         setSelectedImage(prev => (prev === product.images.length - 1 ? 0 : prev + 1));
       }
     };
@@ -74,9 +73,38 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
     };
-  }, [isFullscreenOpen, product.images.length]);
+  }, [isFullscreenOpen, product]);
 
-  // With 6 products in total, pick from the other 5 products regardless of category/gender
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <div className="w-10 h-10 border-3 border-terracotta/30 border-t-terracotta rounded-full animate-spin" />
+        <p className="text-sm text-stone font-medium">Chargement de votre article...</p>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 text-center min-h-[60vh] flex flex-col items-center justify-center gap-4">
+        <h1 className="font-serif text-2xl font-semibold text-anthracite">Article introuvable</h1>
+        <p className="text-stone text-sm max-w-md">
+          Cet article n&apos;est plus disponible ou le lien est incorrect.
+        </p>
+        <Link
+          href="/#catalogue"
+          className="mt-2 px-6 py-3 bg-terracotta text-white text-xs font-semibold uppercase tracking-wider hover:bg-terracotta/90 transition-colors"
+        >
+          Retourner à la boutique
+        </Link>
+      </div>
+    );
+  }
+
+  const favorited = isFavorite(product.id);
+  const bulkRule = BULK_DISCOUNT_RULES[product.id];
+
+  // With products list, pick from the other products regardless of category/gender
   const currentIndex = allProducts.findIndex(p => p.id === product.id || p.slug === product.id);
   const otherProducts = [
     ...allProducts.slice(currentIndex + 1),
@@ -98,7 +126,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       return;
     }
     setSizeError(false);
-    addToCart(product, selectedSize, selectedColor, quantity);
+    addToCart(product, selectedSize, selectedColor || product.colors?.[0]?.name || '', quantity);
     setAddedToCart(true);
     setTimeout(() => {
       setAddedToCart(false);
@@ -106,7 +134,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     }, 1200);
   };
 
-  const hasImages = product.images.length > 0;
+  const hasImages = Boolean(product.images && product.images.length > 0 && product.images[0]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-32 md:py-16 md:pb-20">
