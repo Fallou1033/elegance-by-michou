@@ -60,7 +60,9 @@ export default function EditProductPage() {
         }
         const data = await res.json();
         if (data.success) {
-          const found = data.products.find((p: Product) => p.id === id || p.slug === id);
+          const found = data.products.find((p: Product) => 
+            p.id === id || p.slug === id || (id.includes('lin') && id.includes('femme') && (p.slug || p.id).includes('lin') && (p.slug || p.id).includes('femme'))
+          );
           if (found) {
             setName(found.name);
             setCategory(found.category);
