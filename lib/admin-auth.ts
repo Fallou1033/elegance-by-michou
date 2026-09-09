@@ -75,16 +75,15 @@ export function validateAdminCredentials(identifier: string, pass: string): bool
     process.env.ADMIN_IDENTIFIER?.toLowerCase(),
     process.env.ADMIN_EMAIL?.toLowerCase(),
     process.env.ADMIN_USERNAME?.toLowerCase(),
-    'michou',
-    'admin@elegancebymichou.com',
-    'michou@elegancebymichou.com'
+    'lotafa003@gmail.com',
+    'michoulo',
   ].filter(Boolean) as string[];
 
-  const expectedPass = process.env.ADMIN_PASSWORD || 'Michou@2026';
+  const expectedPass = process.env.ADMIN_PASSWORD || 'Michou2026';
 
   const cleanId = identifier.trim().toLowerCase();
   const isUserValid = validIdentifiers.some(u => timingSafeCompare(cleanId, u));
-  const isPassValid = timingSafeCompare(pass, expectedPass) || timingSafeCompare(pass, 'michou2026');
+  const isPassValid = timingSafeCompare(pass, expectedPass);
 
   return isUserValid && isPassValid;
 }
