@@ -26,6 +26,10 @@ const DATA_DIR = path.join(process.cwd(), 'data');
 const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
 const PRODUCTS_OVERRIDE_FILE = path.join(DATA_DIR, 'products-override.json');
 
+const TMP_DIR = path.join('/tmp', 'elegance-michou');
+const TMP_ORDERS_FILE = path.join(TMP_DIR, 'orders.json');
+const TMP_PRODUCTS_FILE = path.join(TMP_DIR, 'products-override.json');
+
 // Initialement aucune commande : données 100% réelles issues des vrais clients
 const INITIAL_ORDERS: AdminOrder[] = [];
 
@@ -43,6 +47,12 @@ function ensureDataLoaded() {
       if (Array.isArray(parsed)) {
         memoryOrders = parsed;
       }
+    } else if (fs.existsSync(TMP_ORDERS_FILE)) {
+      const data = fs.readFileSync(TMP_ORDERS_FILE, 'utf-8');
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed)) {
+        memoryOrders = parsed;
+      }
     }
   } catch (e) {
     console.warn('Orders file read warning:', e);
@@ -51,6 +61,12 @@ function ensureDataLoaded() {
   try {
     if (fs.existsSync(PRODUCTS_OVERRIDE_FILE)) {
       const data = fs.readFileSync(PRODUCTS_OVERRIDE_FILE, 'utf-8');
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        memoryProducts = parsed;
+      }
+    } else if (fs.existsSync(TMP_PRODUCTS_FILE)) {
+      const data = fs.readFileSync(TMP_PRODUCTS_FILE, 'utf-8');
       const parsed = JSON.parse(data);
       if (Array.isArray(parsed) && parsed.length > 0) {
         memoryProducts = parsed;
@@ -70,7 +86,15 @@ function persistOrders() {
     }
     fs.writeFileSync(ORDERS_FILE, JSON.stringify(memoryOrders, null, 2), 'utf-8');
   } catch (e) {
-    console.warn('Persist orders warning (may be serverless readonly):', e);
+    // Fallback serverless sur /tmp
+    try {
+      if (!fs.existsSync(TMP_DIR)) {
+        fs.mkdirSync(TMP_DIR, { recursive: true });
+      }
+      fs.writeFileSync(TMP_ORDERS_FILE, JSON.stringify(memoryOrders, null, 2), 'utf-8');
+    } catch (tmpErr) {
+      console.warn('Persist orders to tmp failed:', tmpErr);
+    }
   }
 }
 
@@ -81,7 +105,15 @@ function persistProducts() {
     }
     fs.writeFileSync(PRODUCTS_OVERRIDE_FILE, JSON.stringify(memoryProducts, null, 2), 'utf-8');
   } catch (e) {
-    console.warn('Persist products warning (may be serverless readonly):', e);
+    // Fallback serverless sur /tmp
+    try {
+      if (!fs.existsSync(TMP_DIR)) {
+        fs.mkdirSync(TMP_DIR, { recursive: true });
+      }
+      fs.writeFileSync(TMP_PRODUCTS_FILE, JSON.stringify(memoryProducts, null, 2), 'utf-8');
+    } catch (tmpErr) {
+      console.warn('Persist products to tmp failed:', tmpErr);
+    }
   }
 }
 

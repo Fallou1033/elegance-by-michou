@@ -11,6 +11,7 @@ import {
   Image as ImageIcon,
   AlertCircle,
   ExternalLink,
+  Check,
 } from 'lucide-react';
 import { ProductColor, Product } from '@/types';
 import { detectColorName, POPULAR_COLOR_PRESETS } from '@/lib/colors';
@@ -91,9 +92,26 @@ export default function EditProductPage() {
     setNewColorName(detectColorName(hex));
   };
 
+  const handleSelectPreset = (preset: { name: string; hex: string }) => {
+    setNewColorHex(preset.hex);
+    setNewColorName(preset.name);
+    // Ajouter immédiatement à la liste des couleurs si elle n'y figure pas encore
+    setColors(prev => {
+      if (prev.some(c => c.name.toLowerCase() === preset.name.toLowerCase())) {
+        return prev;
+      }
+      return [...prev, { name: preset.name, hex: preset.hex }];
+    });
+  };
+
   const handleAddColor = () => {
     if (!newColorName.trim()) return;
-    setColors(prev => [...prev, { name: newColorName.trim(), hex: newColorHex }]);
+    setColors(prev => {
+      if (prev.some(c => c.name.toLowerCase() === newColorName.trim().toLowerCase())) {
+        return prev;
+      }
+      return [...prev, { name: newColorName.trim(), hex: newColorHex }];
+    });
     setNewColorHex('#1A1A1A');
     setNewColorName('Noir Intense');
   };
@@ -134,6 +152,15 @@ export default function EditProductPage() {
       cleanImages.push('/images/logo-em.png');
     }
 
+    // Inclure automatiquement la couleur du sélecteur si elle n'a pas encore été ajoutée via le bouton
+    const finalColors = [...colors];
+    if (
+      newColorName.trim() &&
+      !finalColors.some(c => c.name.toLowerCase() === newColorName.trim().toLowerCase())
+    ) {
+      finalColors.push({ name: newColorName.trim(), hex: newColorHex });
+    }
+
     setIsSubmitting(true);
     setError('');
 
@@ -150,7 +177,7 @@ export default function EditProductPage() {
           originalPrice: originalPrice ? Number(originalPrice) : undefined,
           badge: badge || undefined,
           sizes: selectedSizes,
-          colors: colors.length > 0 ? colors : [{ name: 'Standard', hex: '#C4704F' }],
+          colors: finalColors.length > 0 ? finalColors : [{ name: 'Standard', hex: '#C4704F' }],
           images: cleanImages,
           description: description.trim(),
           material: material.trim(),
@@ -387,30 +414,40 @@ export default function EditProductPage() {
             {/* Suggestions de teintes rapides en 1 clic */}
             <div className="mb-3">
               <span className="text-[11px] text-stone font-medium block mb-1.5">
-                Couleurs populaires en un clic :
+                Couleurs populaires en un clic (cliquez pour ajouter directement) :
               </span>
               <div className="flex flex-wrap gap-1.5">
-                {POPULAR_COLOR_PRESETS.map(preset => (
-                  <button
-                    key={preset.name}
-                    type="button"
-                    onClick={() => {
-                      setNewColorHex(preset.hex);
-                      setNewColorName(preset.name);
-                    }}
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs border transition-all ${
-                      newColorHex.toLowerCase() === preset.hex.toLowerCase()
-                        ? 'border-terracotta bg-terracotta/10 text-anthracite font-bold shadow-xs'
-                        : 'border-stone/20 bg-white text-stone hover:text-anthracite hover:border-stone/40'
-                    }`}
-                  >
-                    <span
-                      className="w-2.5 h-2.5 rounded-full border border-black/15 shrink-0"
-                      style={{ backgroundColor: preset.hex }}
-                    />
-                    <span>{preset.name}</span>
-                  </button>
-                ))}
+                {POPULAR_COLOR_PRESETS.map(preset => {
+                  const isConfigured = colors.some(
+                    c => c.name.toLowerCase() === preset.name.toLowerCase()
+                  );
+                  return (
+                    <button
+                      key={preset.name}
+                      type="button"
+                      onClick={() => handleSelectPreset(preset)}
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs border transition-all ${
+                        isConfigured
+                          ? 'border-green-600 bg-green-50 text-green-800 font-semibold shadow-xs'
+                          : newColorHex.toLowerCase() === preset.hex.toLowerCase()
+                          ? 'border-terracotta bg-terracotta/10 text-anthracite font-bold shadow-xs'
+                          : 'border-stone/20 bg-white text-stone hover:text-anthracite hover:border-stone/40'
+                      }`}
+                      title={
+                        isConfigured
+                          ? 'Couleur déjà ajoutée au produit'
+                          : 'Cliquez pour ajouter directement cette couleur'
+                      }
+                    >
+                      <span
+                        className="w-2.5 h-2.5 rounded-full border border-black/15 shrink-0"
+                        style={{ backgroundColor: preset.hex }}
+                      />
+                      <span>{preset.name}</span>
+                      {isConfigured && <Check size={12} className="text-green-600" />}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

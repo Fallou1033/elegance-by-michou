@@ -1,23 +1,36 @@
 'use client';
-import { useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, Heart, ShoppingBag, Trash2, ArrowRight } from 'lucide-react';
 import { useFavorites } from '@/context/FavoritesContext';
 import { products } from '@/data/products';
+import { Product } from '@/types';
 import ProductCard from '@/components/ui/ProductCard';
 
 export default function FavoritesPage() {
   const { favorites, clearFavorites, isLoaded } = useFavorites();
+  const [allProducts, setAllProducts] = useState<Product[]>(products);
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.products) && data.products.length > 0) {
+          setAllProducts(data.products);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Produits filtrés correspondant aux IDs dans les favoris
   const favoritedProducts = useMemo(() => {
-    return products.filter(p => favorites.includes(p.id));
-  }, [favorites]);
+    return allProducts.filter(p => favorites.includes(p.id));
+  }, [favorites, allProducts]);
 
   // Autres produits suggérés si la liste est vide ou courte
   const suggestedProducts = useMemo(() => {
-    return products.filter(p => !favorites.includes(p.id)).slice(0, 4);
-  }, [favorites]);
+    return allProducts.filter(p => !favorites.includes(p.id)).slice(0, 4);
+  }, [favorites, allProducts]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 min-h-[70vh]">

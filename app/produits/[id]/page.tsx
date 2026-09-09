@@ -11,8 +11,32 @@ import { formatPrice, BULK_DISCOUNT_RULES } from '@/lib/utils';
 import SizeGuideModal from '@/components/ui/SizeGuideModal';
 import ProductCard from '@/components/ui/ProductCard';
 
+import { Product } from '@/types';
+
 export default function ProductPage({ params }: { params: { id: string } }) {
-  const product = products.find(p => p.id === params.id || p.slug === params.id);
+  const initialProduct = products.find(p => p.id === params.id || p.slug === params.id);
+  const [product, setProduct] = useState<Product | undefined>(initialProduct);
+  const [allProducts, setAllProducts] = useState<Product[]>(products);
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.products)) {
+          setAllProducts(data.products);
+          const found = data.products.find((p: Product) => p.id === params.id || p.slug === params.id);
+          if (found) {
+            setProduct(found);
+            setSelectedColor(prev => {
+              if (found.colors.some((c: any) => c.name === prev)) return prev;
+              return found.colors[0]?.name || '';
+            });
+          }
+        }
+      })
+      .catch(() => {});
+  }, [params.id]);
+
   if (!product) notFound();
 
   const bulkRule = BULK_DISCOUNT_RULES[product.id];
@@ -53,10 +77,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   }, [isFullscreenOpen, product.images.length]);
 
   // With 6 products in total, pick from the other 5 products regardless of category/gender
-  const currentIndex = products.findIndex(p => p.id === product.id || p.slug === product.id);
+  const currentIndex = allProducts.findIndex(p => p.id === product.id || p.slug === product.id);
   const otherProducts = [
-    ...products.slice(currentIndex + 1),
-    ...products.slice(0, currentIndex >= 0 ? currentIndex : 0),
+    ...allProducts.slice(currentIndex + 1),
+    ...allProducts.slice(0, currentIndex >= 0 ? currentIndex : 0),
   ].filter(p => p.id !== product.id && p.slug !== product.slug);
   const relatedProducts = otherProducts.slice(0, 4);
 

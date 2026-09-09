@@ -306,6 +306,10 @@ export const products: Product[] = [
     ],
     "colors": [
       {
+        "name": "Terracotta",
+        "hex": "#C4704F"
+      },
+      {
         "name": "Noir Intense",
         "hex": "#1A1A1A"
       },

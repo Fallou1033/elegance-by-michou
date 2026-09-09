@@ -5,15 +5,28 @@ import ProductCard from '@/components/ui/ProductCard';
 import SkeletonCard from '@/components/ui/SkeletonCard';
 import FilterBar from './FilterBar';
 import { products } from '@/data/products';
+import { Product } from '@/types';
 import { BULK_DISCOUNT_RULES } from '@/lib/utils';
 
 export default function ProductGrid() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [productsList, setProductsList] = useState<Product[]>(products);
   const [isLoading, setIsLoading] = useState(false);
   const [activeCategory, setActiveCategory] = useState('all');
   const [activeGender, setActiveGender] = useState('all');
   const [activeBadge, setActiveBadge] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.products) && data.products.length > 0) {
+          setProductsList(data.products);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Sync URL params for filtering and scroll smoothly to catalogue
   useEffect(() => {
@@ -59,7 +72,7 @@ export default function ProductGrid() {
     const search = searchParams.get('search')?.toLowerCase();
     const badge = searchParams.get('badge') || activeBadge;
 
-    return products.filter(p => {
+    return productsList.filter(p => {
       // Filtre badge (Promotions ou Nouveautés)
       if (badge === 'Promo') {
         const isPromo =
@@ -94,7 +107,7 @@ export default function ProductGrid() {
 
       return true;
     });
-  }, [activeCategory, activeGender, activeBadge, searchParams]);
+  }, [activeCategory, activeGender, activeBadge, searchParams, productsList]);
 
   const handleCategoryChange = (cat: string) => {
     setActiveCategory(cat);
