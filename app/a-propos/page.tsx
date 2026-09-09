@@ -66,6 +66,7 @@ export default function AProposPage() {
           </p>
         </div>
       </section>
+    
 
       {/* Section Histoire & Vision */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-stone/15">
@@ -91,7 +92,7 @@ export default function AProposPage() {
                 « L&apos;élégance n&apos;est pas de se faire remarquer, mais de
                 se faire retenir. »
               </p>
-              <p className="text-xs text-ivory/80 mt-1">— Michou, Fondatrice</p>
+              <p className="text-xs text-ivory/80 mt-1">— Michou Low, Fondatrice</p>
             </div>
           </div>
 
@@ -108,7 +109,7 @@ export default function AProposPage() {
             </h3>
             <div className="space-y-4 text-stone text-sm sm:text-base leading-relaxed">
               <p>
-                Fondée à Dakar par <strong>Michou</strong>, la marque{" "}
+                Fondée à Dakar par <strong>Michou Low</strong>, la marque{" "}
                 <strong>Elegance By Michou</strong> est née d&apos;une
                 conviction profonde : la mode doit célébrer l&apos;identité
                 culturelle tout en offrant un confort et une allure moderne au
