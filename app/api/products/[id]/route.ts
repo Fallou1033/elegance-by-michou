@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const product = getDbProductById(params.id);
+    const product = await getDbProductById(params.id);
     if (!product) {
       return NextResponse.json({ success: false, error: 'Produit non trouvé' }, { status: 404 });
     }

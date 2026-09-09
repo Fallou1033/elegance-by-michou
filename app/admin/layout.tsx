@@ -8,6 +8,7 @@ import {
   Package,
   ShoppingBag,
   TrendingUp,
+  Database,
   ExternalLink,
   LogOut,
   Menu,
@@ -79,6 +80,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/produits', label: 'Catalogue et Prix', icon: Package },
     { href: '/admin/commandes', label: 'Commandes', icon: ShoppingBag },
     { href: '/admin/finances', label: 'Finances et Bilan', icon: TrendingUp },
+    { href: '/admin/base-de-donnees', label: 'Sauvegarde & Cloud', icon: Database },
   ];
 
   return (

@@ -13,8 +13,19 @@ import ProductCard from '@/components/ui/ProductCard';
 
 import { Product } from '@/types';
 
+function matchesProductSlug(p: Product, targetId: string) {
+  if (p.id === targetId || p.slug === targetId) return true;
+  const pNorm = (p.slug || p.id || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+  const tNorm = targetId.toLowerCase().replace(/[^a-z0-9]+/g, '');
+  if (pNorm === tNorm) return true;
+  if (tNorm.includes('lin') && tNorm.includes('femme') && pNorm.includes('lin') && pNorm.includes('femme')) {
+    return true;
+  }
+  return false;
+}
+
 export default function ProductPage({ params }: { params: { id: string } }) {
-  const initialProduct = products.find(p => p.id === params.id || p.slug === params.id);
+  const initialProduct = products.find(p => matchesProductSlug(p, params.id));
   const [product, setProduct] = useState<Product | undefined>(initialProduct);
   const [allProducts, setAllProducts] = useState<Product[]>(products);
   const [loading, setLoading] = useState(!initialProduct);
@@ -34,12 +45,26 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const sizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    try {
+      const cached = localStorage.getItem('admin_local_products');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed)) {
+          const localFound = parsed.find((p: Product) => matchesProductSlug(p, params.id));
+          if (localFound) {
+            setProduct(localFound);
+            setLoading(false);
+          }
+        }
+      }
+    } catch {}
+
     fetch('/api/products')
       .then(res => res.json())
       .then(data => {
         if (data.success && Array.isArray(data.products)) {
           setAllProducts(data.products);
-          const found = data.products.find((p: Product) => p.id === params.id || p.slug === params.id);
+          const found = data.products.find((p: Product) => matchesProductSlug(p, params.id));
           if (found) {
             setProduct(found);
             setSelectedColor(prev => {

@@ -30,13 +30,76 @@ const TMP_DIR = path.join('/tmp', 'elegance-michou');
 const TMP_ORDERS_FILE = path.join(TMP_DIR, 'orders.json');
 const TMP_PRODUCTS_FILE = path.join(TMP_DIR, 'products-override.json');
 
-// Initialement aucune commande : données 100% réelles issues des vrais clients
+// Cache mémoire
 const INITIAL_ORDERS: AdminOrder[] = [];
-
-// Cache mémoire pour garantir la réactivité même si le système de fichiers est restreint
 let memoryOrders: AdminOrder[] = [...INITIAL_ORDERS];
 let memoryProducts: Product[] = [...initialProducts];
 let isLoaded = false;
+
+// ==================== CLOUD DATABASE (VERCEL KV / UPSTASH REDIS) ====================
+
+function getRedisConfig() {
+  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (url && token) {
+    return { url: url.replace(/\/+$/, ''), token };
+  }
+  return null;
+}
+
+export function getDbConnectionStatus(): { isCloud: boolean; type: string } {
+  if (process.env.KV_REST_API_URL) return { isCloud: true, type: 'Vercel KV' };
+  if (process.env.UPSTASH_REDIS_REST_URL) return { isCloud: true, type: 'Upstash Redis' };
+  return { isCloud: false, type: 'Mémoire locale / Fichier' };
+}
+
+async function redisGet<T>(key: string): Promise<T | null> {
+  const cfg = getRedisConfig();
+  if (!cfg) return null;
+  try {
+    const res = await fetch(`${cfg.url}/get/${key}`, {
+      headers: { Authorization: `Bearer ${cfg.token}` },
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    if (json.result === null || json.result === undefined) return null;
+    if (typeof json.result === 'string') {
+      try {
+        return JSON.parse(json.result) as T;
+      } catch {
+        return json.result as unknown as T;
+      }
+    }
+    return json.result as T;
+  } catch (err) {
+    console.warn(`[Cloud DB] Warning on GET ${key}:`, err);
+    return null;
+  }
+}
+
+async function redisSet(key: string, value: any): Promise<boolean> {
+  const cfg = getRedisConfig();
+  if (!cfg) return false;
+  try {
+    const payload = typeof value === 'string' ? value : JSON.stringify(value);
+    const res = await fetch(`${cfg.url}/set/${key}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${cfg.token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+      cache: 'no-store',
+    });
+    return res.ok;
+  } catch (err) {
+    console.warn(`[Cloud DB] Warning on SET ${key}:`, err);
+    return false;
+  }
+}
+
+// ==================== PERSISTANCE LOCALE & FICHIERS ====================
 
 function ensureDataLoaded() {
   if (isLoaded) return;
@@ -86,7 +149,6 @@ function persistOrders() {
     }
     fs.writeFileSync(ORDERS_FILE, JSON.stringify(memoryOrders, null, 2), 'utf-8');
   } catch (e) {
-    // Fallback serverless sur /tmp
     try {
       if (!fs.existsSync(TMP_DIR)) {
         fs.mkdirSync(TMP_DIR, { recursive: true });
@@ -105,7 +167,6 @@ function persistProducts() {
     }
     fs.writeFileSync(PRODUCTS_OVERRIDE_FILE, JSON.stringify(memoryProducts, null, 2), 'utf-8');
   } catch (e) {
-    // Fallback serverless sur /tmp
     try {
       if (!fs.existsSync(TMP_DIR)) {
         fs.mkdirSync(TMP_DIR, { recursive: true });
@@ -119,17 +180,40 @@ function persistProducts() {
 
 // ==================== PRODUITS ====================
 
-export function getDbProducts(): Product[] {
+export async function getDbProducts(): Promise<Product[]> {
   ensureDataLoaded();
+
+  const cfg = getRedisConfig();
+  if (cfg) {
+    const cloudProducts = await redisGet<Product[]>('elegance_michou_products');
+    if (Array.isArray(cloudProducts) && cloudProducts.length > 0) {
+      memoryProducts = cloudProducts;
+      return memoryProducts;
+    } else {
+      // Synchroniser les produits initiaux vers le cloud
+      await redisSet('elegance_michou_products', memoryProducts);
+    }
+  }
+
   return memoryProducts;
 }
 
-export function getDbProductById(id: string): Product | undefined {
-  ensureDataLoaded();
-  return memoryProducts.find(p => p.id === id || p.slug === id);
+export async function getDbProductById(id: string): Promise<Product | undefined> {
+  const prods = await getDbProducts();
+  const normalized = id.toLowerCase().replace(/[^a-z0-9]+/g, '');
+  return prods.find(p => {
+    if (p.id === id || p.slug === id) return true;
+    const pNorm = p.id.toLowerCase().replace(/[^a-z0-9]+/g, '');
+    if (pNorm === normalized) return true;
+    // Tolérance d'alias pour les ensembles en lin
+    if (normalized.includes('lin') && normalized.includes('femme') && pNorm.includes('lin') && pNorm.includes('femme')) {
+      return true;
+    }
+    return false;
+  });
 }
 
-export function saveDbProduct(productData: Partial<Product> & { name: string; price: number }): Product {
+export async function saveDbProduct(productData: Partial<Product> & { name: string; price: number }): Promise<Product> {
   ensureDataLoaded();
   
   const id = productData.id || productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -163,15 +247,25 @@ export function saveDbProduct(productData: Partial<Product> & { name: string; pr
   }
 
   persistProducts();
+
+  const cfg = getRedisConfig();
+  if (cfg) {
+    await redisSet('elegance_michou_products', memoryProducts);
+  }
+
   return fullProduct;
 }
 
-export function deleteDbProduct(id: string): boolean {
+export async function deleteDbProduct(id: string): Promise<boolean> {
   ensureDataLoaded();
   const initialLength = memoryProducts.length;
   memoryProducts = memoryProducts.filter(p => p.id !== id && p.slug !== id);
   if (memoryProducts.length < initialLength) {
     persistProducts();
+    const cfg = getRedisConfig();
+    if (cfg) {
+      await redisSet('elegance_michou_products', memoryProducts);
+    }
     return true;
   }
   return false;
@@ -179,17 +273,26 @@ export function deleteDbProduct(id: string): boolean {
 
 // ==================== COMMANDES ====================
 
-export function getDbOrders(): AdminOrder[] {
+export async function getDbOrders(): Promise<AdminOrder[]> {
   ensureDataLoaded();
+
+  const cfg = getRedisConfig();
+  if (cfg) {
+    const cloudOrders = await redisGet<AdminOrder[]>('elegance_michou_orders');
+    if (Array.isArray(cloudOrders)) {
+      memoryOrders = cloudOrders;
+    }
+  }
+
   return memoryOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
-export function getDbOrderById(orderNumber: string): AdminOrder | undefined {
-  ensureDataLoaded();
-  return memoryOrders.find(o => o.orderNumber === orderNumber);
+export async function getDbOrderById(orderNumber: string): Promise<AdminOrder | undefined> {
+  const orders = await getDbOrders();
+  return orders.find(o => o.orderNumber === orderNumber);
 }
 
-export function createDbOrder(orderData: {
+export async function createDbOrder(orderData: {
   orderNumber: string;
   customerName: string;
   phone: string;
@@ -201,7 +304,7 @@ export function createDbOrder(orderData: {
   subtotal: number;
   shipping: number;
   total: number;
-}): AdminOrder {
+}): Promise<AdminOrder> {
   ensureDataLoaded();
 
   const newOrder: AdminOrder = {
@@ -222,10 +325,16 @@ export function createDbOrder(orderData: {
 
   memoryOrders.unshift(newOrder);
   persistOrders();
+
+  const cfg = getRedisConfig();
+  if (cfg) {
+    await redisSet('elegance_michou_orders', memoryOrders);
+  }
+
   return newOrder;
 }
 
-export function updateDbOrderStatus(orderNumber: string, status: OrderStatus): AdminOrder | null {
+export async function updateDbOrderStatus(orderNumber: string, status: OrderStatus): Promise<AdminOrder | null> {
   ensureDataLoaded();
   const order = memoryOrders.find(o => o.orderNumber === orderNumber);
   if (!order) return null;
@@ -233,16 +342,20 @@ export function updateDbOrderStatus(orderNumber: string, status: OrderStatus): A
   order.status = status;
   order.updatedAt = new Date().toISOString();
   persistOrders();
+
+  const cfg = getRedisConfig();
+  if (cfg) {
+    await redisSet('elegance_michou_orders', memoryOrders);
+  }
+
   return order;
 }
 
 // ==================== STATISTIQUES FINANCIÈRES ====================
 
-export function getFinancialAnalytics() {
-  ensureDataLoaded();
-  const orders = memoryOrders;
+export async function getFinancialAnalytics() {
+  const orders = await getDbOrders();
 
-  // Calcul des montants
   let totalRevenue = 0;
   let todayRevenue = 0;
   let monthRevenue = 0;
@@ -274,7 +387,6 @@ export function getFinancialAnalytics() {
     const orderDateStr = order.createdAt.split('T')[0];
     const orderYearMonth = order.createdAt.substring(0, 7);
 
-    // Comptage des statuts
     if (statusCounts[order.status] !== undefined) {
       statusCounts[order.status]++;
     }
@@ -293,7 +405,6 @@ export function getFinancialAnalytics() {
         monthRevenue += order.total;
       }
 
-      // Par mode de paiement
       const method = order.paymentMethod || 'wave';
       if (!paymentBreakdown[method]) {
         paymentBreakdown[method] = { count: 0, amount: 0 };
@@ -301,7 +412,6 @@ export function getFinancialAnalytics() {
       paymentBreakdown[method].count++;
       paymentBreakdown[method].amount += order.total;
 
-      // Par ville
       const city = order.city || 'Non spécifiée';
       if (!cityBreakdown[city]) {
         cityBreakdown[city] = { count: 0, amount: 0 };
@@ -309,7 +419,6 @@ export function getFinancialAnalytics() {
       cityBreakdown[city].count++;
       cityBreakdown[city].amount += order.total;
 
-      // Ventes par produit
       if (Array.isArray(order.items)) {
         order.items.forEach(item => {
           const pId = item.product?.id || 'inconnu';
@@ -350,4 +459,47 @@ export function getFinancialAnalytics() {
     topProducts,
     recentOrders: orders.slice(0, 5),
   };
+}
+
+// ==================== SAUVEGARDE & RESTAURATION ====================
+
+export async function exportDatabaseBackup() {
+  const products = await getDbProducts();
+  const orders = await getDbOrders();
+  return {
+    version: '1.0',
+    exportedAt: new Date().toISOString(),
+    totalProducts: products.length,
+    totalOrders: orders.length,
+    products,
+    orders,
+  };
+}
+
+export async function restoreDatabaseBackup(backup: { products?: Product[]; orders?: AdminOrder[] }): Promise<{ success: boolean; countProducts: number; countOrders: number }> {
+  ensureDataLoaded();
+  let countProducts = 0;
+  let countOrders = 0;
+
+  if (Array.isArray(backup.products) && backup.products.length > 0) {
+    memoryProducts = backup.products;
+    persistProducts();
+    const cfg = getRedisConfig();
+    if (cfg) {
+      await redisSet('elegance_michou_products', memoryProducts);
+    }
+    countProducts = memoryProducts.length;
+  }
+
+  if (Array.isArray(backup.orders)) {
+    memoryOrders = backup.orders;
+    persistOrders();
+    const cfg = getRedisConfig();
+    if (cfg) {
+      await redisSet('elegance_michou_orders', memoryOrders);
+    }
+    countOrders = memoryOrders.length;
+  }
+
+  return { success: true, countProducts, countOrders };
 }

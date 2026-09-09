@@ -8,7 +8,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
 
-  const orders = getDbOrders();
+  const orders = await getDbOrders();
   return NextResponse.json({ success: true, orders });
 }
 
@@ -28,7 +28,7 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const updated = updateDbOrderStatus(orderNumber, status as OrderStatus);
+    const updated = await updateDbOrderStatus(orderNumber, status as OrderStatus);
     if (!updated) {
       return NextResponse.json({ error: 'Commande introuvable' }, { status: 404 });
     }

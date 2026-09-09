@@ -231,6 +231,15 @@ export default function EditProductPage() {
       });
 
       if (res.ok) {
+        const savedData = await res.json();
+        if (savedData.product) {
+          try {
+            const cached = localStorage.getItem('admin_local_products');
+            const list = cached ? JSON.parse(cached) : [];
+            const updated = [savedData.product, ...list.filter((p: any) => p.id !== savedData.product.id)];
+            localStorage.setItem('admin_local_products', JSON.stringify(updated));
+          } catch {}
+        }
         router.push('/admin/produits');
         router.refresh();
       } else {

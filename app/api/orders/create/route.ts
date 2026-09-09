@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const order = createDbOrder({
+    const order = await createDbOrder({
       orderNumber,
       customerName,
       phone,

@@ -8,6 +8,6 @@ export async function GET() {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
 
-  const stats = getFinancialAnalytics();
+  const stats = await getFinancialAnalytics();
   return NextResponse.json({ success: true, stats });
 }

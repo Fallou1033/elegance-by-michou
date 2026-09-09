@@ -18,6 +18,21 @@ export default function ProductGrid() {
   const [activeBadge, setActiveBadge] = useState<string | null>(null);
 
   useEffect(() => {
+    try {
+      const cached = localStorage.getItem('admin_local_products');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setProductsList(prev => {
+            const map = new Map<string, Product>();
+            prev.forEach(p => map.set(p.id, p));
+            parsed.forEach((p: Product) => map.set(p.id, p));
+            return Array.from(map.values());
+          });
+        }
+      }
+    } catch {}
+
     fetch('/api/products')
       .then(res => res.json())
       .then(data => {

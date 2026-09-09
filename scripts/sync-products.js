@@ -97,6 +97,7 @@ const KNOWN_CONFIGS = {
     price: 30000,
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
     colors: [
+      { name: 'Terracotta', hex: '#C4704F' },
       { name: 'Noir Intense', hex: '#1A1A1A' },
       { name: 'Kaki Safari', hex: '#4B5320' },
       { name: 'Beige Sable', hex: '#C8B89A' }
@@ -104,6 +105,26 @@ const KNOWN_CONFIGS = {
     material: 'Tissu Supercent résistant et respirant',
     care: 'Lavage en machine à 30°C. Repassage doux.',
     description: "Costume safari contemporain composé d'une chemise à manches courtes avec poches plaquées à rabat et d'un pantalon assorti. Allure virile, moderne et sophistiquée."
+  },
+  'ensemble-lin-pour-femme': {
+    primaryImage: 'ensemble-lin-femme-bordeaux.jpg',
+    hoverImage: 'ensemble-lin-femme-vert.jpg',
+    gender: 'femme',
+    category: 'hauts',
+    categoryLabel: 'Ensembles Lin',
+    price: 15000,
+    sizes: ['S', 'M', 'L', 'XL'],
+    colors: [
+      { name: 'Bordeaux', hex: '#722F37' },
+      { name: 'Vert Sauge', hex: '#8F9E8B' },
+      { name: 'Noir Profond', hex: '#1A1A1A' },
+      { name: 'Beige Sable', hex: '#C8B89A' },
+      { name: 'Bleu Ciel', hex: '#87CEEB' },
+      { name: 'Terracotta', hex: '#C4704F' }
+    ],
+    material: '100% Lin texturé haute qualité',
+    care: 'Lavage délicat en machine à 30°C. Séchage sur cintre. Repassage doux.',
+    description: "Ensemble féminin chic et décontracté en lin texturé aérien, composé d'une chemise oversize à col polo ouvert et d'un short fluide assorti. Idéal pour les journées ensoleillées, alliant fraîcheur, confort absolu et élégance moderne."
   },
   'tenue-tradi-moderne-ensemble-100-coton': {
     hoverImage: 'WhatsApp Image 2026-09-05 at 13.58.07 (5).jpeg',

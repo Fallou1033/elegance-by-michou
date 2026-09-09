@@ -8,7 +8,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
 
-  const products = getDbProducts();
+  const products = await getDbProducts();
   return NextResponse.json({ success: true, products });
 }
 
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const saved = saveDbProduct(body);
+    const saved = await saveDbProduct(body);
     return NextResponse.json({ success: true, product: saved });
   } catch (error: any) {
     return NextResponse.json({ error: error?.message || 'Erreur serveur' }, { status: 500 });
@@ -48,7 +48,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'ID du produit manquant' }, { status: 400 });
     }
 
-    const deleted = deleteDbProduct(id);
+    const deleted = await deleteDbProduct(id);
     if (!deleted) {
       return NextResponse.json({ error: 'Produit non trouvé' }, { status: 404 });
     }

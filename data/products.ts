@@ -19,10 +19,6 @@ export const products: Product[] = [
     ],
     "colors": [
       {
-        "name": "Turquoise Cérémonie",
-        "hex": "#00A896"
-      },
-      {
         "name": "Noir Impérial",
         "hex": "#1A1A1A"
       },
@@ -31,24 +27,8 @@ export const products: Product[] = [
         "hex": "#C5A059"
       },
       {
-        "name": "Bleu Roi",
-        "hex": "#1F51FF"
-      },
-      {
         "name": "Bleu Marine",
         "hex": "#1F3A5F"
-      },
-      {
-        "name": "Blanc d'Apparat",
-        "hex": "#FAF9F6"
-      },
-      {
-        "name": "Bordeaux Majestueux",
-        "hex": "#6B1D2F"
-      },
-      {
-        "name": "Vert Émeraude",
-        "hex": "#124E3F"
       }
     ],
     "images": [
@@ -56,8 +36,10 @@ export const products: Product[] = [
       "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.03.40%20(1).jpeg",
       "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.03.40%20(2).jpeg",
       "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.03.40.jpeg",
+      "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.03.41%20(1).jpeg",
       "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.03.41%20(2).jpeg",
       "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.03.41%20(3).jpeg",
+      "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.03.41.jpeg",
       "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.04.15.jpeg",
       "/images/products/Costume%20africain/WhatsApp%20Image%202026-09-05%20at%2014.05.27.jpeg"
     ],
@@ -67,8 +49,8 @@ export const products: Product[] = [
     "care": "Nettoyage à sec uniquement par un professionnel.",
     "relatedProducts": [
       "ensemble-lin-homme",
-      "grand-boubou",
-      "mini-robe-brode-anglais-100-coton"
+      "ensemble-lin-pour-femme",
+      "grand-boubou"
     ]
   },
   {
@@ -76,12 +58,10 @@ export const products: Product[] = [
     "slug": "ensemble-lin-homme",
     "name": "ensemble lin homme",
     "price": 20000,
-    "originalPrice": 25000,
-    "discount": 20,
     "category": "homme",
     "categoryLabel": "Ensembles Lin",
     "gender": "homme",
-    "badge": "Promo",
+    "badge": "Nouveau",
     "sizes": [
       "S",
       "M",
@@ -91,10 +71,6 @@ export const products: Product[] = [
     ],
     "colors": [
       {
-        "name": "Blanc Pur",
-        "hex": "#FFFFFF"
-      },
-      {
         "name": "Bleu Ciel",
         "hex": "#87CEEB"
       },
@@ -103,24 +79,12 @@ export const products: Product[] = [
         "hex": "#A89F91"
       },
       {
+        "name": "Blanc Pur",
+        "hex": "#FFFFFF"
+      },
+      {
         "name": "Terracotta",
         "hex": "#C4704F"
-      },
-      {
-        "name": "Beige Sable",
-        "hex": "#D2B48C"
-      },
-      {
-        "name": "Vert Sauge",
-        "hex": "#9CAF88"
-      },
-      {
-        "name": "Kaki Olive",
-        "hex": "#556B2F"
-      },
-      {
-        "name": "Noir Charbon",
-        "hex": "#222222"
       }
     ],
     "images": [
@@ -148,8 +112,65 @@ export const products: Product[] = [
     "care": "Lavage en machine à 30°C. Séchage sur cintre.",
     "relatedProducts": [
       "costume-africain",
-      "grand-boubou",
-      "mini-robe-brode-anglais-100-coton"
+      "ensemble-lin-pour-femme",
+      "grand-boubou"
+    ]
+  },
+  {
+    "id": "ensemble-lin-pour-femme",
+    "slug": "ensemble-lin-pour-femme",
+    "name": "Ensemble lin pour femme",
+    "price": 15000,
+    "category": "hauts",
+    "categoryLabel": "Ensembles Lin",
+    "gender": "femme",
+    "badge": "Nouveau",
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "colors": [
+      {
+        "name": "Bordeaux",
+        "hex": "#722F37"
+      },
+      {
+        "name": "Vert Sauge",
+        "hex": "#8F9E8B"
+      },
+      {
+        "name": "Noir Profond",
+        "hex": "#1A1A1A"
+      },
+      {
+        "name": "Beige Sable",
+        "hex": "#C8B89A"
+      },
+      {
+        "name": "Bleu Ciel",
+        "hex": "#87CEEB"
+      },
+      {
+        "name": "Terracotta",
+        "hex": "#C4704F"
+      }
+    ],
+    "images": [
+      "/images/products/Ensemble%20lin%20pour%20femme/ensemble-lin-femme-bordeaux.jpg",
+      "/images/products/Ensemble%20lin%20pour%20femme/ensemble-lin-femme-beige.jpg",
+      "/images/products/Ensemble%20lin%20pour%20femme/ensemble-lin-femme-noir.jpg",
+      "/images/products/Ensemble%20lin%20pour%20femme/ensemble-lin-femme-vert.jpg"
+    ],
+    "hoverImage": "/images/products/Ensemble%20lin%20pour%20femme/ensemble-lin-femme-vert.jpg",
+    "description": "Ensemble féminin chic et décontracté en lin texturé aérien, composé d'une chemise oversize à col polo ouvert et d'un short fluide assorti. Idéal pour les journées ensoleillées, alliant fraîcheur, confort absolu et élégance moderne.",
+    "material": "100% Lin texturé haute qualité",
+    "care": "Lavage délicat en machine à 30°C. Séchage sur cintre. Repassage doux.",
+    "relatedProducts": [
+      "costume-africain",
+      "ensemble-lin-homme",
+      "grand-boubou"
     ]
   },
   {
@@ -175,30 +196,6 @@ export const products: Product[] = [
       {
         "name": "Bleu Roi",
         "hex": "#2A52BE"
-      },
-      {
-        "name": "Noir Ébène",
-        "hex": "#1A1A1A"
-      },
-      {
-        "name": "Jaune Or",
-        "hex": "#D4AF37"
-      },
-      {
-        "name": "Marron Chocolat",
-        "hex": "#4A2C11"
-      },
-      {
-        "name": "Vert Bouteille",
-        "hex": "#1B4D3E"
-      },
-      {
-        "name": "Bleu Ciel Nacré",
-        "hex": "#A0C4E2"
-      },
-      {
-        "name": "Bordeaux Impérial",
-        "hex": "#5E1914"
       }
     ],
     "images": [
@@ -218,7 +215,7 @@ export const products: Product[] = [
     "relatedProducts": [
       "costume-africain",
       "ensemble-lin-homme",
-      "mini-robe-brode-anglais-100-coton"
+      "ensemble-lin-pour-femme"
     ]
   },
   {
@@ -226,12 +223,10 @@ export const products: Product[] = [
     "slug": "mini-robe-brode-anglais-100-coton",
     "name": "Mini robe brodé anglais 100% coton",
     "price": 13000,
-    "originalPrice": 15000,
-    "discount": 13,
     "category": "robes",
     "categoryLabel": "Robes",
     "gender": "femme",
-    "badge": "Promo",
+    "badge": "Nouveau",
     "sizes": [
       "XS",
       "S",
@@ -243,34 +238,6 @@ export const products: Product[] = [
       {
         "name": "Blanc Broderie",
         "hex": "#FAF9F6"
-      },
-      {
-        "name": "Rose Poudré",
-        "hex": "#F4C2C2"
-      },
-      {
-        "name": "Noir Élégant",
-        "hex": "#1A1A1A"
-      },
-      {
-        "name": "Bleu Ciel",
-        "hex": "#87CEEB"
-      },
-      {
-        "name": "Terracotta Pastel",
-        "hex": "#D9826C"
-      },
-      {
-        "name": "Vert Sauge",
-        "hex": "#9CAF88"
-      },
-      {
-        "name": "Jaune Pastel",
-        "hex": "#FDEAA8"
-      },
-      {
-        "name": "Lavande Douce",
-        "hex": "#BDB0D0"
       }
     ],
     "images": [
@@ -285,7 +252,7 @@ export const products: Product[] = [
     "relatedProducts": [
       "costume-africain",
       "ensemble-lin-homme",
-      "grand-boubou"
+      "ensemble-lin-pour-femme"
     ]
   },
   {
@@ -320,32 +287,12 @@ export const products: Product[] = [
       {
         "name": "Beige Sable",
         "hex": "#C8B89A"
-      },
-      {
-        "name": "Bleu Marine",
-        "hex": "#1F3A5F"
-      },
-      {
-        "name": "Gris Anthracite",
-        "hex": "#4A4A4A"
-      },
-      {
-        "name": "Vert Olive",
-        "hex": "#556B2F"
-      },
-      {
-        "name": "Marron Tabac",
-        "hex": "#5D4037"
-      },
-      {
-        "name": "Blanc Craie",
-        "hex": "#F5F5F0"
       }
     ],
     "images": [
-      "/images/products/Safari%20Supercen/WhatsApp%20Image%202026-09-05%20at%2014.01.31%20(1).jpeg",
       "/images/products/Safari%20Supercen/WhatsApp%20Image%202026-09-05%20at%2014.01.30%20(1).jpeg",
       "/images/products/Safari%20Supercen/WhatsApp%20Image%202026-09-05%20at%2014.01.30.jpeg",
+      "/images/products/Safari%20Supercen/WhatsApp%20Image%202026-09-05%20at%2014.01.31%20(1).jpeg",
       "/images/products/Safari%20Supercen/WhatsApp%20Image%202026-09-05%20at%2014.01.31.jpeg"
     ],
     "hoverImage": "/images/products/Safari%20Supercen/WhatsApp%20Image%202026-09-05%20at%2014.01.31%20(1).jpeg",
@@ -355,7 +302,7 @@ export const products: Product[] = [
     "relatedProducts": [
       "costume-africain",
       "ensemble-lin-homme",
-      "grand-boubou"
+      "ensemble-lin-pour-femme"
     ]
   },
   {
@@ -380,16 +327,8 @@ export const products: Product[] = [
         "hex": "#1F51FF"
       },
       {
-        "name": "Noir Profond",
-        "hex": "#1A1A1A"
-      },
-      {
         "name": "Gris Anthracite",
         "hex": "#3D3D3D"
-      },
-      {
-        "name": "Blanc d'Apparat",
-        "hex": "#FAF9F6"
       },
       {
         "name": "Aubergine Foncé",
@@ -398,23 +337,16 @@ export const products: Product[] = [
       {
         "name": "Bleu Nuit",
         "hex": "#1A2B4C"
-      },
-      {
-        "name": "Vert Forêt",
-        "hex": "#1B4D3E"
-      },
-      {
-        "name": "Beige Café au Lait",
-        "hex": "#C4A482"
       }
     ],
     "images": [
-      "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(5).jpeg",
-      "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(1).jpeg",
+      "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.06%20(1).jpeg",
       "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.06.jpeg",
+      "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(1).jpeg",
       "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(2).jpeg",
       "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(3).jpeg",
       "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(4).jpeg",
+      "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(5).jpeg",
       "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(6).jpeg",
       "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(7).jpeg",
       "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07.jpeg",
@@ -431,14 +363,14 @@ export const products: Product[] = [
       "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.09%20(3).jpeg",
       "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.09.jpeg"
     ],
-    "hoverImage": "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(1).jpeg",
+    "hoverImage": "/images/products/Tenue%20tradi-moderne%20ensemble%20100%25%20coton/WhatsApp%20Image%202026-09-05%20at%2013.58.07%20(5).jpeg",
     "description": "Ensemble 2 pièces signature Élégance by Michou (tunique mi-longue et pantalon droit) en coton haute qualité avec broderies stylisées sur la poche et le col. L'incontournable du vestiaire masculin élégant.",
     "material": "100% Coton premium et broderies de prestige",
     "care": "Lavage doux à 30°C ou nettoyage à sec. Repassage sur l'envers.",
     "relatedProducts": [
       "costume-africain",
       "ensemble-lin-homme",
-      "grand-boubou"
+      "ensemble-lin-pour-femme"
     ]
   }
 ];
