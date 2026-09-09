@@ -23,6 +23,30 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   // Si on est sur la page de login, on affiche uniquement le formulaire sans layout admin
   const isLoginPage = pathname === '/admin/login';
+  const [checkingAuth, setCheckingAuth] = useState(!isLoginPage);
+
+  useEffect(() => {
+    if (isLoginPage) {
+      setCheckingAuth(false);
+      return;
+    }
+
+    const checkSession = async () => {
+      try {
+        const res = await fetch('/api/admin/auth');
+        if (!res.ok) {
+          router.push('/admin/login');
+          return;
+        }
+      } catch (err) {
+        router.push('/admin/login');
+      } finally {
+        setCheckingAuth(false);
+      }
+    };
+
+    checkSession();
+  }, [isLoginPage, router, pathname]);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -39,6 +63,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (isLoginPage) {
     return <>{children}</>;
+  }
+
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-[#FAF9F6] flex flex-col items-center justify-center gap-3">
+        <div className="w-8 h-8 border-3 border-terracotta/30 border-t-terracotta rounded-full animate-spin" />
+        <p className="text-xs text-stone font-medium">Vérification de la session de sécurité...</p>
+      </div>
+    );
   }
 
   const navItems = [

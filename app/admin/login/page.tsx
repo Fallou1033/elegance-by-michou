@@ -3,10 +3,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Lock, Eye, EyeOff, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Lock, User, Eye, EyeOff, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -14,6 +15,10 @@ export default function AdminLoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!identifier.trim()) {
+      setError('Veuillez saisir votre e-mail ou nom d’utilisateur.');
+      return;
+    }
     if (!password.trim()) {
       setError('Veuillez saisir votre mot de passe administrateur.');
       return;
@@ -26,7 +31,10 @@ export default function AdminLoginPage() {
       const res = await fetch('/api/admin/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: password.trim() }),
+        body: JSON.stringify({
+          identifier: identifier.trim(),
+          password: password.trim(),
+        }),
       });
 
       const data = await res.json();
@@ -35,10 +43,10 @@ export default function AdminLoginPage() {
         router.push('/admin');
         router.refresh();
       } else {
-        setError(data.error || 'Mot de passe administrateur erroné.');
+        setError(data.error || 'Identifiant ou mot de passe incorrect.');
       }
     } catch (err: any) {
-      setError('Erreur de connexion au serveur. Réessayez.');
+      setError('Erreur de communication sécurisée avec le serveur. Réessayez.');
     } finally {
       setLoading(false);
     }
@@ -65,7 +73,7 @@ export default function AdminLoginPage() {
             Espace Administrateur
           </h1>
           <p className="text-stone text-xs sm:text-sm mt-1.5">
-            Accès sécurisé réservé à la gestion d&apos;Elegance By Michou
+            Portail d&apos;accès sécurisé réservé à la direction
           </p>
         </div>
 
@@ -79,12 +87,39 @@ export default function AdminLoginPage() {
               </div>
             )}
 
+            {/* Identifiant unique / Email */}
+            <div>
+              <label
+                htmlFor="identifier"
+                className="block text-xs font-semibold uppercase tracking-wider text-anthracite mb-2"
+              >
+                E-mail ou Nom d&apos;utilisateur
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone">
+                  <User size={18} />
+                </div>
+                <input
+                  id="identifier"
+                  name="identifier"
+                  type="text"
+                  value={identifier}
+                  onChange={e => setIdentifier(e.target.value)}
+                  placeholder="ex: michou ou contact@..."
+                  className="w-full pl-10 pr-4 py-3 text-sm rounded-xl border border-stone/30 focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 outline-none transition-all bg-[#FAF9F6]/50"
+                  autoFocus
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Mot de passe */}
             <div>
               <label
                 htmlFor="password"
                 className="block text-xs font-semibold uppercase tracking-wider text-anthracite mb-2"
               >
-                Code d&apos;accès / Mot de passe
+                Mot de passe administrateur
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone">
@@ -96,9 +131,8 @@ export default function AdminLoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder="Entrez votre mot de passe admin"
+                  placeholder="••••••••••••"
                   className="w-full pl-10 pr-11 py-3 text-sm rounded-xl border border-stone/30 focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 outline-none transition-all bg-[#FAF9F6]/50"
-                  autoFocus
                   required
                 />
                 <button
@@ -112,6 +146,7 @@ export default function AdminLoginPage() {
               </div>
             </div>
 
+            {/* Bouton de Connexion */}
             <button
               type="submit"
               disabled={loading}
@@ -121,22 +156,17 @@ export default function AdminLoginPage() {
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  <span>Accéder au tableau de bord</span>
+                  <span>Connexion Sécurisée</span>
                   <ArrowRight size={16} />
                 </>
               )}
             </button>
           </form>
 
-          {/* Info Note */}
-          <div className="mt-6 pt-5 border-t border-stone/10 flex items-start gap-2 text-xs text-stone">
-            <ShieldCheck size={16} className="text-green-600 shrink-0 mt-0.5" />
-            <p>
-              Session chiffrée avec cookie sécurisé. Mot de passe initial :{' '}
-              <code className="bg-stone/10 px-1.5 py-0.5 rounded font-mono text-anthracite font-bold">
-                michou2026
-              </code>
-            </p>
+          {/* Security Guarantee Note (No secret password displayed) */}
+          <div className="mt-6 pt-5 border-t border-stone/10 flex items-center justify-center gap-2 text-xs text-stone">
+            <ShieldCheck size={16} className="text-emerald-600 shrink-0" />
+            <span>Chiffrement SSL • Protection anti-intrusion active</span>
           </div>
         </div>
 
