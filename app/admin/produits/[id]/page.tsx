@@ -475,29 +475,16 @@ export default function EditProductPage() {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-anthracite mb-1.5">
-                Matière / Tissu
-              </label>
-              <input
-                type="text"
-                value={material}
-                onChange={e => setMaterial(e.target.value)}
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-stone/20 focus:border-terracotta outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-anthracite mb-1.5">
-                Conseils d&apos;Entretien
-              </label>
-              <input
-                type="text"
-                value={care}
-                onChange={e => setCare(e.target.value)}
-                className="w-full px-3.5 py-2 text-xs rounded-xl border border-stone/20 focus:border-terracotta outline-none"
-              />
-            </div>
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-anthracite mb-1.5">
+              Matière / Tissu
+            </label>
+            <input
+              type="text"
+              value={material}
+              onChange={e => setMaterial(e.target.value)}
+              className="w-full px-3.5 py-2 text-xs rounded-xl border border-stone/20 focus:border-terracotta outline-none"
+            />
           </div>
         </div>
 
