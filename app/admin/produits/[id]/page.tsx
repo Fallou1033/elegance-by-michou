@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -12,9 +12,14 @@ import {
   AlertCircle,
   ExternalLink,
   Check,
+  Camera,
+  Upload,
+  Star,
+  Loader2,
 } from 'lucide-react';
 import { ProductColor, Product } from '@/types';
 import { detectColorName, POPULAR_COLOR_PRESETS } from '@/lib/colors';
+import { compressImageFile } from '@/lib/image-compression';
 
 const COMMON_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', 'Unique'];
 
@@ -39,6 +44,8 @@ export default function EditProductPage() {
   const [newColorHex, setNewColorHex] = useState('#C4704F');
   const [newColorName, setNewColorName] = useState('Terracotta');
   const [images, setImages] = useState<string[]>([]);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [description, setDescription] = useState('');
   const [material, setMaterial] = useState('');
   const [care, setCare] = useState('');
@@ -125,6 +132,44 @@ export default function EditProductPage() {
       const copy = [...prev];
       copy[index] = val;
       return copy;
+    });
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsCompressing(true);
+    try {
+      const newCompressedImages: string[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.type.startsWith('image/')) {
+          const compressed = await compressImageFile(file);
+          newCompressedImages.push(compressed);
+        }
+      }
+
+      setImages(prev => {
+        const cleanPrev = prev.filter(img => img && img.trim().length > 0);
+        return [...cleanPrev, ...newCompressedImages];
+      });
+    } catch (err: any) {
+      setError(err?.message || 'Erreur lors du traitement de la photo.');
+    } finally {
+      setIsCompressing(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleSetPrimaryImage = (index: number) => {
+    if (index === 0) return;
+    setImages(prev => {
+      const copy = [...prev];
+      const [item] = copy.splice(index, 1);
+      return [item, ...copy];
     });
   };
 
@@ -491,56 +536,173 @@ export default function EditProductPage() {
         </div>
 
         {/* Photos */}
-        <div className="bg-white p-6 rounded-2xl border border-stone/15 shadow-xs space-y-4">
-          <div className="flex justify-between items-center border-b border-stone/10 pb-2">
-            <h2 className="font-serif text-base font-semibold text-anthracite">
-              4. Photos de l&apos;Article
-            </h2>
+        <div className="bg-white p-6 rounded-2xl border border-stone/15 shadow-xs space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone/10 pb-3">
+            <div>
+              <h2 className="font-serif text-base font-semibold text-anthracite flex items-center gap-2">
+                <span>4. Photos de l&apos;Article</span>
+                <span className="text-xs font-normal text-stone font-sans">
+                  ({images.filter(img => img && img.trim()).length} photo{images.filter(img => img && img.trim()).length > 1 ? 's' : ''})
+                </span>
+              </h2>
+              <p className="text-xs text-stone mt-0.5">
+                La première photo sera celle affichée en couverture dans le catalogue.
+              </p>
+            </div>
+
+            {/* Input file caché déclenché au clic sur mobile et PC */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFileSelect}
+              className="hidden"
+              id="edit-product-photo-upload"
+            />
+
             <button
               type="button"
-              onClick={handleAddImageField}
-              className="text-xs font-semibold text-terracotta hover:underline flex items-center gap-1"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isCompressing}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-terracotta hover:bg-terracotta/90 text-white rounded-xl text-xs font-semibold uppercase tracking-wider transition-all shadow-xs cursor-pointer disabled:opacity-50"
             >
-              <Plus size={14} /> Ajouter une image
+              {isCompressing ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  <span>Traitement...</span>
+                </>
+              ) : (
+                <>
+                  <Camera size={16} />
+                  <span>Ajouter des photos</span>
+                </>
+              )}
             </button>
           </div>
 
-          <div className="space-y-3">
-            {images.map((img, idx) => (
-              <div key={idx} className="flex items-center gap-2">
-                <div className="relative w-10 h-12 rounded-lg bg-stone/10 border border-stone/20 flex items-center justify-center shrink-0 overflow-hidden">
-                  {img ? (
-                    <Image
-                      src={img}
-                      alt="Aperçu"
-                      fill
-                      className="object-cover"
-                      sizes="40px"
-                      onError={() => {}}
-                    />
-                  ) : (
-                    <ImageIcon size={16} className="text-stone/40" />
-                  )}
-                </div>
+          {/* Zone d'importation directe / Glisser-déposer */}
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="border-2 border-dashed border-stone/30 hover:border-terracotta hover:bg-stone/5 rounded-2xl p-6 text-center cursor-pointer transition-all duration-200 group"
+          >
+            <div className="flex flex-col items-center justify-center gap-2.5">
+              <div className="w-12 h-12 rounded-full bg-terracotta/10 text-terracotta flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Upload size={22} />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-anthracite group-hover:text-terracotta transition-colors">
+                  Cliquez ici pour choisir des photos depuis votre téléphone ou ordinateur
+                </p>
+                <p className="text-xs text-stone mt-1">
+                  Accès direct à votre galerie photo ou prise de vue par appareil photo (JPG, PNG, WEBP)
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Grille visuelle des photos ajoutées */}
+          {images.filter(img => img && img.trim()).length > 0 ? (
+            <div className="space-y-3">
+              <span className="text-xs font-semibold text-anthracite uppercase tracking-wider block">
+                Photos de cet article (la 1ère est la principale) :
+              </span>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {images
+                  .map((img, idx) => ({ img, idx }))
+                  .filter(item => item.img && item.img.trim())
+                  .map(({ img, idx }) => (
+                    <div
+                      key={idx}
+                      className="group relative rounded-xl border border-stone/20 overflow-hidden bg-stone/5 flex flex-col aspect-[3/4] shadow-xs hover:border-terracotta/50 transition-all"
+                    >
+                      <img
+                        src={img}
+                        alt={`Photo ${idx + 1}`}
+                        className="w-full h-full object-cover object-top"
+                      />
+
+                      {/* Badge Photo principale ou bouton pour la définir */}
+                      {idx === 0 ? (
+                        <span className="absolute top-2 left-2 bg-anthracite text-ivory text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider shadow-xs z-10 flex items-center gap-1">
+                          <Star size={10} className="fill-terracotta text-terracotta" />
+                          Principale
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={e => {
+                            e.stopPropagation();
+                            handleSetPrimaryImage(idx);
+                          }}
+                          className="absolute top-2 left-2 bg-black/60 hover:bg-terracotta text-white text-[10px] font-medium px-2 py-0.5 rounded-md uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity z-10 shadow-xs"
+                          title="Définir comme photo principale"
+                        >
+                          Mettre en 1er
+                        </button>
+                      )}
+
+                      {/* Bouton supprimer */}
+                      <button
+                        type="button"
+                        onClick={e => {
+                          e.stopPropagation();
+                          handleRemoveImageField(idx);
+                        }}
+                        className="absolute top-2 right-2 bg-white/90 hover:bg-red-500 hover:text-white text-stone p-1.5 rounded-lg shadow-xs transition-colors z-10"
+                        title="Supprimer cette photo"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs text-stone italic text-center py-2">
+              Aucune photo enregistrée pour cet article. Ajoutez-en au moins une pour la vitrine.
+            </p>
+          )}
+
+          {/* Option avancée : ajouter manuellement par URL */}
+          <details className="text-xs text-stone group border-t border-stone/10 pt-3">
+            <summary className="cursor-pointer font-medium hover:text-terracotta transition-colors list-none flex items-center gap-1.5">
+              <span>+ Option avancée : ajouter manuellement un lien web (URL)</span>
+            </summary>
+            <div className="mt-3 space-y-2">
+              <div className="flex gap-2">
                 <input
                   type="text"
-                  value={img}
-                  onChange={e => handleImageChange(idx, e.target.value)}
-                  placeholder={`Lien de la photo ${idx + 1}`}
-                  className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-stone/20 focus:border-terracotta outline-none"
+                  placeholder="https://... ou /images/products/..."
+                  id="edit-manual-url-input"
+                  className="flex-1 px-3 py-2 text-xs rounded-xl border border-stone/20 focus:border-terracotta outline-none"
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const val = (e.target as HTMLInputElement).value.trim();
+                      if (val) {
+                        setImages(prev => [...prev.filter(img => img && img.trim()), val]);
+                        (e.target as HTMLInputElement).value = '';
+                      }
+                    }
+                  }}
                 />
-                {images.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveImageField(idx)}
-                    className="p-2 text-stone hover:text-red-500 transition-colors"
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const input = document.getElementById('edit-manual-url-input') as HTMLInputElement;
+                    if (input && input.value.trim()) {
+                      setImages(prev => [...prev.filter(img => img && img.trim()), input.value.trim()]);
+                      input.value = '';
+                    }
+                  }}
+                  className="px-3 py-2 bg-stone/10 hover:bg-stone/20 text-anthracite rounded-xl font-semibold transition-colors"
+                >
+                  Ajouter le lien
+                </button>
               </div>
-            ))}
-          </div>
+            </div>
+          </details>
         </div>
 
         {/* Description & Savoir-faire */}
