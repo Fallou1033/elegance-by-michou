@@ -9,6 +9,7 @@ import { WHATSAPP_NUMBER } from '@/data/products';
 import type { OrderData } from '@/types';
 
 function ConfirmationContent() {
+  const searchParams = useSearchParams();
   const isWaveSuccess = searchParams.get('wave') === 'success';
   const isOmSuccess = searchParams.get('om') === 'success';
   const isOnlineSuccess = isWaveSuccess || isOmSuccess || searchParams.get('status') === 'success';
