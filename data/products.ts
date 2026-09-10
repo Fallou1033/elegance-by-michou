@@ -499,7 +499,7 @@ export const products: Product[] = [
   }
 ];
 
-export const WHATSAPP_NUMBER = '221788710069';
+export const WHATSAPP_NUMBER = '221782644102';
 export const INSTAGRAM_URL = 'https://www.instagram.com/elegance_by_michou?stkn=MW9qZjJ5YTQydGtvYw%3D%3D&utm_source=qr';
 export const INSTAGRAM_HANDLE = '@elegance_by_michou';
 export const FREE_SHIPPING_THRESHOLD = 50000;

@@ -97,9 +97,16 @@ function ConfirmationContent() {
             </p>
           </div>
         </div>
-        <p className="text-xs text-emerald-900 leading-relaxed bg-white/80 p-3 rounded border border-emerald-200">
-          Votre commande a été enregistrée et transmise à notre équipe pour préparation immédiate.
-        </p>
+        <div className="text-xs text-emerald-900 leading-relaxed bg-white/90 p-3.5 rounded border border-emerald-200 space-y-2">
+          {!isOnlineSuccess && (
+            <p>
+              📲 Pour finaliser votre achat, effectuez votre transfert <strong>{order.paymentMethod === 'orange-money' ? 'Orange Money' : 'Wave'}</strong> au numéro officiel de la boutique : <strong className="text-anthracite font-mono text-sm">+221 78 264 41 02</strong>.
+            </p>
+          )}
+          <p>
+            Votre commande a été enregistrée et transmise à notre équipe pour préparation immédiate.
+          </p>
+        </div>
       </div>
 
       {/* WHATSAPP ACTION BUTTON */}

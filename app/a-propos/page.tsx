@@ -269,7 +269,7 @@ export default function AProposPage() {
                 Réponse rapide en quelques minutes
               </p>
               <p className="text-sm font-bold text-anthracite font-mono">
-                +221 78 871 00 69
+                +221 78 264 41 02
               </p>
             </div>
             <span className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-[#25D366] uppercase tracking-wider group-hover:gap-3 transition-all">

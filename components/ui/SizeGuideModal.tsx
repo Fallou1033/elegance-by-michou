@@ -97,7 +97,7 @@ export default function SizeGuideModal({ isOpen, onClose }: SizeGuideModalProps)
 
           <div className="mt-6 p-4 bg-terracotta/10 rounded">
             <p className="text-xs text-stone leading-relaxed">
-              <strong className="text-anthracite">Conseil :</strong> En cas de doute entre deux tailles, nous recommandons de prendre la taille supérieure. Pour toute question, contactez-nous via WhatsApp au +221 78 871 00 69.
+              <strong className="text-anthracite">Conseil :</strong> En cas de doute entre deux tailles, nous recommandons de prendre la taille supérieure. Pour toute question, contactez-nous via WhatsApp au +221 78 264 41 02.
             </p>
           </div>
         </div>
