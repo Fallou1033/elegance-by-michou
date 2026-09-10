@@ -14,7 +14,7 @@ const PAYMENT_METHODS = [
   {
     id: 'wave' as PaymentMethod,
     label: 'Wave',
-    description: 'Paiement direct en 1 clic sécurisé par PayTech',
+    description: 'Paiement direct Wave (App Wave ou QR Code en 1 clic)',
     icon: (
       <Image
         src="/images/payment-methods/wave-logo.png"
@@ -28,7 +28,7 @@ const PAYMENT_METHODS = [
   {
     id: 'orange-money' as PaymentMethod,
     label: 'Orange Money',
-    description: 'Paiement en ligne instantané sécurisé par PayTech (#144# / Max it)',
+    description: 'Paiement direct Orange Money (App Max it ou Code OTP #144#)',
     icon: (
       <div className="h-7 w-10 bg-white rounded border border-stone/20 flex items-center justify-center p-1 shadow-2xs">
         <Image
@@ -49,7 +49,7 @@ export default function PaymentSelector({ value, onChange, total }: PaymentSelec
       <div className="flex items-center gap-2 p-2.5 bg-stone/5 border border-stone/20 text-xs text-stone rounded">
         <span className="text-sm">🔒</span>
         <span>
-          Paiement sécurisé via <strong>PayTech Sénégal</strong>. Vous validerez directement votre paiement sur votre application mobile.
+          Paiement direct et sécurisé via <strong>Wave Sénégal</strong> et <strong>Orange Money Sénégal</strong>. Vous validerez directement sur votre mobile.
         </span>
       </div>
 
@@ -94,7 +94,7 @@ export default function PaymentSelector({ value, onChange, total }: PaymentSelec
                 <div className="mx-4 mb-4 p-3 bg-sky-50/80 border border-sky-200 text-xs text-sky-900 flex items-center gap-2.5 rounded">
                   <span className="text-base flex-shrink-0">⚡</span>
                   <p className="leading-relaxed">
-                    En cliquant sur le bouton ci-dessous, vous serez redirigé vers l'application <strong>Wave</strong> pour valider le paiement sécurisé de {total ? <strong>{formatPrice(total)}</strong> : 'votre commande'}.
+                    En cliquant sur le bouton ci-dessous, vous serez redirigé directement vers l'application <strong>Wave</strong> pour valider le paiement sécurisé de {total ? <strong>{formatPrice(total)}</strong> : 'votre commande'}.
                   </p>
                 </div>
               )}
@@ -103,7 +103,7 @@ export default function PaymentSelector({ value, onChange, total }: PaymentSelec
                 <div className="mx-4 mb-4 p-3 bg-amber-50/80 border border-amber-200 text-xs text-amber-950 flex items-center gap-2.5 rounded">
                   <span className="text-base flex-shrink-0">⚡</span>
                   <p className="leading-relaxed">
-                    En cliquant sur le bouton ci-dessous, vous serez redirigé vers le guichet sécurisé <strong>PayTech</strong> pour valider votre paiement Orange Money via OTP ou #144#.
+                    En cliquant sur le bouton ci-dessous, vous serez redirigé vers le guichet officiel sécurisé <strong>Orange Money</strong> pour valider votre paiement via OTP ou #144#.
                   </p>
                 </div>
               )}

@@ -30,7 +30,7 @@ interface FormErrors {
 function CheckoutForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isCanceled = searchParams.get('paytech') === 'cancel' || searchParams.get('canceled') === 'true';
+  const isCanceled = searchParams.get('wave') === 'cancel' || searchParams.get('om') === 'cancel' || searchParams.get('canceled') === 'true';
   const { items, isLoaded, getCartTotal, clearCart } = useCart();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('wave');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -90,7 +90,7 @@ function CheckoutForm() {
     }
 
     setIsSubmitting(true);
-    setSubmittingStep('Connexion sécurisée à PayTech...');
+    setSubmittingStep(paymentMethod === 'wave' ? 'Connexion sécurisée à Wave...' : 'Connexion sécurisée à Orange Money...');
 
     const orderNumber = generateOrderNumber();
     const orderItems = items.map(item => {
@@ -135,7 +135,11 @@ function CheckoutForm() {
     }
 
     try {
-      const response = await fetch('/api/paytech/payment', {
+      const endpoint = paymentMethod === 'orange-money'
+        ? '/api/orange-money/payment'
+        : '/api/wave/payment';
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData),
@@ -143,21 +147,19 @@ function CheckoutForm() {
 
       const data = await response.json();
 
-      if (data?.success && data?.redirectUrl) {
+      if (data?.redirectUrl) {
         setSubmittingStep('Redirection vers le paiement...');
         clearCart();
         window.location.href = data.redirectUrl;
         return;
       }
 
-      // Si PayTech signale que le compte prod est en attente d'activation ou en cas d'erreur
-      console.warn('PayTech réponse :', data);
       clearCart();
-      router.push(`/confirmation?ref=${encodeURIComponent(orderNumber)}&mode=direct`);
+      router.push(`/confirmation?ref=${encodeURIComponent(orderNumber)}&payment=${paymentMethod}&mode=direct`);
     } catch (err) {
-      console.error('Erreur appel PayTech :', err);
+      console.error('Erreur appel paiement direct :', err);
       clearCart();
-      router.push(`/confirmation?ref=${encodeURIComponent(orderNumber)}&mode=direct`);
+      router.push(`/confirmation?ref=${encodeURIComponent(orderNumber)}&payment=${paymentMethod}&mode=direct`);
     } finally {
       setIsSubmitting(false);
       setSubmittingStep('');
@@ -203,7 +205,7 @@ function CheckoutForm() {
           <span className="text-xl flex-shrink-0">⚠️</span>
           <div>
             <span className="font-bold block">Paiement interrompu</span>
-            <span>Votre session PayTech a été annulée. Vous pouvez vérifier ou modifier vos coordonnées ci-dessous pour réessayer.</span>
+            <span>La session de paiement a été interrompue. Vous pouvez vérifier ou modifier vos coordonnées ci-dessous pour réessayer.</span>
           </div>
         </div>
       )}

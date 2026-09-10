@@ -105,9 +105,9 @@ export function encodeWhatsAppMessage(order: {
   
   let paymentDetails = `💳 Paiement : ${order.paymentMethod}`;
   if (order.paymentMethod.toLowerCase().includes('wave')) {
-    paymentDetails = `💳 Paiement : Wave (Sécurisé via PayTech)`;
+    paymentDetails = `💳 Paiement : Wave (Paiement direct)`;
   } else if (order.paymentMethod.toLowerCase().includes('orange')) {
-    paymentDetails = `💳 Paiement : Orange Money (Sécurisé via PayTech)`;
+    paymentDetails = `💳 Paiement : Orange Money (Paiement direct)`;
   }
 
   const message = `Bonjour Elegance By Michou ! 🛍️\n\nJe confirme ma commande :\n\n📦 Commande N° ${order.orderNumber}\n\n${itemsList}\n\n💰 Total : ${formatPrice(order.total)}\n\n👤 Client : ${order.customerName}\n📍 Adresse : ${order.address}, ${order.city}\n${paymentDetails}\n\nMerci !`;

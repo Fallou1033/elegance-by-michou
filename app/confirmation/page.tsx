@@ -9,8 +9,9 @@ import { WHATSAPP_NUMBER } from '@/data/products';
 import type { OrderData } from '@/types';
 
 function ConfirmationContent() {
-  const searchParams = useSearchParams();
-  const isPaytechSuccess = searchParams.get('paytech') === 'success' || searchParams.get('status') === 'success';
+  const isWaveSuccess = searchParams.get('wave') === 'success';
+  const isOmSuccess = searchParams.get('om') === 'success';
+  const isOnlineSuccess = isWaveSuccess || isOmSuccess || searchParams.get('status') === 'success';
   const [order, setOrder] = useState<OrderData | null>(null);
   const [showContent, setShowContent] = useState(false);
 
@@ -33,8 +34,8 @@ function ConfirmationContent() {
   }
 
   const PAYMENT_LABELS: Record<string, string> = {
-    wave: 'Wave (PayTech)',
-    'orange-money': 'Orange Money (PayTech)',
+    wave: 'Wave (Paiement direct)',
+    'orange-money': 'Orange Money (Paiement direct)',
   };
 
   const whatsappMessage = encodeWhatsAppMessage({
@@ -76,7 +77,7 @@ function ConfirmationContent() {
         </p>
       </div>
 
-      {/* PAYTECH SUCCESS / PAYMENT BADGE */}
+      {/* DIRECT PAYMENT STATUS / BADGE */}
       <div className={`mb-8 p-6 bg-emerald-50 border-2 border-emerald-400 transition-all duration-700 delay-200 ${
         showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
       }`}>
@@ -86,10 +87,12 @@ function ConfirmationContent() {
           </div>
           <div>
             <h2 className="font-serif text-lg font-bold text-emerald-950">
-              {isPaytechSuccess ? 'Paiement en ligne validé via PayTech' : 'Paiement sécurisé via PayTech'}
+              {isOnlineSuccess
+                ? `Paiement direct validé via ${order.paymentMethod === 'orange-money' ? 'Orange Money' : 'Wave'}`
+                : `Commande confirmée — Règlement par ${order.paymentMethod === 'orange-money' ? 'Orange Money' : 'Wave'}`}
             </h2>
             <p className="text-xs text-emerald-800">
-              Règlement par <strong>{order.paymentMethod === 'orange-money' ? 'Orange Money' : 'Wave'}</strong> — Montant : <strong>{formatPrice(order.total)}</strong>
+              Règlement par <strong>{order.paymentMethod === 'orange-money' ? 'Orange Money (Direct)' : 'Wave (Direct)'}</strong> — Montant : <strong>{formatPrice(order.total)}</strong>
             </p>
           </div>
         </div>
