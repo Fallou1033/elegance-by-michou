@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateDbOrderStatus } from '@/lib/db';
+import { confirmDbOrder } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
       const orderNumber = sessionData?.client_reference;
       if (orderNumber) {
         console.log(`[Wave Webhook] Validation commande ${orderNumber}`);
-        await updateDbOrderStatus(orderNumber, 'confirmee');
+        await confirmDbOrder(orderNumber);
       }
     }
 

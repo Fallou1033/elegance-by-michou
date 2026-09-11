@@ -123,16 +123,20 @@ function CheckoutForm() {
     // Sauvegarde locale de la commande
     localStorage.setItem('lastOrder', JSON.stringify(orderData));
 
-    // Enregistrement automatique de la commande dans le système administrateur
-    try {
-      await fetch('/api/orders/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData),
-      });
-    } catch (dbErr) {
-      console.warn('Enregistrement commande admin:', dbErr);
-    }
+    // Mode secours / paiement manuel : la commande est enregistrée dès la soumission (comme avant).
+    const commitDirectOrder = async () => {
+      try {
+        await fetch('/api/orders/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderData),
+        });
+      } catch (dbErr) {
+        console.warn('Enregistrement commande admin:', dbErr);
+      }
+      clearCart();
+      router.push(`/confirmation?ref=${encodeURIComponent(orderNumber)}&payment=${paymentMethod}&mode=direct`);
+    };
 
     try {
       const endpoint = paymentMethod === 'orange-money'
@@ -147,19 +151,24 @@ function CheckoutForm() {
 
       const data = await response.json();
 
-      if (data?.redirectUrl) {
+      // Paiement en ligne réel : on ne laisse PAS encore la commande apparaître côté admin.
+      // On l'enregistre en "attente", et le webhook la confirmera une fois le paiement validé.
+      if (data?.redirectUrl && !data?.isFallback) {
+        await fetch('/api/orders/pending', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order: orderData }),
+        });
         setSubmittingStep('Redirection vers le paiement...');
         clearCart();
-        window.location.href = data.redirectUrl;
+        window.location.replace(data.redirectUrl);
         return;
       }
 
-      clearCart();
-      router.push(`/confirmation?ref=${encodeURIComponent(orderNumber)}&payment=${paymentMethod}&mode=direct`);
+      await commitDirectOrder();
     } catch (err) {
       console.error('Erreur appel paiement direct :', err);
-      clearCart();
-      router.push(`/confirmation?ref=${encodeURIComponent(orderNumber)}&payment=${paymentMethod}&mode=direct`);
+      await commitDirectOrder();
     } finally {
       setIsSubmitting(false);
       setSubmittingStep('');

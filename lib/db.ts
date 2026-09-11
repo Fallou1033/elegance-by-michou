@@ -31,11 +31,18 @@ const TMP_DIR = path.join(os.tmpdir(), 'elegance-michou');
 const TMP_ORDERS_FILE = path.join(TMP_DIR, 'orders.json');
 const TMP_PRODUCTS_FILE = path.join(TMP_DIR, 'products-override.json');
 
+// Commandes en attente de confirmation de paiement (invisibles dans l'admin)
+const PENDING_ORDERS_FILE = path.join(DATA_DIR, 'pending-orders.json');
+const TMP_PENDING_ORDERS_FILE = path.join(TMP_DIR, 'pending-orders.json');
+const PENDING_TTL_MS = 24 * 60 * 60 * 1000; // abandon après 24h
+
 // Cache mémoire
 const INITIAL_ORDERS: AdminOrder[] = [];
 let memoryOrders: AdminOrder[] = [...INITIAL_ORDERS];
 let memoryProducts: Product[] = [...initialProducts];
+let memoryPendingOrders: AdminOrder[] = [];
 let isLoaded = false;
+let pendingLoaded = false;
 
 // ==================== CLOUD DATABASE (VERCEL KV / UPSTASH REDIS) ====================
 
@@ -176,6 +183,82 @@ function persistProducts() {
     } catch (tmpErr) {
       console.warn('Persist products to tmp failed:', tmpErr);
     }
+  }
+}
+
+// ==================== COMMANDES EN ATTENTE DE PAIEMENT ====================
+
+function ensurePendingLoaded() {
+  if (pendingLoaded) return;
+  try {
+    if (fs.existsSync(PENDING_ORDERS_FILE)) {
+      const data = fs.readFileSync(PENDING_ORDERS_FILE, 'utf-8');
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed)) {
+        memoryPendingOrders = parsed;
+      }
+    } else if (fs.existsSync(TMP_PENDING_ORDERS_FILE)) {
+      const data = fs.readFileSync(TMP_PENDING_ORDERS_FILE, 'utf-8');
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed)) {
+        memoryPendingOrders = parsed;
+      }
+    }
+  } catch (e) {
+    console.warn('Pending orders file read warning:', e);
+  }
+
+  // Purge des commandes en attente abandonnées (passé 24h)
+  const cutoff = Date.now() - PENDING_TTL_MS;
+  memoryPendingOrders = memoryPendingOrders.filter(o => {
+    const t = o.createdAt ? new Date(o.createdAt).getTime() : 0;
+    return t >= cutoff;
+  });
+
+  pendingLoaded = true;
+}
+
+function persistPendingOrders() {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    fs.writeFileSync(PENDING_ORDERS_FILE, JSON.stringify(memoryPendingOrders, null, 2), 'utf-8');
+  } catch (e) {
+    try {
+      if (!fs.existsSync(TMP_DIR)) {
+        fs.mkdirSync(TMP_DIR, { recursive: true });
+      }
+      fs.writeFileSync(TMP_PENDING_ORDERS_FILE, JSON.stringify(memoryPendingOrders, null, 2), 'utf-8');
+    } catch (tmpErr) {
+      console.warn('Persist pending orders to tmp failed:', tmpErr);
+    }
+  }
+}
+
+async function syncPendingOrdersCloud() {
+  const cfg = getRedisConfig();
+  if (!cfg) return;
+  try {
+    const cloudPending = await redisGet<AdminOrder[]>('elegance_michou_pending_orders');
+    memoryPendingOrders = mergeOrdersByNumber([memoryPendingOrders, cloudPending]);
+    persistPendingOrders();
+    await redisSet('elegance_michou_pending_orders', memoryPendingOrders);
+  } catch (err) {
+    console.warn('Pending orders cloud sync warning:', err);
+  }
+}
+
+async function loadPendingOrdersFromCloud() {
+  const cfg = getRedisConfig();
+  if (!cfg) return;
+  try {
+    const cloudPending = await redisGet<AdminOrder[]>('elegance_michou_pending_orders');
+    if (Array.isArray(cloudPending) && cloudPending.length > 0) {
+      memoryPendingOrders = mergeOrdersByNumber([memoryPendingOrders, cloudPending]);
+    }
+  } catch (err) {
+    console.warn('Pending orders cloud load warning:', err);
   }
 }
 
@@ -413,6 +496,85 @@ export async function updateDbOrderStatus(orderNumber: string, status: OrderStat
   }
 
   return order;
+}
+
+/**
+ * Enregistre une commande en ATTENTE de confirmation de paiement.
+ * Elle reste invisible côté admin tant que le webhook de paiement ne l'a pas confirmée.
+ */
+export async function registerDbPendingOrder(orderData: {
+  orderNumber: string;
+  customerName: string;
+  phone: string;
+  address: string;
+  city: string;
+  notes?: string;
+  paymentMethod: 'wave' | 'orange-money' | 'cash';
+  items: CartItem[];
+  subtotal: number;
+  shipping: number;
+  total: number;
+}): Promise<AdminOrder> {
+  ensurePendingLoaded();
+  await loadPendingOrdersFromCloud();
+
+  const pendingOrder: AdminOrder = {
+    orderNumber: orderData.orderNumber,
+    customerName: orderData.customerName,
+    phone: orderData.phone,
+    address: orderData.address,
+    city: orderData.city,
+    notes: orderData.notes,
+    paymentMethod: orderData.paymentMethod,
+    status: 'en_attente',
+    items: orderData.items,
+    subtotal: Number(orderData.subtotal),
+    shipping: Number(orderData.shipping),
+    total: Number(orderData.total),
+    createdAt: new Date().toISOString(),
+  };
+
+  memoryPendingOrders.unshift(pendingOrder);
+  persistPendingOrders();
+  await syncPendingOrdersCloud();
+
+  return pendingOrder;
+}
+
+/**
+ * Confirme une commande une fois le paiement validé (webhook).
+ * Si une commande en attente existe, elle est promue comme commande réelle "confirmee".
+ * Sinon, on retombe sur la mise à jour classique (commandes en mode direct déjà enregistrées).
+ */
+export async function confirmDbOrder(orderNumber: string): Promise<AdminOrder | null> {
+  ensurePendingLoaded();
+  await loadPendingOrdersFromCloud();
+
+  const pendingIndex = memoryPendingOrders.findIndex(o => o.orderNumber === orderNumber);
+  if (pendingIndex >= 0) {
+    const pending = memoryPendingOrders[pendingIndex];
+    memoryPendingOrders.splice(pendingIndex, 1);
+    persistPendingOrders();
+    await syncPendingOrdersCloud();
+
+    const order = await createDbOrder({
+      orderNumber: pending.orderNumber,
+      customerName: pending.customerName,
+      phone: pending.phone,
+      address: pending.address,
+      city: pending.city,
+      notes: pending.notes,
+      paymentMethod: pending.paymentMethod,
+      items: pending.items,
+      subtotal: pending.subtotal,
+      shipping: pending.shipping,
+      total: pending.total,
+    });
+    await updateDbOrderStatus(order.orderNumber, 'confirmee');
+    return order;
+  }
+
+  return updateDbOrderStatus(orderNumber, 'confirmee');
 }
 
 // ==================== STATISTIQUES FINANCIÈRES ====================

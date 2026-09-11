@@ -168,4 +168,47 @@ describe('Checkout', () => {
 
     expect(screen.getByRole('button', { name: /Payer .* via Orange Money/ })).toBeInTheDocument();
   });
+
+  it('registers a pending order (invisible admin) before redirecting to online payment', async () => {
+    const user = userEvent.setup();
+    (global.fetch as jest.Mock).mockImplementation(async (url: string) => {
+      if (url.includes('/api/wave/payment')) {
+        return { json: async () => ({ redirectUrl: 'https://pay.wave.com/checkout', isFallback: false }) };
+      }
+      return { json: async () => ({ success: true }) };
+    });
+    renderCheckout();
+
+    await screen.findByText('Finaliser ma commande');
+    await fillValidForm(user);
+    await user.click(screen.getByRole('button', { name: /Payer/ }));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith('/api/orders/pending', expect.objectContaining({ method: 'POST' }));
+      expect(global.fetch).not.toHaveBeenCalledWith('/api/orders/create', expect.objectContaining({ method: 'POST' }));
+    });
+  });
+
+  it('only records a confirmed (paid) order in direct mode', async () => {
+    const user = userEvent.setup();
+    (global.fetch as jest.Mock).mockImplementation(async (url: string) => {
+      if (url.includes('/api/wave/payment')) {
+        return { json: async () => ({ redirectUrl: '', isFallback: true }) };
+      }
+      if (url.includes('/api/orders/create')) {
+        return { json: async () => ({ success: true }) };
+      }
+      return { json: async () => ({}) };
+    });
+    renderCheckout();
+
+    await screen.findByText('Finaliser ma commande');
+    await fillValidForm(user);
+    await user.click(screen.getByRole('button', { name: /Payer/ }));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith('/api/orders/create', expect.objectContaining({ method: 'POST' }));
+      expect(global.fetch).not.toHaveBeenCalledWith('/api/orders/pending', expect.objectContaining({ method: 'POST' }));
+    });
+  });
 });

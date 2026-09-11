@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateDbOrderStatus } from '@/lib/db';
+import { confirmDbOrder } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     // Orange Money notifie avec status SUCCESS
     if (status === 'SUCCESS' && orderNumber) {
       console.log(`[Orange Money Webhook] Validation commande ${orderNumber}`);
-      await updateDbOrderStatus(orderNumber, 'confirmee');
+      await confirmDbOrder(orderNumber);
     }
 
     return NextResponse.json({ status: 'OK' });
