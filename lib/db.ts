@@ -1,4 +1,5 @@
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import { Product, CartItem } from '@/types';
 import { products as initialProducts } from '@/data/products';
@@ -26,7 +27,7 @@ const DATA_DIR = path.join(process.cwd(), 'data');
 const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
 const PRODUCTS_OVERRIDE_FILE = path.join(DATA_DIR, 'products-override.json');
 
-const TMP_DIR = path.join('/tmp', 'elegance-michou');
+const TMP_DIR = path.join(os.tmpdir(), 'elegance-michou');
 const TMP_ORDERS_FILE = path.join(TMP_DIR, 'orders.json');
 const TMP_PRODUCTS_FILE = path.join(TMP_DIR, 'products-override.json');
 
@@ -89,7 +90,7 @@ async function redisSet(key: string, value: any): Promise<boolean> {
         Authorization: `Bearer ${cfg.token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload),
+      body: payload,
       cache: 'no-store',
     });
     return res.ok;
@@ -185,13 +186,17 @@ export async function getDbProducts(): Promise<Product[]> {
 
   const cfg = getRedisConfig();
   if (cfg) {
-    const cloudProducts = await redisGet<Product[]>('elegance_michou_products');
-    if (Array.isArray(cloudProducts) && cloudProducts.length > 0) {
-      memoryProducts = cloudProducts;
-      return memoryProducts;
-    } else {
-      // Synchroniser les produits initiaux vers le cloud
-      await redisSet('elegance_michou_products', memoryProducts);
+    try {
+      const cloudProducts = await redisGet<Product[]>('elegance_michou_products');
+      if (Array.isArray(cloudProducts) && cloudProducts.length > 0) {
+        memoryProducts = cloudProducts;
+        return memoryProducts;
+      } else {
+        // Synchroniser les produits initiaux vers le cloud
+        await redisSet('elegance_michou_products', memoryProducts);
+      }
+    } catch (err) {
+      console.warn('getDbProducts cloud sync warning:', err);
     }
   }
 
@@ -276,18 +281,59 @@ export async function deleteDbProduct(id: string): Promise<boolean> {
 
 // ==================== COMMANDES ====================
 
+// ==================== COMMENTAIRES ====================
+
+/**
+ * Fusionne plusieurs listes de commandes (locale / fichier / cloud) sans perte de données.
+ * Chaque commande est gardée une seule fois par numéro ; en cas de doublon, la version
+ * la plus récente (updatedAt, sinon createdAt) est conservée.
+ */
+function mergeOrdersByNumber(lists: Array<AdminOrder[] | null | undefined>): AdminOrder[] {
+  const map = new Map<string, AdminOrder>();
+  for (const list of lists) {
+    if (!Array.isArray(list)) continue;
+    for (const order of list) {
+      if (!order || !order.orderNumber) continue;
+      const existing = map.get(order.orderNumber);
+      if (!existing) {
+        map.set(order.orderNumber, order);
+        continue;
+      }
+      const existingTime = existing.updatedAt || existing.createdAt || '';
+      const newTime = order.updatedAt || order.createdAt || '';
+      if (newTime > existingTime) {
+        map.set(order.orderNumber, order);
+      }
+    }
+  }
+  return Array.from(map.values());
+}
+
 export async function getDbOrders(): Promise<AdminOrder[]> {
   ensureDataLoaded();
 
   const cfg = getRedisConfig();
   if (cfg) {
-    const cloudOrders = await redisGet<AdminOrder[]>('elegance_michou_orders');
-    if (Array.isArray(cloudOrders)) {
-      memoryOrders = cloudOrders;
+    try {
+      const cloudOrders = await redisGet<AdminOrder[]>('elegance_michou_orders');
+      if (Array.isArray(cloudOrders)) {
+        // Fusion : un cloud vide ne doit JAMAIS écraser les commandes locales
+        const merged = mergeOrdersByNumber([memoryOrders, cloudOrders]);
+        const hasLocalOnlyOrders = merged.length > cloudOrders.length;
+        memoryOrders = merged;
+        if (hasLocalOnlyOrders) {
+          // Auto-réparation : remonter les commandes locales absentes du cloud
+          await redisSet('elegance_michou_orders', memoryOrders);
+        }
+      }
+    } catch (err) {
+      console.warn('getDbOrders cloud sync warning:', err);
     }
   }
 
-  return memoryOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  return [...memoryOrders].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
 }
 
 export async function getDbOrderById(orderNumber: string): Promise<AdminOrder | undefined> {
@@ -331,7 +377,15 @@ export async function createDbOrder(orderData: {
 
   const cfg = getRedisConfig();
   if (cfg) {
-    await redisSet('elegance_michou_orders', memoryOrders);
+    try {
+      // Lecture-modification-écriture : ne pas écraser les commandes cloud existantes
+      const cloudOrders = await redisGet<AdminOrder[]>('elegance_michou_orders');
+      memoryOrders = mergeOrdersByNumber([memoryOrders, cloudOrders]);
+      persistOrders();
+      await redisSet('elegance_michou_orders', memoryOrders);
+    } catch (err) {
+      console.warn('createDbOrder cloud sync warning:', err);
+    }
   }
 
   return newOrder;
@@ -348,7 +402,14 @@ export async function updateDbOrderStatus(orderNumber: string, status: OrderStat
 
   const cfg = getRedisConfig();
   if (cfg) {
-    await redisSet('elegance_michou_orders', memoryOrders);
+    try {
+      const cloudOrders = await redisGet<AdminOrder[]>('elegance_michou_orders');
+      memoryOrders = mergeOrdersByNumber([memoryOrders, cloudOrders]);
+      persistOrders();
+      await redisSet('elegance_michou_orders', memoryOrders);
+    } catch (err) {
+      console.warn('updateDbOrderStatus cloud sync warning:', err);
+    }
   }
 
   return order;
