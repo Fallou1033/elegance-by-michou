@@ -1,17 +1,35 @@
 'use client';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Lock, User, Eye, EyeOff, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Lock, User, Eye, EyeOff, ArrowRight, ShieldCheck, AlertCircle, Info } from 'lucide-react';
 
-export default function AdminLoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const reason = searchParams.get('reason');
+
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const getReasonMessage = () => {
+    if (reason === 'locked') {
+      return 'Votre session s’est automatiquement verrouillée à votre sortie. Veuillez vous reconnecter.';
+    }
+    if (reason === 'inactive') {
+      return 'Session verrouillée après 5 minutes d’inactivité par mesure de sécurité.';
+    }
+    if (reason === 'away') {
+      return 'Session verrouillée suite à l’inactivité prolongée de l’onglet. Reconnectez-vous.';
+    }
+    return null;
+  };
+
+  const reasonMessage = getReasonMessage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,6 +58,8 @@ export default function AdminLoginPage() {
       const data = await res.json();
 
       if (res.ok && data.success) {
+        // Enregistre la présence de session active dans sessionStorage (détruit à la fermeture de l'onglet/navigateur)
+        sessionStorage.setItem('em_admin_session_active', Date.now().toString());
         router.push('/admin');
         router.refresh();
       } else {
@@ -80,6 +100,13 @@ export default function AdminLoginPage() {
         {/* Card Form */}
         <div className="bg-white rounded-2xl shadow-xl border border-stone/15 p-6 sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
+            {reasonMessage && !error && (
+              <div className="bg-amber-50 border border-amber-200 text-amber-800 text-xs sm:text-sm rounded-xl p-3.5 flex items-start gap-2.5">
+                <ShieldCheck size={18} className="text-amber-600 shrink-0 mt-0.5" />
+                <span>{reasonMessage}</span>
+              </div>
+            )}
+
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm rounded-xl p-3.5 flex items-start gap-2.5">
                 <AlertCircle size={18} className="text-red-500 shrink-0 mt-0.5" />
@@ -181,5 +208,19 @@ export default function AdminLoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#FAF9F6] flex items-center justify-center">
+          <div className="w-8 h-8 border-3 border-terracotta/30 border-t-terracotta rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

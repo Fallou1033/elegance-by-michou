@@ -12,8 +12,21 @@ import {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { identifier, password } = body;
+    const body = await req.json().catch(() => ({}));
+    const { identifier, password, action } = body;
+
+    // Déconnexion immédiate (ex: sendBeacon à la fermeture de l'onglet/fenêtre)
+    if (action === 'logout') {
+      const res = NextResponse.json({ success: true, message: 'Déconnecté' });
+      res.cookies.set({
+        name: ADMIN_COOKIE_NAME,
+        value: '',
+        httpOnly: true,
+        path: '/',
+        maxAge: 0,
+      });
+      return res;
+    }
 
     // Récupération de l'adresse IP du client pour le rate limiting
     const forwarded = req.headers.get('x-forwarded-for');
@@ -70,7 +83,7 @@ export async function POST(req: NextRequest) {
     const token = createSessionToken(identifier);
     const response = NextResponse.json({ success: true });
 
-    // Cookie sécurisé HTTP-only
+    // Cookie de session temporaire HTTP-only (sans maxAge : détruit à la fermeture du navigateur)
     response.cookies.set({
       name: ADMIN_COOKIE_NAME,
       value: token,
@@ -78,7 +91,6 @@ export async function POST(req: NextRequest) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 7 * 24 * 60 * 60, // 7 jours
     });
 
     return response;

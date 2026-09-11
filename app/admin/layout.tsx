@@ -26,41 +26,107 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const isLoginPage = pathname === '/admin/login';
   const [checkingAuth, setCheckingAuth] = useState(!isLoginPage);
 
+  const handleLogout = async (redirectUrl = '/admin/login') => {
+    setIsLoggingOut(true);
+    try {
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('em_admin_session_active');
+      }
+      await fetch('/api/admin/auth', { method: 'DELETE' });
+    } catch (e) {
+      console.error('Logout error:', e);
+    } finally {
+      setIsLoggingOut(false);
+      router.push(redirectUrl);
+      router.refresh();
+    }
+  };
+
   useEffect(() => {
     if (isLoginPage) {
       setCheckingAuth(false);
       return;
     }
 
+    // 1. Vérification stricte de l'onglet : si le gérant a fermé et réouvert, sessionStorage est vide
+    const hasActiveSession = sessionStorage.getItem('em_admin_session_active');
+    if (!hasActiveSession) {
+      fetch('/api/admin/auth', { method: 'DELETE' }).finally(() => {
+        router.push('/admin/login?reason=locked');
+      });
+      return;
+    }
+
+    // 2. Vérification serveur
     const checkSession = async () => {
       try {
         const res = await fetch('/api/admin/auth');
         if (!res.ok) {
-          router.push('/admin/login');
+          sessionStorage.removeItem('em_admin_session_active');
+          router.push('/admin/login?reason=locked');
           return;
         }
       } catch (err) {
-        router.push('/admin/login');
+        sessionStorage.removeItem('em_admin_session_active');
+        router.push('/admin/login?reason=locked');
       } finally {
         setCheckingAuth(false);
       }
     };
 
     checkSession();
-  }, [isLoginPage, router, pathname]);
 
-  const handleLogout = async () => {
-    setIsLoggingOut(true);
-    try {
-      await fetch('/api/admin/auth', { method: 'DELETE' });
-      router.push('/admin/login');
-      router.refresh();
-    } catch (e) {
-      console.error('Logout error:', e);
-    } finally {
-      setIsLoggingOut(false);
-    }
-  };
+    // 3. Détection de sortie : fermeture de l'onglet, de la fenêtre ou navigation hors du site
+    const handleBeforeUnload = () => {
+      try {
+        navigator.sendBeacon('/api/admin/auth', JSON.stringify({ action: 'logout' }));
+        sessionStorage.removeItem('em_admin_session_active');
+      } catch {}
+    };
+
+    window.addEventListener('pagehide', handleBeforeUnload);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // 4. Verrouillage automatique après inactivité (5 minutes sans action)
+    let lastActivity = Date.now();
+    const INACTIVITY_TIMEOUT = 5 * 60 * 1000;
+
+    const resetActivity = () => {
+      lastActivity = Date.now();
+    };
+
+    const activityEvents = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart'];
+    activityEvents.forEach(evt => window.addEventListener(evt, resetActivity, { passive: true }));
+
+    const inactivityInterval = setInterval(() => {
+      if (Date.now() - lastActivity > INACTIVITY_TIMEOUT) {
+        clearInterval(inactivityInterval);
+        handleLogout('/admin/login?reason=inactive');
+      }
+    }, 15000);
+
+    // 5. Verrouillage automatique si le gérant quitte l'onglet (plus de 2 minutes en arrière-plan)
+    let hiddenAt = 0;
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        hiddenAt = Date.now();
+      } else if (document.visibilityState === 'visible') {
+        if (hiddenAt && Date.now() - hiddenAt > 2 * 60 * 1000) {
+          handleLogout('/admin/login?reason=away');
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('pagehide', handleBeforeUnload);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      activityEvents.forEach(evt => window.removeEventListener(evt, resetActivity));
+      clearInterval(inactivityInterval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isLoginPage, router, pathname]);
 
   if (isLoginPage) {
     return <>{children}</>;
@@ -160,9 +226,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
 
           <button
-            onClick={handleLogout}
+            onClick={() => handleLogout()}
             disabled={isLoggingOut}
-            className="w-full flex items-center gap-2 px-3.5 py-2.5 rounded-lg text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
+            className="w-full flex items-center gap-2 px-3.5 py-2.5 rounded-lg text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors cursor-pointer"
           >
             <LogOut size={14} />
             {isLoggingOut ? 'Déconnexion...' : 'Se déconnecter'}
@@ -230,8 +296,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               Voir la boutique
             </Link>
             <button
-              onClick={handleLogout}
-              className="flex items-center gap-1.5 py-2 text-red-400 hover:text-red-300"
+              onClick={() => handleLogout()}
+              className="flex items-center gap-1.5 py-2 text-red-400 hover:text-red-300 cursor-pointer"
             >
               <LogOut size={14} />
               Déconnexion

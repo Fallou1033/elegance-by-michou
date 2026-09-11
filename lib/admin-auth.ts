@@ -118,8 +118,8 @@ export function verifySessionToken(token: string): boolean {
     const decoded = JSON.parse(Buffer.from(payload, 'base64').toString('utf-8'));
     const timestamp = parseInt(decoded.t, 10);
 
-    // Durée de validité : 7 jours max
-    const maxAge = 7 * 24 * 60 * 60 * 1000;
+    // Durée de validité maximale : 2 heures (session temporaire)
+    const maxAge = 2 * 60 * 60 * 1000;
     if (Date.now() - timestamp > maxAge) {
       return false;
     }
