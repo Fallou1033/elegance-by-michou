@@ -47,6 +47,8 @@ export default function NewProductPage() {
   const [video, setVideo] = useState('');
   const [isCompressing, setIsCompressing] = useState(false);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const [videoUploadMsg, setVideoUploadMsg] = useState('');
+  const [videoUploadOk, setVideoUploadOk] = useState<boolean | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const [description, setDescription] = useState('');
@@ -152,25 +154,37 @@ export default function NewProductPage() {
     const file = files[0];
 
     if (file.size > 15 * 1024 * 1024) {
-      setError('Vidéo trop volumineuse. Taille maximale : 15 Mo.');
+      setVideoUploadMsg('Vidéo trop volumineuse (max 15 Mo). Choisissez une vidéo plus courte.');
+      setVideoUploadOk(false);
       if (videoInputRef.current) videoInputRef.current.value = '';
       return;
     }
 
     setIsUploadingVideo(true);
+    setVideoUploadMsg('');
+    setVideoUploadOk(null);
     setError('');
     try {
       const body = new FormData();
       body.append('video', file);
       const res = await fetch('/api/admin/upload-video', { method: 'POST', body });
-      const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'Erreur lors de l’envoi de la vidéo.');
+        let msg = 'Erreur lors de l’import de la vidéo.';
+        try {
+          const d = await res.json();
+          msg = d.error || msg;
+        } catch {}
+        setVideoUploadMsg(msg);
+        setVideoUploadOk(false);
         return;
       }
+      const data = await res.json();
       setVideo(data.url);
+      setVideoUploadMsg('Vidéo importée avec succès. Elle est renseignée ci-dessous.');
+      setVideoUploadOk(true);
     } catch (err: any) {
-      setError(err?.message || 'Erreur réseau lors de l’envoi de la vidéo.');
+      setVideoUploadMsg(err?.message || 'Erreur réseau lors de l’import de la vidéo.');
+      setVideoUploadOk(false);
     } finally {
       setIsUploadingVideo(false);
       if (videoInputRef.current) videoInputRef.current.value = '';
@@ -738,6 +752,25 @@ export default function NewProductPage() {
               )}
             </button>
           </div>
+
+          {isUploadingVideo && (
+            <p className="text-xs text-terracotta flex items-center gap-1.5">
+              <Loader2 size={13} className="animate-spin" />
+              Import en cours, veuillez patienter...
+            </p>
+          )}
+          {!isUploadingVideo && videoUploadOk === true && (
+            <p className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 flex items-center gap-1.5">
+              <Check size={14} />
+              {videoUploadMsg}
+            </p>
+          )}
+          {!isUploadingVideo && videoUploadOk === false && (
+            <p className="text-xs font-semibold text-red-700 bg-red-50 border border-red-200 rounded-xl px-3 py-2 flex items-center gap-1.5">
+              <AlertCircle size={14} />
+              {videoUploadMsg}
+            </p>
+          )}
 
           <div className="flex gap-2">
             <input
