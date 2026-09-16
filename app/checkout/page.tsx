@@ -10,7 +10,7 @@ import OrderSummary from '@/components/checkout/OrderSummary';
 import { SENEGAL_CITIES } from '@/data/products';
 import { FREE_SHIPPING_THRESHOLD, SHIPPING_COST } from '@/data/products';
 
-type PaymentMethod = 'wave' | 'orange-money';
+type PaymentMethod = 'wave' | 'orange-money' | 'cash';
 
 interface FormData {
   fullName: string;
@@ -90,7 +90,13 @@ function CheckoutForm() {
     }
 
     setIsSubmitting(true);
-    setSubmittingStep(paymentMethod === 'wave' ? 'Connexion sécurisée à Wave...' : 'Connexion sécurisée à Orange Money...');
+    setSubmittingStep(
+      paymentMethod === 'cash'
+        ? 'Enregistrement de votre commande...'
+        : paymentMethod === 'wave'
+          ? 'Connexion sécurisée à Wave...'
+          : 'Connexion sécurisée à Orange Money...'
+    );
 
     const orderNumber = generateOrderNumber();
     const orderItems = items.map(item => {
@@ -139,6 +145,11 @@ function CheckoutForm() {
     };
 
     try {
+      if (paymentMethod === 'cash') {
+        await commitDirectOrder();
+        return;
+      }
+
       const endpoint = paymentMethod === 'orange-money'
         ? '/api/orange-money/payment'
         : '/api/wave/payment';
@@ -342,7 +353,9 @@ function CheckoutForm() {
                   <span>{submittingStep || 'Traitement en cours...'}</span>
                 </>
               ) : (
-                `Payer ${new Intl.NumberFormat('fr-FR').format(total)} FCFA via ${paymentMethod === 'orange-money' ? 'Orange Money' : 'Wave'}`
+                paymentMethod === 'cash'
+                  ? `Confirmer la commande — Paiement à la livraison (${new Intl.NumberFormat('fr-FR').format(total)} FCFA)`
+                  : `Payer ${new Intl.NumberFormat('fr-FR').format(total)} FCFA via ${paymentMethod === 'orange-money' ? 'Orange Money' : 'Wave'}`
               )}
             </button>
           </div>

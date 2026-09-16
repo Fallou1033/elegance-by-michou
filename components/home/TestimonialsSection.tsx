@@ -142,7 +142,7 @@ export default function TestimonialsSection() {
           <div className="flex flex-col items-center">
             <span className="text-xl mb-1">🔒</span>
             <h4 className="text-xs font-bold uppercase tracking-wider text-anthracite">Paiement 100% Sécurisé</h4>
-            <p className="text-[11px] text-stone mt-0.5">Wave &amp; Orange Money en 1 clic</p>
+            <p className="text-[11px] text-stone mt-0.5">Wave &amp; Orange Money en 1 clic ou une fois livré</p>
           </div>
           <div className="flex flex-col items-center">
             <span className="text-xl mb-1">🧵</span>

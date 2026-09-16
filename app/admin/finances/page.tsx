@@ -174,6 +174,28 @@ export default function AdminFinancesPage() {
                 </span>
               </div>
             </div>
+
+            {/* Paiement à la livraison */}
+            <div className="p-4 rounded-xl bg-[#FFB000]/5 border border-[#FFB000]/20 space-y-2">
+              <div className="flex justify-between items-center text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-[#FFB000]" />
+                  <span className="font-bold text-sm text-anthracite">Paiement à la livraison</span>
+                </div>
+                <span className="font-bold text-base text-anthracite">
+                  {formatPrice(stats.paymentBreakdown.cash?.amount || 0)}
+                </span>
+              </div>
+              <div className="flex justify-between text-[11px] text-stone">
+                <span>{stats.paymentBreakdown.cash?.count || 0} commande(s)</span>
+                <span className="font-semibold">
+                  {stats.totalRevenue > 0
+                    ? Math.round(((stats.paymentBreakdown.cash?.amount || 0) / stats.totalRevenue) * 100)
+                    : 0}
+                  % des ventes
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 

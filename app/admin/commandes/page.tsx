@@ -17,7 +17,17 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { AdminOrder, OrderStatus } from '@/lib/db';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, getPaymentMethodLabel } from '@/lib/utils';
+
+const ADMIN_PAYMENT_LABELS: Record<string, string> = {
+  wave: 'Wave',
+  'orange-money': 'Orange Money',
+  cash: 'À la livraison',
+};
+
+function adminPaymentLabel(method: string): string {
+  return ADMIN_PAYMENT_LABELS[method] || getPaymentMethodLabel(method);
+}
 
 export default function AdminOrdersPage() {
   const router = useRouter();
@@ -223,7 +233,7 @@ export default function AdminOrdersPage() {
                     <span className="text-xs text-stone font-medium">
                       Paiement via{' '}
                       <span className="font-semibold text-anthracite uppercase">
-                        {order.paymentMethod}
+                        {adminPaymentLabel(order.paymentMethod)}
                       </span>
                     </span>
                   </div>

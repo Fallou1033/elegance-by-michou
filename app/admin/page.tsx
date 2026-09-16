@@ -17,8 +17,18 @@ import {
   CreditCard,
   Building,
 } from 'lucide-react';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, getPaymentMethodLabel } from '@/lib/utils';
 import { AdminOrder } from '@/lib/db';
+
+const ADMIN_PAYMENT_LABELS: Record<string, string> = {
+  wave: 'Wave',
+  'orange-money': 'Orange Money',
+  cash: 'À la livraison',
+};
+
+function adminPaymentLabel(method: string): string {
+  return ADMIN_PAYMENT_LABELS[method] || getPaymentMethodLabel(method);
+}
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -279,7 +289,7 @@ export default function AdminDashboardPage() {
                       <td className="py-3.5 px-4 font-semibold text-anthracite">
                         {formatPrice(order.total)}
                         <span className="block text-[10px] text-stone uppercase">
-                          {order.paymentMethod}
+                          {adminPaymentLabel(order.paymentMethod)}
                         </span>
                       </td>
                       <td className="py-3.5 px-4">
@@ -370,11 +380,33 @@ export default function AdminDashboardPage() {
                     }}
                   />
                 </div>
+<div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="font-medium text-[#FFB000] flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#FFB000]" /> Paiement à la livraison
+                  </span>
+                  <span className="font-semibold text-anthracite">
+                    {formatPrice(stats.paymentBreakdown.cash?.amount || 0)}
+                  </span>
+                </div>
+                <div className="w-full bg-stone/10 h-2 rounded-full overflow-hidden">
+                  <div
+                    className="bg-[#FFB000] h-full rounded-full"
+                    style={{
+                      width: `${
+                        stats.totalRevenue > 0
+                          ? Math.round(((stats.paymentBreakdown.cash?.amount || 0) / stats.totalRevenue) * 100)
+                          : 0
+                      }%`,
+                    }}
+                  />
+                </div>
               </div>
-            </div>
+</div>
           </div>
+        </div>
 
-          {/* Top Ventes Produits */}
+        {/* Top Ventes Produits */}
           <div className="bg-white rounded-2xl p-5 border border-stone/15 shadow-xs">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-serif text-base font-semibold text-anthracite">

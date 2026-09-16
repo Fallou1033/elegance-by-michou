@@ -25,6 +25,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const allowedMethods = ['wave', 'orange-money', 'cash'];
+    const normalizedMethod = allowedMethods.includes(paymentMethod)
+      ? paymentMethod
+      : paymentMethod === 'orange-money'
+        ? 'orange-money'
+        : 'wave';
+
     const order = await createDbOrder({
       orderNumber,
       customerName,
@@ -32,7 +39,7 @@ export async function POST(req: NextRequest) {
       address: address || '',
       city: city || 'Dakar',
       notes: notes || '',
-      paymentMethod: paymentMethod === 'orange-money' ? 'orange-money' : 'wave',
+      paymentMethod: normalizedMethod,
       items: items || [],
       subtotal: Number(subtotal) || 0,
       shipping: Number(shipping) || 0,

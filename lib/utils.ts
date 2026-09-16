@@ -2,6 +2,18 @@ export function formatPrice(amount: number): string {
   return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
 }
 
+export type PaymentMethodKey = 'wave' | 'orange-money' | 'cash';
+
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethodKey, string> = {
+  wave: 'Wave (Paiement direct)',
+  'orange-money': 'Orange Money (Paiement direct)',
+  cash: 'Paiement à la livraison',
+};
+
+export function getPaymentMethodLabel(method: string): string {
+  return PAYMENT_METHOD_LABELS[method as PaymentMethodKey] || method;
+}
+
 /**
  * Règles de remise sur volume / tarif de gros par produit.
  * Pour la mini-robe brodée anglaise : strictement plus de 5 articles (dès 6 articles),
@@ -108,6 +120,8 @@ export function encodeWhatsAppMessage(order: {
     paymentDetails = `💳 Paiement : Wave (Paiement direct)`;
   } else if (order.paymentMethod.toLowerCase().includes('orange')) {
     paymentDetails = `💳 Paiement : Orange Money (Paiement direct)`;
+  } else if (order.paymentMethod.toLowerCase().includes('cash') || order.paymentMethod.toLowerCase().includes('livraison')) {
+    paymentDetails = `💳 Paiement : à la livraison`;
   }
 
   const message = `Bonjour Elegance By Michou ! 🛍️\n\nJe confirme ma commande :\n\n📦 Commande N° ${order.orderNumber}\n\n${itemsList}\n\n💰 Total : ${formatPrice(order.total)}\n\n👤 Client : ${order.customerName}\n📍 Adresse : ${order.address}, ${order.city}\n${paymentDetails}\n\nMerci !`;

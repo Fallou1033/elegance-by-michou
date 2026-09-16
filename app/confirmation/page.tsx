@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle, MessageCircle, ShieldCheck } from 'lucide-react';
-import { formatPrice, encodeWhatsAppMessage } from '@/lib/utils';
+import { formatPrice, encodeWhatsAppMessage, getPaymentMethodLabel } from '@/lib/utils';
 import { WHATSAPP_NUMBER } from '@/data/products';
 import type { OrderData } from '@/types';
 
@@ -34,10 +34,7 @@ function ConfirmationContent() {
     );
   }
 
-  const PAYMENT_LABELS: Record<string, string> = {
-    wave: 'Wave (Paiement direct)',
-    'orange-money': 'Orange Money (Paiement direct)',
-  };
+  const isCash = order.paymentMethod === 'cash';
 
   const whatsappMessage = encodeWhatsAppMessage({
     orderNumber: order.orderNumber,
@@ -52,7 +49,7 @@ function ConfirmationContent() {
     total: order.total,
     address: order.address,
     city: order.city,
-    paymentMethod: PAYMENT_LABELS[order.paymentMethod] || order.paymentMethod,
+    paymentMethod: getPaymentMethodLabel(order.paymentMethod),
   });
 
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`;
@@ -88,17 +85,26 @@ function ConfirmationContent() {
           </div>
           <div>
             <h2 className="font-serif text-lg font-bold text-emerald-950">
-              {isOnlineSuccess
-                ? `Paiement direct validé via ${order.paymentMethod === 'orange-money' ? 'Orange Money' : 'Wave'}`
-                : `Commande confirmée — Règlement par ${order.paymentMethod === 'orange-money' ? 'Orange Money' : 'Wave'}`}
+              {isCash
+                ? 'Commande confirmée — Paiement à la livraison'
+                : isOnlineSuccess
+                  ? `Paiement direct validé via ${order.paymentMethod === 'orange-money' ? 'Orange Money' : 'Wave'}`
+                  : `Commande confirmée — Règlement par ${order.paymentMethod === 'orange-money' ? 'Orange Money' : 'Wave'}`}
             </h2>
             <p className="text-xs text-emerald-800">
-              Règlement par <strong>{order.paymentMethod === 'orange-money' ? 'Orange Money (Direct)' : 'Wave (Direct)'}</strong> — Montant : <strong>{formatPrice(order.total)}</strong>
+              {isCash
+                ? 'Vous réglerez en espèces à la réception de votre colis.'
+                : `Règlement par <strong>${getPaymentMethodLabel(order.paymentMethod)}</strong> — Montant : <strong>${formatPrice(order.total)}</strong>`}
             </p>
           </div>
         </div>
         <div className="text-xs text-emerald-900 leading-relaxed bg-white/90 p-3.5 rounded border border-emerald-200 space-y-2">
-          {!isOnlineSuccess && (
+          {isCash && (
+            <p>
+              💵 Préparez <strong>{formatPrice(order.total)}</strong> en espèces. Vous paierez le livreur à la réception de votre commande.
+            </p>
+          )}
+          {!isOnlineSuccess && !isCash && (
             <p>
               📲 Pour finaliser votre achat, effectuez votre transfert <strong>{order.paymentMethod === 'orange-money' ? 'Orange Money' : 'Wave'}</strong> au numéro officiel de la boutique : <strong className="text-anthracite font-mono text-sm">+221 78 264 41 02</strong>.
             </p>
@@ -172,7 +178,7 @@ function ConfirmationContent() {
           <p className="text-sm"><strong>Client :</strong> {order.customerName}</p>
           <p className="text-sm"><strong>Téléphone :</strong> {order.phone}</p>
           <p className="text-sm"><strong>Adresse :</strong> {order.address}, {order.city}</p>
-          <p className="text-sm"><strong>Paiement :</strong> {PAYMENT_LABELS[order.paymentMethod] || order.paymentMethod}</p>
+          <p className="text-sm"><strong>Paiement :</strong> {getPaymentMethodLabel(order.paymentMethod)}</p>
           {order.notes && <p className="text-sm"><strong>Notes :</strong> {order.notes}</p>}
         </div>
       </div>

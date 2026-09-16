@@ -15,6 +15,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const allowedMethods = ['wave', 'orange-money', 'cash'];
+    const normalizedMethod = allowedMethods.includes(order.paymentMethod)
+      ? order.paymentMethod
+      : order.paymentMethod === 'orange-money'
+        ? 'orange-money'
+        : 'wave';
+
     const pending = await registerDbPendingOrder({
       orderNumber: order.orderNumber,
       customerName: order.customerName,
@@ -22,7 +29,7 @@ export async function POST(req: NextRequest) {
       address: order.address || '',
       city: order.city || 'Dakar',
       notes: order.notes || '',
-      paymentMethod: order.paymentMethod === 'orange-money' ? 'orange-money' : 'wave',
+      paymentMethod: normalizedMethod,
       items: order.items || [],
       subtotal: Number(order.subtotal) || 0,
       shipping: Number(order.shipping) || 0,

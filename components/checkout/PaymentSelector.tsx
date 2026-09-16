@@ -2,7 +2,9 @@
 import Image from 'next/image';
 import { formatPrice } from '@/lib/utils';
 
-export type PaymentMethod = 'wave' | 'orange-money';
+import { Banknote } from 'lucide-react';
+
+export type PaymentMethod = 'wave' | 'orange-money' | 'cash';
 
 interface PaymentSelectorProps {
   value: PaymentMethod;
@@ -41,6 +43,16 @@ const PAYMENT_METHODS = [
       </div>
     ),
   },
+  {
+    id: 'cash' as PaymentMethod,
+    label: 'Paiement à la livraison',
+    description: 'Payez en espèces à la réception de votre commande',
+    icon: (
+      <div className="h-7 w-10 bg-white rounded border border-stone/20 flex items-center justify-center shadow-2xs">
+        <Banknote size={22} className="text-green-600" />
+      </div>
+    ),
+  },
 ];
 
 export default function PaymentSelector({ value, onChange, total }: PaymentSelectorProps) {
@@ -49,7 +61,7 @@ export default function PaymentSelector({ value, onChange, total }: PaymentSelec
       <div className="flex items-center gap-2 p-2.5 bg-stone/5 border border-stone/20 text-xs text-stone rounded">
         <span className="text-sm">🔒</span>
         <span>
-          Paiement direct et sécurisé via <strong>Wave Sénégal</strong> et <strong>Orange Money Sénégal</strong>. Vous validerez directement sur votre mobile.
+          Paiement direct et sécurisé via <strong>Wave Sénégal</strong> et <strong>Orange Money Sénégal</strong>, ou réglez <strong>à la livraison</strong>.
         </span>
       </div>
 
@@ -89,6 +101,15 @@ export default function PaymentSelector({ value, onChange, total }: PaymentSelec
                   {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-terracotta" />}
                 </div>
               </button>
+
+              {isSelected && method.id === 'cash' && (
+                <div className="mx-4 mb-4 p-3 bg-green-50/80 border border-green-200 text-xs text-green-950 flex items-center gap-2.5 rounded">
+                  <span className="text-base flex-shrink-0">💵</span>
+                  <p className="leading-relaxed">
+                    Aucun paiement en ligne requis. Vous réglerez <strong>{total ? formatPrice(total) : 'le montant de votre commande'}</strong> en espèces au moment de la réception de votre colis.
+                  </p>
+                </div>
+              )}
 
               {isSelected && method.id === 'wave' && (
                 <div className="mx-4 mb-4 p-3 bg-sky-50/80 border border-sky-200 text-xs text-sky-900 flex items-center gap-2.5 rounded">
