@@ -200,6 +200,7 @@ export const products: Product[] = [
       "/images/products/Ensemble%20lin%20pour%20femme/ensemble-lin-femme-vert.jpg"
     ],
     "hoverImage": "/images/products/Ensemble%20lin%20pour%20femme/ensemble-lin-femme-vert.jpg",
+    "video": "/videos/ensemble-lin-femme-presentation.mp4",
     "description": "Ensemble féminin chic et décontracté en lin texturé aérien, composé d'une chemise oversize à col polo ouvert et d'un short fluide assorti. Idéal pour les journées ensoleillées, alliant fraîcheur, confort absolu et élégance moderne.",
     "material": "100% Lin texturé haute qualité",
     "care": "Lavage délicat en machine à 30°C. Séchage sur cintre. Repassage doux.",
