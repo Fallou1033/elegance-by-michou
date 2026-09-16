@@ -22,6 +22,7 @@ import { detectColorName, POPULAR_COLOR_PRESETS } from '@/lib/colors';
 import { compressImageFile } from '@/lib/image-compression';
 
 const COMMON_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', 'Unique'];
+const MAX_VIDEO_MB = 10;
 
 export default function EditProductPage() {
   const router = useRouter();
@@ -207,8 +208,8 @@ export default function EditProductPage() {
     if (!files || files.length === 0) return;
     const file = files[0];
 
-    if (file.size > 15 * 1024 * 1024) {
-      setVideoUploadMsg('Vidéo trop volumineuse (max 15 Mo). Choisissez une vidéo plus courte.');
+    if (file.size > MAX_VIDEO_MB * 1024 * 1024) {
+      setVideoUploadMsg(`Vidéo trop volumineuse (max ${MAX_VIDEO_MB} Mo). Choisissez une vidéo plus courte.`);
       setVideoUploadOk(false);
       if (videoInputRef.current) videoInputRef.current.value = '';
       return;
@@ -219,25 +220,17 @@ export default function EditProductPage() {
     setVideoUploadOk(null);
     setError('');
     try {
-      const body = new FormData();
-      body.append('video', file);
-      const res = await fetch('/api/admin/upload-video', { method: 'POST', body });
-      if (!res.ok) {
-        let msg = 'Erreur lors de l’import de la vidéo.';
-        try {
-          const d = await res.json();
-          msg = d.error || msg;
-        } catch {}
-        setVideoUploadMsg(msg);
-        setVideoUploadOk(false);
-        return;
-      }
-      const data = await res.json();
-      setVideo(data.url);
+      const reader = new FileReader();
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error('Impossible de lire le fichier vidéo.'));
+        reader.readAsDataURL(file);
+      });
+      setVideo(dataUrl);
       setVideoUploadMsg('Vidéo importée avec succès. Elle est renseignée ci-dessous.');
       setVideoUploadOk(true);
     } catch (err: any) {
-      setVideoUploadMsg(err?.message || 'Erreur réseau lors de l’import de la vidéo.');
+      setVideoUploadMsg(err?.message || 'Erreur lors de l’import de la vidéo.');
       setVideoUploadOk(false);
     } finally {
       setIsUploadingVideo(false);
@@ -810,7 +803,7 @@ export default function EditProductPage() {
               {isUploadingVideo ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  <span>Envoi de la vidéo...</span>
+                  <span>Lecture de la vidéo...</span>
                 </>
               ) : (
                 <>
@@ -824,7 +817,7 @@ export default function EditProductPage() {
           {isUploadingVideo && (
             <p className="text-xs text-terracotta flex items-center gap-1.5">
               <Loader2 size={13} className="animate-spin" />
-              Import en cours, veuillez patienter...
+              Lecture du fichier en cours...
             </p>
           )}
           {!isUploadingVideo && videoUploadOk === true && (
