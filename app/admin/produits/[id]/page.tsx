@@ -46,7 +46,9 @@ export default function EditProductPage() {
   const [images, setImages] = useState<string[]>([]);
   const [video, setVideo] = useState('');
   const [isCompressing, setIsCompressing] = useState(false);
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const [description, setDescription] = useState('');
   const [material, setMaterial] = useState('');
   const [care, setCare] = useState('');
@@ -196,6 +198,37 @@ export default function EditProductPage() {
 
   const handleRemoveImageField = (index: number) => {
     setImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleVideoFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const file = files[0];
+
+    if (file.size > 15 * 1024 * 1024) {
+      setError('Vidéo trop volumineuse. Taille maximale : 15 Mo.');
+      if (videoInputRef.current) videoInputRef.current.value = '';
+      return;
+    }
+
+    setIsUploadingVideo(true);
+    setError('');
+    try {
+      const body = new FormData();
+      body.append('video', file);
+      const res = await fetch('/api/admin/upload-video', { method: 'POST', body });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Erreur lors de l’envoi de la vidéo.');
+        return;
+      }
+      setVideo(data.url);
+    } catch (err: any) {
+      setError(err?.message || 'Erreur réseau lors de l’envoi de la vidéo.');
+    } finally {
+      setIsUploadingVideo(false);
+      if (videoInputRef.current) videoInputRef.current.value = '';
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -741,15 +774,45 @@ export default function EditProductPage() {
             </span>
           </h2>
           <p className="text-xs text-stone">
-            Ajoutez le lien d&apos;une courte vidéo (mp4/webm, YouTube ou Instagram Reel) pour montrer votre pièce en mouvement. La vidéo s&apos;affichera sous les photos sur la fiche produit.
+            Importez une courte vidéo (mp4, webm, mov) prise depuis votre téléphone, ou collez le lien d&apos;une vidéo YouTube / Instagram Reel. Elle s&apos;affichera sous les photos sur la fiche produit.
           </p>
+
+          <input
+            ref={videoInputRef}
+            type="file"
+            accept="video/*"
+            className="hidden"
+            id="edit-product-video-upload"
+            onChange={handleVideoFileSelect}
+          />
+
+          <div className="flex flex-col sm:flex-row gap-2">
+            <button
+              type="button"
+              onClick={() => videoInputRef.current?.click()}
+              disabled={isUploadingVideo}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-anthracite hover:bg-terracotta text-white rounded-xl text-xs font-semibold uppercase tracking-wider transition-all shadow-xs cursor-pointer disabled:opacity-50"
+            >
+              {isUploadingVideo ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  <span>Envoi de la vidéo...</span>
+                </>
+              ) : (
+                <>
+                  <Upload size={16} />
+                  <span>Importer une vidéo depuis mon téléphone / PC</span>
+                </>
+              )}
+            </button>
+          </div>
 
           <div className="flex gap-2">
             <input
               type="text"
               value={video}
               onChange={e => setVideo(e.target.value)}
-              placeholder="https://.../video.mp4 ou https://youtube.com/shorts/..."
+              placeholder="...ou collez ici le lien (https://.../video.mp4 ou https://youtube.com/shorts/...)"
               id="edit-product-video-url"
               className="flex-1 px-3.5 py-2.5 text-xs rounded-xl border border-stone/20 focus:border-terracotta outline-none"
             />
