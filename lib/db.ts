@@ -323,6 +323,7 @@ export async function saveDbProduct(productData: Partial<Product> & { name: stri
     colors: Array.isArray(productData.colors) && productData.colors.length > 0 ? productData.colors : [{ name: 'Standard', hex: '#C4704F' }],
     images: Array.isArray(productData.images) && productData.images.length > 0 ? productData.images : ['/images/placeholder.jpg'],
     hoverImage: productData.hoverImage,
+    video: productData.video || undefined,
     badge: productData.badge,
     discount: productData.discount,
     relatedProducts: productData.relatedProducts || [],

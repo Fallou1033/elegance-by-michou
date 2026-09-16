@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { products } from '@/data/products';
 import { useCart } from '@/context/CartContext';
 import { useFavorites } from '@/context/FavoritesContext';
-import { formatPrice, BULK_DISCOUNT_RULES } from '@/lib/utils';
+import { formatPrice, BULK_DISCOUNT_RULES, getYouTubeId, isDirectVideoUrl } from '@/lib/utils';
 import SizeGuideModal from '@/components/ui/SizeGuideModal';
 import ProductCard from '@/components/ui/ProductCard';
 
@@ -381,6 +381,59 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                   <Image src={img} alt={`Vue ${i + 1}`} fill className="object-cover" sizes="64px" />
                 </button>
               ))}
+            </div>
+          )}
+
+          {/* Short presentation video */}
+          {product.video && product.video.trim() && (
+            <div className="mt-1">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-anthracite flex items-center gap-1.5">
+                  <span className="text-terracotta">▶</span> La pièce en mouvement
+                </p>
+                {isDirectVideoUrl(product.video) && (
+                  <span className="text-[10px] text-stone/70">🎬 Courte vidéo</span>
+                )}
+              </div>
+              {(isDirectVideoUrl(product.video)
+                ? (
+                  <video
+                    key={product.video + product.id}
+                    src={product.video}
+                    controls
+                    playsInline
+                    preload="metadata"
+                    poster={hasImages ? product.images[0] : undefined}
+                    className="w-full aspect-[3/4] md:aspect-[4/5] object-cover bg-[#18181B] rounded-xs shadow-xs"
+                  />
+                )
+                : (() => {
+                    const ytId = getYouTubeId(product.video);
+                    if (ytId) {
+                      return (
+                        <iframe
+                          key={`yt-${ytId}`}
+                          src={`https://www.youtube.com/embed/${ytId}?rel=0`}
+                          title="Vidéo de présentation"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          className="w-full aspect-video rounded-xs shadow-xs bg-black border-0"
+                        />
+                      );
+                    }
+                    return (
+                      <video
+                        key={product.video + product.id}
+                        src={product.video}
+                        controls
+                        playsInline
+                        preload="metadata"
+                        poster={hasImages ? product.images[0] : undefined}
+                        className="w-full aspect-[3/4] md:aspect-[4/5] object-cover bg-[#18181B] rounded-xs shadow-xs"
+                      />
+                    );
+                  })()
+              )}
             </div>
           )}
         </div>

@@ -315,6 +315,14 @@ export default function AdminProductsPage() {
                             className="font-semibold text-anthracite hover:text-terracotta transition-colors flex items-center gap-1 group"
                           >
                             <span>{product.name}</span>
+                            {product.video && product.video.trim() && (
+                              <span
+                                title="Courte vidéo associée"
+                                className="inline-flex items-center gap-0.5 text-[9px] font-bold text-terracotta"
+                              >
+                                🎬
+                              </span>
+                            )}
                             <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                           </Link>
                           <span className="text-[11px] text-stone block">

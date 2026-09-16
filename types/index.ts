@@ -19,6 +19,7 @@ export interface Product {
   colors: ProductColor[];
   images: string[];
   hoverImage?: string;
+  video?: string;
   badge?: 'Nouveau' | 'Promo';
   isNew?: boolean;
   discount?: number;

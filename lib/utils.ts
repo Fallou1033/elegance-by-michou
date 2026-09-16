@@ -40,6 +40,25 @@ export function calculateShipping(subtotal: number, city?: string): number {
 export const MIN_SHIPPING_COST = Math.min(...Object.values(SHIPPING_RATES));
 
 /**
+ * Extrait l'identifiant d'une vidéo YouTube (watch, shorts, youtu.be, embeds...).
+ */
+export function getYouTubeId(url: string): string | null {
+  if (!url) return null;
+  const match = url.match(
+    /(?:youtube\.com\/(?:watch\?[^#]*v=|embed\/|shorts\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+  );
+  return match ? match[1] : null;
+}
+
+/**
+ * Indique si une URL pointe vers un fichier vidéo lisible par l'élément <video>.
+ */
+export function isDirectVideoUrl(url: string): boolean {
+  if (!url) return false;
+  return /\.(mp4|webm|ogv|ogg|mov|m4v)($|\?)/i.test(url) || url.startsWith('data:video/');
+}
+
+/**
  * Règles de remise sur volume / tarif de gros par produit.
  * Pour la mini-robe brodée anglaise : strictement plus de 5 articles (dès 6 articles),
  * le prix unitaire passe de 13 000 FCFA à 11 000 FCFA.

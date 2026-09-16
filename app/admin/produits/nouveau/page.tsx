@@ -44,6 +44,7 @@ export default function NewProductPage() {
   const [newColorHex, setNewColorHex] = useState('#C4704F');
   const [newColorName, setNewColorName] = useState('Terracotta');
   const [images, setImages] = useState<string[]>([]);
+  const [video, setVideo] = useState('');
   const [isCompressing, setIsCompressing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [description, setDescription] = useState('');
@@ -185,6 +186,7 @@ export default function NewProductPage() {
           sizes: selectedSizes,
           colors: finalColors.length > 0 ? finalColors : [{ name: 'Standard', hex: '#C4704F' }],
           images: cleanImages,
+          video: video.trim() || undefined,
           description: description.trim(),
           material: material.trim(),
           care: care.trim(),
@@ -660,6 +662,46 @@ export default function NewProductPage() {
               </div>
             </div>
           </details>
+        </div>
+
+        {/* Vidéo courte de présentation */}
+        <div className="bg-white p-6 rounded-2xl border border-stone/15 shadow-xs space-y-4">
+          <h2 className="font-serif text-base font-semibold text-anthracite border-b border-stone/10 pb-2">
+            <span className="flex items-center gap-2">
+              <span>4 bis. Vidéo courte de présentation</span>
+              <span className="text-[11px] font-normal text-stone font-sans">(optionnel)</span>
+            </span>
+          </h2>
+          <p className="text-xs text-stone">
+            Ajoutez le lien d&apos;une courte vidéo (mp4/webm, YouTube ou Instagram Reel) pour montrer votre pièce en mouvement. La vidéo s&apos;affichera sous les photos sur la fiche produit.
+          </p>
+
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={video}
+              onChange={e => setVideo(e.target.value)}
+              placeholder="https://.../video.mp4 ou https://youtube.com/shorts/..."
+              id="new-product-video-url"
+              className="flex-1 px-3.5 py-2.5 text-xs rounded-xl border border-stone/20 focus:border-terracotta outline-none"
+            />
+            {video.trim() && (
+              <button
+                type="button"
+                onClick={() => setVideo('')}
+                className="px-3 py-2 bg-stone/10 hover:bg-red-50 text-stone hover:text-red-600 rounded-xl text-xs font-semibold transition-colors"
+              >
+                Retirer
+              </button>
+            )}
+          </div>
+
+          {video.trim() && (
+            <div className="rounded-xl overflow-hidden border border-stone/15 bg-[#18181B] aspect-video flex items-center justify-center">
+              <video src={video.trim()} controls muted playsInline preload="metadata"
+                className="w-full h-full object-contain" />
+            </div>
+          )}
         </div>
 
         {/* Description & Savoir-faire */}
