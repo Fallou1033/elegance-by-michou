@@ -15,7 +15,7 @@ interface Testimonial {
 const TESTIMONIALS: Testimonial[] = [
   {
     name: 'Rokhaya',
-    location: 'Dakar, Sacré-Cœur',
+    location: 'Thiés',
     initials: 'RO',
     rating: 5,
     product: 'Mini robe brodé anglais 100% coton',
@@ -26,7 +26,7 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     name: 'Ass Malick',
-    location: 'Almadies, Dakar',
+    location: 'Zac Mbao, Dakar',
     initials: 'AM',
     rating: 5,
     product: 'Ensemble lin homme',
@@ -37,8 +37,8 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     name: 'Ousmane Noel Dieng',
-    location: 'Thiès / Mermoz',
-    initials: 'ON',
+    location: 'Kaolack',
+    initials: 'OND',
     rating: 5,
     product: 'Costume africain de prestige',
     comment:
