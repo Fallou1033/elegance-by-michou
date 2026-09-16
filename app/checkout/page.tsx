@@ -4,11 +4,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft, AlertCircle } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
-import { generateOrderNumber, getItemUnitPrice, getProductTotalQtyInCart } from '@/lib/utils';
+import { generateOrderNumber, getItemUnitPrice, getProductTotalQtyInCart, calculateShipping, formatPrice } from '@/lib/utils';
 import PaymentSelector from '@/components/checkout/PaymentSelector';
 import OrderSummary from '@/components/checkout/OrderSummary';
-import { SENEGAL_CITIES } from '@/data/products';
-import { FREE_SHIPPING_THRESHOLD, SHIPPING_COST } from '@/data/products';
+import { SENEGAL_CITIES, FREE_SHIPPING_THRESHOLD } from '@/data/products';
 
 type PaymentMethod = 'wave' | 'orange-money' | 'cash';
 
@@ -45,7 +44,7 @@ function CheckoutForm() {
   const [errors, setErrors] = useState<FormErrors>({});
 
   const subtotal = getCartTotal();
-  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : items.length > 0 ? SHIPPING_COST : 0;
+  const shipping = calculateShipping(subtotal, formData.city);
   const total = subtotal + shipping;
 
   const validatePhone = (phone: string) => {
@@ -309,6 +308,15 @@ function CheckoutForm() {
                       <AlertCircle size={12} />{errors.city}
                     </p>
                   )}
+                  {formData.city && (
+                    <p className="text-[11px] text-stone mt-1.5">
+                      🚚 Livraison vers {formData.city} :{' '}
+                      <strong className="text-anthracite">
+                        {shipping === 0 ? 'Gratuite' : formatPrice(shipping)}
+                      </strong>{' '}
+                      {shipping > 0 && `· Livraison gratuite dès ${formatPrice(FREE_SHIPPING_THRESHOLD)}`}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -334,7 +342,7 @@ function CheckoutForm() {
 
             {/* Mobile order summary */}
             <div className="lg:hidden">
-              <OrderSummary items={items} />
+              <OrderSummary items={items} shipping={shipping} total={total} />
             </div>
 
             {/* Submit */}
@@ -362,7 +370,7 @@ function CheckoutForm() {
 
           {/* Sidebar summary - desktop */}
           <div className="hidden lg:block">
-            <OrderSummary items={items} sticky />
+            <OrderSummary items={items} sticky shipping={shipping} total={total} />
           </div>
         </div>
       </form>

@@ -9,14 +9,15 @@ import {
   getItemUnitPrice,
   getProductTotalQtyInCart,
   calculateCartSavings,
+  MIN_SHIPPING_COST,
 } from '@/lib/utils';
-import { SHIPPING_COST, FREE_SHIPPING_THRESHOLD } from '@/data/products';
+import { FREE_SHIPPING_THRESHOLD } from '@/data/products';
 
 export default function CartDrawer() {
   const { items, isDrawerOpen, closeDrawer, removeFromCart, updateQuantity, getCartTotal } = useCart();
   const drawerRef = useRef<HTMLDivElement>(null);
   const total = getCartTotal();
-  const shipping = total >= FREE_SHIPPING_THRESHOLD || total === 0 ? 0 : SHIPPING_COST;
+  const shipping = total >= FREE_SHIPPING_THRESHOLD || total === 0 ? 0 : MIN_SHIPPING_COST;
   const grandTotal = total + shipping;
   const totalSavings = calculateCartSavings(items);
   const totalMiniRobes = getProductTotalQtyInCart(items, 'mini-robe-brode-anglais-100-coton');
@@ -193,11 +194,11 @@ export default function CartDrawer() {
                     <span>{formatPrice(total)}</span>
                   </div>
                   <div className="flex justify-between text-sm text-stone">
-                    <span>Livraison</span>
-                    <span>{formatPrice(SHIPPING_COST)}</span>
+                    <span>Livraison <span className="text-[11px] text-stone/70">(selon la ville)</span></span>
+                    <span>{formatPrice(MIN_SHIPPING_COST)}</span>
                   </div>
                   <p className="text-xs text-stone">
-                    Plus que {formatPrice(FREE_SHIPPING_THRESHOLD - total)} pour la livraison gratuite
+                    Dès {formatPrice(MIN_SHIPPING_COST)} dans la région de Dakar · Gratuite dès {formatPrice(FREE_SHIPPING_THRESHOLD)}
                   </p>
                 </>
               )}

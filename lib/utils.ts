@@ -2,6 +2,8 @@ export function formatPrice(amount: number): string {
   return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
 }
 
+import { SHIPPING_RATES, DEFAULT_SHIPPING_COST, FREE_SHIPPING_THRESHOLD } from '@/data/products';
+
 export type PaymentMethodKey = 'wave' | 'orange-money' | 'cash';
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethodKey, string> = {
@@ -13,6 +15,29 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethodKey, string> = {
 export function getPaymentMethodLabel(method: string): string {
   return PAYMENT_METHOD_LABELS[method as PaymentMethodKey] || method;
 }
+
+/**
+ * Calcule le tarif de livraison pour une commune donnée (hors seuil de gratuité).
+ */
+export function getCityShippingRate(city: string): number {
+  const normalized = city.trim().toLowerCase();
+  const match = Object.keys(SHIPPING_RATES).find(
+    (key) => key.toLowerCase() === normalized
+  );
+  return match ? SHIPPING_RATES[match] : DEFAULT_SHIPPING_COST;
+}
+
+/**
+ * Calcule le tarif de livraison effectif d'une commande :
+ * offert au-delà du seuil de gratuité, sinon selon la commune sélectionnée.
+ */
+export function calculateShipping(subtotal: number, city?: string): number {
+  if (subtotal >= FREE_SHIPPING_THRESHOLD || subtotal <= 0) return 0;
+  if (city) return getCityShippingRate(city);
+  return MIN_SHIPPING_COST;
+}
+
+export const MIN_SHIPPING_COST = Math.min(...Object.values(SHIPPING_RATES));
 
 /**
  * Règles de remise sur volume / tarif de gros par produit.

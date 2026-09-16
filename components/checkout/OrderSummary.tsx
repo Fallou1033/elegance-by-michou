@@ -6,19 +6,23 @@ import {
   calculateCartSavings,
   getItemUnitPrice,
   getProductTotalQtyInCart,
+  calculateShipping,
+  MIN_SHIPPING_COST,
 } from '@/lib/utils';
-import { FREE_SHIPPING_THRESHOLD, SHIPPING_COST } from '@/data/products';
+import { FREE_SHIPPING_THRESHOLD } from '@/data/products';
 
 interface OrderSummaryProps {
   items: CartItem[];
   sticky?: boolean;
+  shipping?: number;
+  total?: number;
 }
 
-export default function OrderSummary({ items, sticky = false }: OrderSummaryProps) {
+export default function OrderSummary({ items, sticky = false, shipping, total }: OrderSummaryProps) {
   const subtotal = calculateCartTotal(items);
   const savings = calculateCartSavings(items);
-  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
-  const total = subtotal + shipping;
+  const shippingCost = shipping ?? calculateShipping(subtotal);
+  const grandTotal = total ?? subtotal + shippingCost;
 
   return (
     <div className={`bg-white border border-stone/20 ${sticky ? 'sticky top-24' : ''}`}>
@@ -70,15 +74,15 @@ export default function OrderSummary({ items, sticky = false }: OrderSummaryProp
           <span>{formatPrice(subtotal)}</span>
         </div>
         <div className="flex justify-between text-sm text-stone">
-          <span>Livraison</span>
-          <span>{shipping === 0 ? <span className="text-green-600">Gratuite</span> : formatPrice(SHIPPING_COST)}</span>
+          <span>Livraison <span className="text-[11px] text-stone/70">(selon la ville)</span></span>
+          <span>{shippingCost === 0 ? <span className="text-green-600">Gratuite</span> : formatPrice(shippingCost)}</span>
         </div>
-        {shipping > 0 && (
-          <p className="text-xs text-stone/70">Gratuite à partir de {formatPrice(FREE_SHIPPING_THRESHOLD)}</p>
+        {shippingCost > 0 && (
+          <p className="text-xs text-stone/70">À partir de {formatPrice(MIN_SHIPPING_COST)} à Dakar · Gratuite dès {formatPrice(FREE_SHIPPING_THRESHOLD)}</p>
         )}
         <div className="flex justify-between text-base font-bold text-anthracite pt-3 border-t border-stone/10">
           <span>Total</span>
-          <span className="text-lg">{formatPrice(total)}</span>
+          <span className="text-lg">{formatPrice(grandTotal)}</span>
         </div>
       </div>
     </div>

@@ -99,9 +99,9 @@ describe('CartDrawer', () => {
     expect(screen.getByText('Sous-total')).toBeInTheDocument();
     expect(screen.getByText('43 000 FCFA')).toBeInTheDocument();
     expect(screen.getByText('Livraison')).toBeInTheDocument();
-    // 43 000 + 3 500 livraison = 46 500
-    expect(screen.getAllByText('46 500 FCFA').length).toBeGreaterThan(0);
-    expect(screen.getByText(/Plus que 7 000 FCFA pour la livraison gratuite/)).toBeInTheDocument();
+    // 43 000 + 1 500 livraison minimale (Dakar) = 44 500
+    expect(screen.getAllByText('44 500 FCFA').length).toBeGreaterThan(0);
+    expect(screen.getByText(/Gratuite dès 50 000 FCFA/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Passer la commande' })).toHaveAttribute('href', '/checkout');
   });
 

@@ -503,9 +503,33 @@ export const WHATSAPP_NUMBER = '221782644102';
 export const INSTAGRAM_URL = 'https://www.instagram.com/elegance_by_michou?stkn=MW9qZjJ5YTQydGtvYw%3D%3D&utm_source=qr';
 export const INSTAGRAM_HANDLE = '@elegance_by_michou';
 export const FREE_SHIPPING_THRESHOLD = 50000;
-export const SHIPPING_COST = 3500;
+
+/**
+ * Tarifs de livraison variables selon la commune de livraison.
+ * Dakar & banlieue : 1 500 FCFA | Régions proches : 2 500 FCFA | Régions éloignées : 3 500 FCFA
+ */
+export const SHIPPING_RATES: Record<string, number> = {
+  Dakar: 2000,
+  'Dakar Centre': 2500,
+  Rufisque: 3000,
+  Pikine: 2500,
+  'Guédiawaye': 2500,
+  Mbour: 3000,
+  Thiès: 3000,
+  Diourbel: 3500,
+  Touba: 3500,
+  Kaolack: 3500,
+  Fatick: 3500,
+  Louga: 3500,
+  'Saint-Louis': 3500,
+  Ziguinchor: 3500,
+  Tambacounda: 3500,
+  Kolda: 3500,
+};
+export const DEFAULT_SHIPPING_COST = 3500;
 export const SENEGAL_CITIES = [
   'Dakar',
+  'Dakar Centre',
   'Thiès',
   'Saint-Louis',
   'Mbour',
